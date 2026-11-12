@@ -1,0 +1,373 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>从“模糊经验”到“硬核字段”：CDE 原料登记数据结构迎来里程碑更新 | 原料药研究笔记</title><meta name="author" content="原料药研究笔记"><meta name="copyright" content="原料药研究笔记"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="过去判断原料药 A 类登记是否“活着”，得靠经验盲猜；现在，CDE 一个新字段把话彻底说透了。「有料 · 原料情报局」深度解析：全国 15,238 条 A 类登记中，竟然有 13% 存在实质性产能疑问。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从“模糊经验”到“硬核字段”：CDE 原料登记数据结构迎来里程碑更新">
+<meta property="og:url" content="https://ihuige-collab.github.io/youliao-blog/2026/04/18/%E4%BB%8E%E2%80%9C%E6%A8%A1%E7%B3%8A%E7%BB%8F%E9%AA%8C%E2%80%9D%E5%88%B0%E2%80%9C%E7%A1%AC%E6%A0%B8%E5%AD%97%E6%AE%B5%E2%80%9D%EF%BC%9ACDE-%E5%8E%9F%E6%96%99%E7%99%BB%E8%AE%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%BF%8E%E6%9D%A5%E9%87%8C%E7%A8%8B%E7%A2%91%E6%9B%B4%E6%96%B0/index.html">
+<meta property="og:site_name" content="原料药研究笔记">
+<meta property="og:description" content="过去判断原料药 A 类登记是否“活着”，得靠经验盲猜；现在，CDE 一个新字段把话彻底说透了。「有料 · 原料情报局」深度解析：全国 15,238 条 A 类登记中，竟然有 13% 存在实质性产能疑问。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ihuige-collab.github.io/youliao-blog/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-04-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-18T16:00:00.000Z">
+<meta property="article:author" content="原料药研究笔记">
+<meta property="article:tag" content="clippings">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ihuige-collab.github.io/youliao-blog/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "从“模糊经验”到“硬核字段”：CDE 原料登记数据结构迎来里程碑更新",
+  "url": "https://ihuige-collab.github.io/youliao-blog/2026/04/18/%E4%BB%8E%E2%80%9C%E6%A8%A1%E7%B3%8A%E7%BB%8F%E9%AA%8C%E2%80%9D%E5%88%B0%E2%80%9C%E7%A1%AC%E6%A0%B8%E5%AD%97%E6%AE%B5%E2%80%9D%EF%BC%9ACDE-%E5%8E%9F%E6%96%99%E7%99%BB%E8%AE%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%BF%8E%E6%9D%A5%E9%87%8C%E7%A8%8B%E7%A2%91%E6%9B%B4%E6%96%B0/",
+  "image": "https://ihuige-collab.github.io/youliao-blog/img/butterfly-icon.png",
+  "datePublished": "2026-04-18T16:00:00.000Z",
+  "dateModified": "2026-04-18T16:00:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "原料药研究笔记",
+      "url": "https://ihuige-collab.github.io/youliao-blog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/youliao-blog/img/favicon.png"><link rel="canonical" href="https://ihuige-collab.github.io/youliao-blog/2026/04/18/%E4%BB%8E%E2%80%9C%E6%A8%A1%E7%B3%8A%E7%BB%8F%E9%AA%8C%E2%80%9D%E5%88%B0%E2%80%9C%E7%A1%AC%E6%A0%B8%E5%AD%97%E6%AE%B5%E2%80%9D%EF%BC%9ACDE-%E5%8E%9F%E6%96%99%E7%99%BB%E8%AE%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%BF%8E%E6%9D%A5%E9%87%8C%E7%A8%8B%E7%A2%91%E6%9B%B4%E6%96%B0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/youliao-blog/css/index.css?v=5.7.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        try {
+          const data = { value }
+
+          if (ttl != null) {
+            data.expiry = Date.now() + ttl * 86400000
+          }
+
+          localStorage.setItem(key, JSON.stringify(data))
+        } catch (e) {
+          console.error(e)
+        }
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/youliao-blog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '从“模糊经验”到“硬核字段”：CDE 原料登记数据结构迎来里程碑更新',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/youliao-blog/atom.xml" title="原料药研究笔记" type="application/atom+xml">
+</head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/youliao-blog/"><span class="site-name">原料药研究笔记</span></a><a class="nav-page-title" href="/youliao-blog/"><span class="site-name">从“模糊经验”到“硬核字段”：CDE 原料登记数据结构迎来里程碑更新</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">从“模糊经验”到“硬核字段”：CDE 原料登记数据结构迎来里程碑更新</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-04-18T16:00:00.000Z" title="发表于 2026-04-19 00:00:00">2026-04-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-04-18T16:00:00.000Z" title="更新于 2026-04-19 00:00:00">2026-04-19</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>原料情报局 原料情报局 <em>2026年4月19日 20:55</em></p>
+<p>有料 · 原料情报局 &#x2F; 数据结构洞察</p>
+<p>CDE 原料登记首次公开「有效期」字段<br>13% 的 A 类可能并无生产能力</p>
+<p>这是一次对采购决策意义重大的结构性更新。名义登记数与实际有效供应商数之间的那层薄雾，终于被一个硬字段撕开。</p>
+<p>2026 年 4 月 · youliao.info</p>
+<p>「名义 A 类 ≠ 有效供应商。这一次,字段把话说透了。」</p>
+<table>
+<thead>
+<tr>
+<th>01</th>
+<th>字段更新解决了什么痛点</th>
+</tr>
+</thead>
+</table>
+<p>过去判断一个 A 类登记是否还具备实际生产能力,要靠拼接三组间接证据:登记号中嵌入的首次报送年份(Y + 四位数字)、最近一次信息更新时间、以及境外原厂与国内代理关系的变动情况。经验规则是「登记号停留在 2019 年及之前、更新日期早于 2022 年、代理切换后原登记沉默」——三项命中两项以上的登记,大概率已经没有实际产能。</p>
+<p><img src="/youliao-blog/images/9f116935390ce5bd2d782bae8f888a6c_MD5.png" alt="image"></p>
+<p>问题在于这三项都是间接信号,既有漏网,也有误伤。真正干净的判据是证书本身的失效日期,但这个字段长期不对外呈现。</p>
+<p>2026 年 4 月初,CDE 在原料申报数据结构中新增了「有效期」字段。这是一个硬数据:写到几几年几月几日就是什么时候失效,空白则意味着从未报送或证书早已失效、企业没有续期动力。配合 update_date 字段,每条 A 类登记的真实状态可以被精准切分。</p>
+<p><img src="/youliao-blog/images/d7160d53a691b2fa676194e75be1b3a5_MD5.png" alt="image"></p>
+<table>
+<thead>
+<tr>
+<th>旧数据结构  登记号、品种名、企业、地址  产品来源、包装规格  规格更新日期  与制剂共同审评审批结果  ( 缺失失效日期 )</th>
+<th>新增结构  登记号、品种名、企业、地址  产品来源、包装规格  规格更新日期  与制剂共同审评审批结果  + 有效期(valid_until)</th>
+</tr>
+</thead>
+</table>
+<p>把两组字段组合起来看,一条 A 类的真实状态大致落入三种可能:<strong>有效期在远期 + 近一年有更新</strong> &#x3D; 真实有效供应商;<strong>无有效期 + 无任何更新</strong> &#x3D; 典型僵尸登记;<strong>有效期已过或即将到期但更新早已停滞</strong> &#x3D; 高风险过渡态。</p>
+<table>
+<thead>
+<tr>
+<th>02</th>
+<th>1982 条 A 类可能并无实际生产能力</th>
+</tr>
+</thead>
+</table>
+<p><img src="/youliao-blog/images/e21db7c684eb3584a93f33dadd5aa0cb_MD5.png" alt="image"></p>
+<p>截至 2026 年 4 月 19 日,CDE 原料登记平台共有 A 类登记 15,238 条。按新字段分层,存在问题的登记分布如下:</p>
+<p><strong>已过期 40 条</strong> — 有明确失效日期但已超期,企业未续期,监管尚未清理</p>
+<p><strong>无有效期 + 无任何更新 1,633 条</strong> — 典型僵尸登记,多数是 2019 年批量转 A 之后从未动过字段</p>
+<p><strong>无有效期 + 有更新 309 条</strong> — 过渡态,近年有维护但失效日期未报送</p>
+<p>三类合计 1,982 条,占全部 A 类 13.0%。也就是说,当前平台上每八条 A 类登记,就有一条存在实质性状态疑问。</p>
+<p>更值得注意的是:<strong>僵尸登记在大品种里的占比并不低</strong> 。下列几个名义 A 类数不少、但活跃供应商缩水明显的品种,此前仅凭登记数无法识别,新字段让它们第一次清晰显形——</p>
+<table>
+<thead>
+<tr>
+<th>胸腺五肽  免疫调节 · 注射用</th>
+<th>39 家 A 类  15 家沉睡</th>
+</tr>
+</thead>
+</table>
+<p>A 类几乎全部集中在 2019 年批量转入,其中辽宁天龙、康哲(湖南)、南京海辰、扬子江海慈、深圳翰宇、珠海同源、国药一心、西点药业、常州四药、中肽生化、悦康、豪森、兰州凯博、深圳惠民等 15 家自那之后再未更新任何字段,也未报送有效期。活跃供应商约 24 家。</p>
+<table>
+<thead>
+<tr>
+<th>吗替麦考酚酯  免疫抑制剂</th>
+<th>32 家 A 类  11 家沉睡</th>
+</tr>
+</thead>
+</table>
+<p>罗氏原研挂了多条登记,其中两条纯境外登记(Roche Pharma Schweiz Ltd. + Roche Ireland)无有效期,实际活跃的是与意大利 F.I.S. Fabbrica 合作的新登记。海正杭州、扬州三药、济川药业、河北柏奇等 11 家登记长期未维护。</p>
+<table>
+<thead>
+<tr>
+<th>新鱼腥草素钠  中药单体注射剂</th>
+<th>23 家 A 类  12 家沉睡</th>
+</tr>
+</thead>
+</table>
+<p>沉睡占比 52%,是大品种里比例最极端的一个。广东逸舒、陕西镇坪、康普药业、苏州正济、广东雷允上、海南中和、山东罗欣恒欣、海南新世通、青岛金峰、国药一心等企业登记状态沉寂。实际活跃约 11 家,供给侧比名义数据薄一倍。</p>
+<table>
+<thead>
+<tr>
+<th>埃索美拉唑钠  质子泵抑制剂 · 注射用</th>
+<th>5 家 A 类  全员沉睡</th>
+</tr>
+</thead>
+</table>
+<p>德州德药、廊坊高博京邦、济川药业、绍兴兴亚、成都新恒创——5 家 A 类全部是 2017 年老登记,全部无有效期,最新更新停留在 2022 年 9 至 10 月。名义有 5 家登记,实际可用的活跃登记为零。另有 28 条 I 类在队列里排队。</p>
+<table>
+<thead>
+<tr>
+<th>长春胺  脑血管 · 进口仿制原料</th>
+<th>7 家 A 类  仅 2 家活跃</th>
+</tr>
+</thead>
+</table>
+<p>表面 7 条 A 类,拆开后只有瑞士 Linnea SA 通过上海爱的发、西班牙 COVEX 通过芜湖熊岭这两条代理有明确有效期和近期更新。其余 5 条同门关联登记均无有效期。2025 年新进了威胜生物(苏州)的 I 类,格局开始松动。</p>
+<p>▌ 已过期 A 类集中在进口登记</p>
+<p>40 条已过期 A 类中,境外原厂或代理登记占比偏高,且集中在 2025 年下半年到 2026 年一季度这一时间窗。下列均为集采覆盖、下游需求存续的大品种——其续期节奏会直接传导到供应格局:</p>
+<table>
+<thead>
+<tr>
+<th>品种</th>
+<th>登记主体</th>
+<th>失效日</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>奥美拉唑钠</td>
+<td>阿斯利康 &#x2F; Minakem</td>
+<td>2025-04-09</td>
+</tr>
+<tr>
+<td>瑞舒伐他汀钙</td>
+<td>阿斯利康 &#x2F; Avara Avlon</td>
+<td>2025-05-25</td>
+</tr>
+<tr>
+<td>富马酸替诺福韦二吡呋酯</td>
+<td>吉利德 &#x2F; PharmaChem</td>
+<td>2025-06-08</td>
+</tr>
+<tr>
+<td>硫酸氢氯吡格雷</td>
+<td>江苏联环药业</td>
+<td>2025-10-26</td>
+</tr>
+<tr>
+<td>卡培他滨</td>
+<td>Sicor &#x2F; 成都苑东</td>
+<td>2025-11-09</td>
+</tr>
+<tr>
+<td>左乙拉西坦</td>
+<td>廊坊高博京邦</td>
+<td>2025-12-20</td>
+</tr>
+<tr>
+<td>达沙替尼</td>
+<td>石药集团欧意</td>
+<td>2025-12-28</td>
+</tr>
+<tr>
+<td>他达拉非</td>
+<td>Polpharma &#x2F; 广州佰瑞</td>
+<td>2026-01-18</td>
+</tr>
+<tr>
+<td>替格瑞洛</td>
+<td>南京一心和 &#x2F; 江苏永达</td>
+<td>2026-03-15</td>
+</tr>
+</tbody></table>
+<p>另有一批「1 年内到期但更新已停滞超过 1 年」的登记,共 412 条。这类登记的续期动力明显不足,是未来 12 个月最可能从活跃名单里掉队的群体。按品种分布看,主要集中在几个集采大品种——</p>
+<p>富马酸替诺福韦二吡呋酯(9 条)、替格瑞洛(8 条)、阿哌沙班(7 条)、非布司他(7 条)、富马酸丙酚替诺福韦(6 条)、磷酸西格列汀(5 条)、利伐沙班(5 条)、艾司奥美拉唑钠(4 条)、帕瑞昔布钠(4 条)、枸橼酸托法替布(4 条)、甲磺酸仑伐替尼(4 条)。</p>
+<table>
+<thead>
+<tr>
+<th>03</th>
+<th>采购如何用好这个新字段</th>
+</tr>
+</thead>
+</table>
+<p><img src="/youliao-blog/images/ae771dd4d70be44f3a570f91d7cbe92c_MD5.png" alt="image"></p>
+<p>新字段的意义不在于「多一列数据」,而在于把此前采购端只能靠经验推断的状态,变成了可以直接读出的硬指标。三条落地动作——</p>
+<p>**新立项筛供应商:**第一步改为筛有效期在远期、近一年有更新的 A 类,再数总量。单看 A 类数字会高估实际竞争,尤其是 2019 年批量转 A 的老品种。</p>
+<p>**现役供应商复核:**对照现有采购名单逐条核有效期字段。无有效期且更新日期早于 2022 年的,标记为「名在产断」,不再默认为备选,不占备选额度。</p>
+<p>**风险清单预警:**盯住 40 条已过期、以及 1 年内到期但更新已停滞的 412 条,特别是集采大品种里的进口登记。提前走询价、备货或切换准备,避免 2026 年下半年出现单点断供。</p>
+<p>从原料情报视角看,这个字段的引入标志着 CDE 登记数据首次具备了「存量可核」的能力——以前做头部集中度分析时,必须靠交叉对比制剂侧采购关系来反推哪些 A 类真正有订单,现在可以直接从登记端判断一半以上的有效性问题。名义登记数与真实供给能力之间的落差,将逐步被字段层面的透明度消化掉。</p>
+<p>本文由 <strong>有料 · 原料情报局</strong> 出品</p>
+<p>数据来源:CDE 原料药登记平台公开数据(2026-04-19 截面)。内容仅供参考,不构成投资建议。</p>
+<p>果然有料 · 目录</p>
+<p>阅读原文</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ihuige-collab.github.io/youliao-blog">原料药研究笔记</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ihuige-collab.github.io/youliao-blog/2026/04/18/%E4%BB%8E%E2%80%9C%E6%A8%A1%E7%B3%8A%E7%BB%8F%E9%AA%8C%E2%80%9D%E5%88%B0%E2%80%9C%E7%A1%AC%E6%A0%B8%E5%AD%97%E6%AE%B5%E2%80%9D%EF%BC%9ACDE-%E5%8E%9F%E6%96%99%E7%99%BB%E8%AE%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%BF%8E%E6%9D%A5%E9%87%8C%E7%A8%8B%E7%A2%91%E6%9B%B4%E6%96%B0/">https://ihuige-collab.github.io/youliao-blog/2026/04/18/%E4%BB%8E%E2%80%9C%E6%A8%A1%E7%B3%8A%E7%BB%8F%E9%AA%8C%E2%80%9D%E5%88%B0%E2%80%9C%E7%A1%AC%E6%A0%B8%E5%AD%97%E6%AE%B5%E2%80%9D%EF%BC%9ACDE-%E5%8E%9F%E6%96%99%E7%99%BB%E8%AE%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%BF%8E%E6%9D%A5%E9%87%8C%E7%A8%8B%E7%A2%91%E6%9B%B4%E6%96%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ihuige-collab.github.io/youliao-blog" target="_blank">原料药研究笔记</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/youliao-blog/tags/clippings/">clippings</a></div><div class="post-share"><div class="social-share" data-image="/youliao-blog/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/youliao-blog/2026/05/29/%E8%BF%99%E9%A2%97%E7%B3%96%E6%B2%A1%E6%9C%89%E6%B6%88%E5%A4%B1,%E5%AE%83%E5%8F%AA%E6%98%AF%E5%9B%9E%E5%88%B0%E4%BA%86%E8%AF%A5%E6%9C%89%E7%9A%84%E6%A0%B7%E5%AD%90/" title="这颗糖没有消失,它只是回到了该有的样子"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">这颗糖没有消失,它只是回到了该有的样子</div></div><div class="info-2"><div class="info-item-1">原料情报局 原料情报局 2026年5月30日 07:57 原料情报局 · 老品种系列 &#x2F; 07 一颗糖的来路与归宿 山道年、蛔蒿，和一个不再那么需要它的时代。 系列已发布：01 四环素 · 02 庆大霉素 · 03 氯霉素 · 04 异烟肼 ● 本篇：07 宝塔糖    1952  引种之年 10+  巅峰药厂 1  今天的尺寸    01 — 起点 蛔虫曾经住在几乎每一个中国孩子的肚子里。六十年代头几年粮食奇缺，人们以野菜充饥，蛔虫病又涨了一轮。那时候对付它的，是一种从北极圈来的草。 这种菊科植物叫蛔蒿，花叶里能提出一种叫山道年的物质。中国不长这种草。1952 年以前，做驱蛔药的原料全靠从苏联进口。这一年，农业、化工、卫生、公安四个部联合发文，苏联送来二十克蛔蒿种子。二十克——为了不浪费，分成四份，由公安护送到呼和浩特、大同、西安、潍坊四个农场试种。 山道年很苦。有人把它和糖混在一起，做成淡黄、粉红的宝塔形状，让孩子愿意张嘴。 宝塔糖 的名字，从这里来。 02 — 黄金年代 到 1954 年底，四个农场里三个失败了，只有潍坊活了下来。 此后那片地越种越大。到五十年代后...</div></div></div></a><a class="pagination-related" href="/youliao-blog/2026/04/10/%E6%9C%89%E5%A4%87%E6%A1%88%EF%BC%8C%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%9C%89%E8%AE%A2%E5%8D%95%EF%BC%9A%E4%BB%8E%E5%A5%A5%E5%8F%B8%E4%BB%96%E9%9F%A6%E7%9C%8B%E6%87%82%E4%B8%80%E4%B8%AA%E5%8E%9F%E6%96%99%E8%8D%AF%E7%9A%84%E4%B8%80%E7%94%9F/" title="有备案，不等于有订单：从奥司他韦看懂一个原料药的一生"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">有备案，不等于有订单：从奥司他韦看懂一个原料药的一生</div></div><div class="info-2"><div class="info-item-1">单品种深度 | 第 03 篇 | 2026-04 | 阅读约 8 分钟 有料 · 原料情报局 &#x2F; 用数据看懂仿制药竞争 看一个原料药，不要一上来就问“有多少家”。先看谁申报了，谁备案了；再看谁变成了 A 类，谁被制剂企业采用；最后才看价格压力有没有真正传导到市场。原料药的一生，就是从名单走向订单、再走向价格竞争的过程。 一句话说透：备案是入场券，采纳才是上桌吃饭，价格下跌才是竞争兑现。 做药的人都知道，一个品种不能只看批文数量。 批文多，不一定马上卷。厂家多，不一定都有货。原料备案多，也不一定已经进入制剂厂的采购体系。 真正影响价格的，不是名单上多了几个名字，而是这些名字有没有变成真实供给，最后有没有变成制剂企业的稳定采购。 这就是我们现在在做的事：不是简单整理“有多少家备案”，而是把备案、申报、制剂、过评、价格放在一起，看一个仿制药品种的竞争压力到底走到了哪一步。 一、先从最浅的地方看：备案是什么很多人看原料药，第一反应是数备案。 这个品种有几家登记？A 类有几家？I 类有几家？现在总共有多少供应商？ 这些当然重要。因为原料药备案越来越像一张入场券。没有备案，很难成为...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/youliao-blog/2026/02/24/%E5%8E%9F%E6%96%99%E8%8D%AF%E6%83%85%E6%8A%A5%E5%8D%87%E7%BA%A7%EF%BC%9ACDE-%E7%99%BB%E8%AE%B0%E6%95%B0%E6%8D%AE%E2%80%9C%E8%81%AA%E6%98%8E%E8%A1%A8%E2%80%9D%E8%AF%A6%E8%A7%A3%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%93%81%E7%A7%8D%E4%B8%8E%E5%8E%82%E5%AE%B6%E8%B7%A8%E7%BB%B4%E6%9F%A5%E8%AF%A2/" title="原料药情报升级：CDE 登记数据“聪明表”详解，实现品种与厂家跨维查询"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-25</div><div class="info-item-2">原料药情报升级：CDE 登记数据“聪明表”详解，实现品种与厂家跨维查询</div></div><div class="info-2"><div class="info-item-1">Pharms 原料情报局 2026年2月25日 07:28 原料药情报升级：CDE 登记数据“聪明表”详解，实现品种与厂家跨维查询在原料药（API）行业，查阅 CDE 登记数据是每个人的必修课。 但长期以来，我们面对的往往是官网那张**“扁平、静态、且无限长”**的表格。想要理清“品种卷不卷”、“厂家行不行”，往往需要数小时的手动统计。  数据不应该是冰冷的记录，它应该是决策的直觉。 为此， 原料情报局 首页核心功能——**“聪明表”**正式上线。 一、 从平面到立体：穿透式数据分析传统的表格只能带你看一行数据，而 聪明表 带你穿透数据的表象：  • 品种穿透： 不再只是一个受理号。点击品种，系统自动复盘全国竞争格局：A&#x2F;I 状态分布、企业数量、近年申报趋势。一眼看清是“蓝海”还是“红海”。 • 企业穿透： 点击厂家，瞬间掌握其“底牌”。管线分布、重点申报年份、旗下所有品种，全维度立体呈现。  二、 从静态到动态：跨维度的“穿越”查询数据不应该是孤岛。在下方的演示视频中，您将看到我们引以为傲的**“品种与厂家穿越”**功能： ，时长00:10 您的浏览器不支持 vide...</div></div></div></a><a class="pagination-related" href="/youliao-blog/2026/04/10/%E6%9C%89%E5%A4%87%E6%A1%88%EF%BC%8C%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%9C%89%E8%AE%A2%E5%8D%95%EF%BC%9A%E4%BB%8E%E5%A5%A5%E5%8F%B8%E4%BB%96%E9%9F%A6%E7%9C%8B%E6%87%82%E4%B8%80%E4%B8%AA%E5%8E%9F%E6%96%99%E8%8D%AF%E7%9A%84%E4%B8%80%E7%94%9F/" title="有备案，不等于有订单：从奥司他韦看懂一个原料药的一生"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-11</div><div class="info-item-2">有备案，不等于有订单：从奥司他韦看懂一个原料药的一生</div></div><div class="info-2"><div class="info-item-1">单品种深度 | 第 03 篇 | 2026-04 | 阅读约 8 分钟 有料 · 原料情报局 &#x2F; 用数据看懂仿制药竞争 看一个原料药，不要一上来就问“有多少家”。先看谁申报了，谁备案了；再看谁变成了 A 类，谁被制剂企业采用；最后才看价格压力有没有真正传导到市场。原料药的一生，就是从名单走向订单、再走向价格竞争的过程。 一句话说透：备案是入场券，采纳才是上桌吃饭，价格下跌才是竞争兑现。 做药的人都知道，一个品种不能只看批文数量。 批文多，不一定马上卷。厂家多，不一定都有货。原料备案多，也不一定已经进入制剂厂的采购体系。 真正影响价格的，不是名单上多了几个名字，而是这些名字有没有变成真实供给，最后有没有变成制剂企业的稳定采购。 这就是我们现在在做的事：不是简单整理“有多少家备案”，而是把备案、申报、制剂、过评、价格放在一起，看一个仿制药品种的竞争压力到底走到了哪一步。 一、先从最浅的地方看：备案是什么很多人看原料药，第一反应是数备案。 这个品种有几家登记？A 类有几家？I 类有几家？现在总共有多少供应商？ 这些当然重要。因为原料药备案越来越像一张入场券。没有备案，很难成为...</div></div></div></a><a class="pagination-related" href="/youliao-blog/2026/06/04/%E7%A7%8B%E6%B0%B4%E4%BB%99%E7%A2%B1%EF%BC%9A%E5%AE%83%E6%B2%A1%E7%BF%BB%E8%BA%AB%EF%BC%8C%E6%98%AF%E8%A2%AB%E9%87%8D%E6%96%B0%E6%A0%87%E4%BA%86%E4%BB%B7/" title="秋水仙碱：它没翻身，是被重新标了价"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-05</div><div class="info-item-2">秋水仙碱：它没翻身，是被重新标了价</div></div><div class="info-2"><div class="info-item-1">原料情报局 原料情报局 2026年6月5日 16:19 原料情报局 · 老品种系列 &#x2F; 08 被重新定价的活法 关于秋水仙碱，以及它没变、价格却变了的这几年。 系列已发布：04 异烟肼 · 05 苯巴比妥 · 06 普鲁卡因 · 07 宝塔糖 ● 本篇：08 秋水仙碱    3500年  古埃及至今 2023  心血管获批 2  国产核心    01 — 一株秋天开花的毒草 秋水仙在别的花都谢了的时候开花，淡紫色，看上去无毒。 它的球茎和种子里藏着秋水仙碱——一种生物碱，治痛风有奇效，过量则致命。治疗剂量和中毒剂量之间几乎没有缓冲，至今没有特效解毒药。 1820 年，法国人 Pelletier 和 Caventou 把它从植物里分离出来、给了它名字。在那之前，它已经被人用了几千年，只是没人知道起效的到底是什么。  商业提取的原料不止来自秋水仙，更多来自同科的嘉兰。这株植物在印度长得最好——后面整条供应链的格局，都从这里来。 02 — 两千年的痛风药 距今约三千五百年的古埃及医书里，已有用秋水仙类植物处理关节肿痛的记载。一千多年后，希腊人把它写进药典，专门对付那种夜里突然...</div></div></div></a><a class="pagination-related" href="/youliao-blog/2026/05/29/%E8%BF%99%E9%A2%97%E7%B3%96%E6%B2%A1%E6%9C%89%E6%B6%88%E5%A4%B1,%E5%AE%83%E5%8F%AA%E6%98%AF%E5%9B%9E%E5%88%B0%E4%BA%86%E8%AF%A5%E6%9C%89%E7%9A%84%E6%A0%B7%E5%AD%90/" title="这颗糖没有消失,它只是回到了该有的样子"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-30</div><div class="info-item-2">这颗糖没有消失,它只是回到了该有的样子</div></div><div class="info-2"><div class="info-item-1">原料情报局 原料情报局 2026年5月30日 07:57 原料情报局 · 老品种系列 &#x2F; 07 一颗糖的来路与归宿 山道年、蛔蒿，和一个不再那么需要它的时代。 系列已发布：01 四环素 · 02 庆大霉素 · 03 氯霉素 · 04 异烟肼 ● 本篇：07 宝塔糖    1952  引种之年 10+  巅峰药厂 1  今天的尺寸    01 — 起点 蛔虫曾经住在几乎每一个中国孩子的肚子里。六十年代头几年粮食奇缺，人们以野菜充饥，蛔虫病又涨了一轮。那时候对付它的，是一种从北极圈来的草。 这种菊科植物叫蛔蒿，花叶里能提出一种叫山道年的物质。中国不长这种草。1952 年以前，做驱蛔药的原料全靠从苏联进口。这一年，农业、化工、卫生、公安四个部联合发文，苏联送来二十克蛔蒿种子。二十克——为了不浪费，分成四份，由公安护送到呼和浩特、大同、西安、潍坊四个农场试种。 山道年很苦。有人把它和糖混在一起，做成淡黄、粉红的宝塔形状，让孩子愿意张嘴。 宝塔糖 的名字，从这里来。 02 — 黄金年代 到 1954 年底，四个农场里三个失败了，只有潍坊活了下来。 此后那片地越种越大。到五十年代后...</div></div></div></a><a class="pagination-related" href="/youliao-blog/2026/11/10/%E7%A1%AB%E9%85%B8%E9%98%BF%E7%B1%B3%E5%8D%A1%E6%98%9F%EF%BC%9A%E5%92%8C%E7%BB%86%E8%8F%8C%E8%B5%9B%E8%B7%91%E4%BA%94%E5%8D%81%E5%B9%B4%E7%9A%84%E5%88%86%E5%AD%90/" title="硫酸阿米卡星：和细菌赛跑五十年的分子"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-11-11</div><div class="info-item-2">硫酸阿米卡星：和细菌赛跑五十年的分子</div></div><div class="info-2"><div class="info-item-1">有料 · 原料情报局 &#x2F; 老品种系列 · 番外 和细菌赛跑五十年 关于硫酸阿米卡星，以及一场从二十世纪七十年代一直跑到现在、还没分出胜负的军备竞赛。 01 四环素 · 02 庆大霉素 · 03 氯霉素 · 04 异烟肼05 苯巴比妥 · 06 普鲁卡因 · 07 宝塔糖 · 08 秋水仙碱09 硝酸甘油 · 10 氯丙嗪 · 番外 硫酸阿米卡星 ●    1972  BB-K8 诞生 1976  注射剂上市 2018  吸入剂获批    01 — 起跑线 竞赛从发现抗生素那天就开始了。 1943 年链霉素问世，1957 年卡那霉素登场。那个年代，人类每从土壤里筛出一个新分子，就宣布一次对细菌的胜利。氨基糖苷类是这个黄金时代的宠儿：杀菌快、谱广，结核、败血症、革兰阴性菌感染，都有它的一针。 胜利的庆祝没持续多久。 细菌的学习速度快得惊人。它们造出钝化酶——乙酰化酶、磷酸化酶、腺苷化酶——在卡那霉素分子的关键位置上动一点手脚，药就废了。临床用得越多，钝化酶的品种越全。到六十年代末，卡那霉素的疗效在产酶菌株面前一路跳水。 那个年代药厂的标准答案是回土里找新分子。百时美的实验室...</div></div></div></a><a class="pagination-related" href="/youliao-blog/2026/06/02/%E9%83%A8%E5%88%86%E5%8C%96%E5%AD%A6%E5%8E%9F%E6%96%99%E8%8D%AF%E6%8B%9F%E7%BA%B3%E5%85%A5%E4%BC%98%E5%85%88%E5%AE%A1%E8%AF%84%EF%BC%9AAPI-%E6%AD%A3%E5%9C%A8%E4%BB%8E%E5%B9%95%E5%90%8E%E9%85%8D%E5%A5%97%E8%B5%B0%E5%90%91%E4%BE%9B%E5%BA%94%E9%93%BE%E5%89%8D%E5%8F%B0/" title="部分化学原料药拟纳入优先审评：API 正在从&quot;幕后配套&quot;走向供应链前台"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-03</div><div class="info-item-2">部分化学原料药拟纳入优先审评：API 正在从&quot;幕后配套&quot;走向供应链前台</div></div><div class="info-2"><div class="info-item-1">原料情报局 原料情报局 2026年6月3日 18:59 有料 · 原料情报局 &#x2F; 政策信号解读 部分化学原料药拟纳入优先审评：API 正在从”幕后配套”走向供应链前台 监管第一次把部分原料药，从制剂背后的配套物料，明确放到药品供应链安全的关键节点上。文件没有附具体品种清单，但它改变的是判断一个 API 是否重要的标准。 2026年6月 · youliao.info 「不是所有原料药都值得优先，但有些原料药，已经不只是原料药。」    01 文件明确了哪三类原料药    国家药监局综合司于 6 月 2 日就《关于明确部分化学原料药纳入药品上市许可申请优先审评审批工作程序的通告（征求意见稿）》公开征求意见，反馈截止 6 月 12 日。文件明确三类化学原料药可纳入药品上市许可申请优先审评审批程序。  第一类 · 关联使用型 临床急需短缺药品制剂，以及其他已进入优先审评的制剂，其关联使用的化学原料药。此类不再单独走申请、审核、公示，直接纳入优先通道。 第二类 · 国产补位型 已上市制剂仅有境外原料药来源时，同品种首家申报上市的境内化学原料药，可提出优先审评申请。 第三类 · 原...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/youliao-blog/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/youliao-blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">原料药研究笔记</div><div class="author-info-description">原料药产业链研究与集采情报文章存档</div><div class="site-data"><a href="/youliao-blog/archives/"><div class="headline">文章</div><div class="length-num">27</div></a><a href="/youliao-blog/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/youliao-blog/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/youliao-blog/2026/11/10/%E7%A1%AB%E9%85%B8%E9%98%BF%E7%B1%B3%E5%8D%A1%E6%98%9F%EF%BC%9A%E5%92%8C%E7%BB%86%E8%8F%8C%E8%B5%9B%E8%B7%91%E4%BA%94%E5%8D%81%E5%B9%B4%E7%9A%84%E5%88%86%E5%AD%90/" title="硫酸阿米卡星：和细菌赛跑五十年的分子">硫酸阿米卡星：和细菌赛跑五十年的分子</a><time datetime="2026-11-10T16:00:00.000Z" title="发表于 2026-11-11 00:00:00">2026-11-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/youliao-blog/2026/11/10/%E7%A1%AB%E9%85%B8%E9%98%BF%E7%B1%B3%E5%8D%A1%E6%98%9F%EF%BC%9A%E7%BB%99%E4%B8%80%E4%B8%AA%E8%80%81%E5%88%86%E5%AD%90%EF%BC%8C%E7%A9%BF%E4%B8%8A%E4%B8%80%E5%89%AF%E9%93%A0%E7%94%B2/" title="硫酸阿米卡星：给一个老分子，穿上一副铠甲">硫酸阿米卡星：给一个老分子，穿上一副铠甲</a><time datetime="2026-11-10T16:00:00.000Z" title="发表于 2026-11-11 00:00:00">2026-11-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/youliao-blog/2026/09/02/%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%84%E4%BB%B7%E5%8D%81%E5%B9%B4%EF%BC%9A%E8%80%81%E5%93%81%E7%A7%8D%E8%A1%A5%E5%AE%8C%EF%BC%8C%E4%B8%8B%E5%8D%8A%E5%9C%BA%E4%BB%8E%E6%BB%B4%E7%9C%BC%E6%B6%B2%E3%80%81%E5%A4%96%E7%94%A8%E5%BC%80%E5%A7%8B/" title="一致性评价十年：老品种补完，下半场从滴眼液、外用开始">一致性评价十年：老品种补完，下半场从滴眼液、外用开始</a><time datetime="2026-09-02T16:00:00.000Z" title="发表于 2026-09-03 00:00:00">2026-09-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/youliao-blog/2026/08/28/%E5%8C%BB%E4%BF%9D%E9%A6%96%E9%83%A8%E5%A4%A7%E6%B3%95%E8%90%BD%E5%9C%B0%EF%BC%9A%E5%92%8C%E8%BF%87%E5%8E%BB%E6%AF%94%E6%94%B9%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F%E5%8C%BB%E8%8D%AF%E4%BC%81%E4%B8%9A%E6%8E%A5%E4%B8%8B%E6%9D%A5%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F/" title="医保首部大法落地：和过去比改了什么？医药企业接下来怎么办？">医保首部大法落地：和过去比改了什么？医药企业接下来怎么办？</a><time datetime="2026-08-28T16:00:00.000Z" title="发表于 2026-08-29 00:00:00">2026-08-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/youliao-blog/2026/08/25/%E8%96%84%E8%8D%B7%E8%84%91%E5%A4%87%E6%A1%88%E5%B1%85%E9%A6%96%EF%BC%8C%E5%8D%B4%E5%8F%AA%E6%9C%899%E5%AE%B6%E4%BE%9B%E8%B4%A7%EF%BC%9A%E4%B8%83%E6%88%90%E4%BA%A7%E8%83%BD%E5%9B%B0%E5%9C%A8%E5%AE%89%E5%BE%BD%E4%B8%80%E5%8E%BF%EF%BC%8C%E4%B8%8B%E6%B8%B8%E5%8D%B4%E8%BF%9E%E7%9D%80296%E4%B8%AA%E4%B8%AD%E6%88%90%E8%8D%AF/" title="薄荷脑备案居首，却只有9家供货：七成产能困在安徽一县，下游却连着296个中成药">薄荷脑备案居首，却只有9家供货：七成产能困在安徽一县，下游却连着296个中成药</a><time datetime="2026-08-25T16:00:00.000Z" title="发表于 2026-08-26 00:00:00">2026-08-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 原料药研究笔记</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.2</a></span></div><div class="footer_custom_text">文章来源于公开资料整理</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/youliao-blog/js/utils.js?v=5.7.2"></script><script src="/youliao-blog/js/main.js?v=5.7.2"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
