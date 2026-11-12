@@ -1,0 +1,53 @@
+# NexT 主题配置（Hexo alternate theme config，不污染主题源文件）
+scheme: Pisces
+
+menu:
+  home: / || fa fa-home
+  categories: /categories/ || fa fa-th
+  tags: /tags/ || fa fa-tags
+  archives: /archives/ || fa fa-archive
+  about: /about/ || fa fa-user
+
+# 阅读体验四件套
+back2top:
+  enable: true
+  scrollpercent: true
+reading_progress:
+  enable: true
+  position: top
+  color: "#37c6c0"
+  height: 3px
+bookmark:
+  enable: true
+  save: auto
+pjax: true
+
+# 本地搜索
+local_search:
+  enable: true
+
+# 头像 + GitHub 角标
+avatar:
+  url: /images/avatar.jpg
+  rounded: true
+github_banner:
+  enable: true
+  permalink: https://github.com/mazhenren
+
+# 评论（Utterances，基于 GitHub Issue）
+comments:
+  enable: true
+  system: utterances
+utterances:
+  enable: true
+  repo: mazhenren/impulsewave
+  issue_term: pathname
+  theme: github-light
+
+footer:
+  since: 2025
+  custom_text: 本站为个人研究与交易记录，不构成任何投资建议
+
+# 自定义样式注入
+custom_file_path:
+  style: source/_data/styles.styl
