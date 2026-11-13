@@ -8,6 +8,11 @@ menu:
   archives: /archives/ || fa fa-archive
   about: /about/ || fa fa-user
 
+# 字数统计与阅读时间：独立成行显示在文章标题下方
+symbols_count_time:
+  separated_meta: true
+  item_text_total: false
+
 # 侧栏：首页与文章页都显示站点概览
 sidebar:
   display: always
@@ -82,6 +87,7 @@ custom_file_path:
   style: source/_data/styles.styl
   head: source/_data/head.ejs
   sidebar: source/_data/sidebar.njk
+  postMeta: source/_data/post-meta.njk
 
 # 关闭主题内置 OG/Twitter 输出，由 source/_data/head.ejs 统一生成（保证 canonical 一致、图片为绝对地址）
 open_graph:
