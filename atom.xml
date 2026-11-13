@@ -6,7 +6,7 @@
   <link href="https://mazhenren.github.io/impulsewave/atom.xml" rel="self"/>
   
   <link href="https://mazhenren.github.io/impulsewave/"/>
-  <updated>2026-11-13T01:58:37.440Z</updated>
+  <updated>2026-11-13T02:13:04.576Z</updated>
   <id>https://mazhenren.github.io/impulsewave/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://mazhenren.github.io/impulsewave/posts/2fd6a6f4/"/>
     <id>https://mazhenren.github.io/impulsewave/posts/2fd6a6f4/</id>
     <published>2026-11-12T03:00:00.000Z</published>
-    <updated>2026-11-13T01:58:37.440Z</updated>
+    <updated>2026-11-13T02:13:04.576Z</updated>
     
     <content type="html"><![CDATA[<p>这个站从今天起只有一个主题：<strong>股票、期货、外汇的技术分析笔记</strong>。</p><p>以前这里放的是另一个领域的研究存档，已经把内容清空。从零开始，反而更容易把规矩先讲清楚。</p><h2 id="写什么"><a href="#写什么" class="headerlink" title="写什么"></a>写什么</h2><p>三个市场共用一套底层逻辑——价格由买卖双方的力量对比生成，趋势、结构、关键位是所有图表语言的基础。但三个市场的约束条件完全不同：</p><ul><li><strong>股票</strong>没有杠杆（除非融资），但有 T+1 和涨跌停，流动性分层明显，技术信号在流动性差的标的上极易失真。</li><li><strong>期货</strong>自带杠杆和到期日，同样的形态在主力合约和次主力合约上，风险收益比可能差一倍；展期本身就是一次隐含的方向选择。</li><li><strong>外汇</strong>接近 24 小时连续交易，同一根日线里包含亚洲、欧洲、美洲三个时段，波动率分布和股票完全不同，用股票的时段直觉去读外汇，几乎一定会误判。</li></ul><p>所以这里不会写”万能指标”，而是把每个方法放回它成立的市场、周期和波动环境里去检验。</p><h2 id="怎么写"><a href="#怎么写" class="headerlink" title="怎么写"></a>怎么写</h2><p>每篇文章尽量做到三件事：</p><ol><li><strong>说清依据</strong>：信号的判定条件写成可执行规则，而不是”感觉要涨”。</li><li><strong>说清边界</strong>：它在什么样的行情里失效，失效时的表现是什么。</li><li><strong>说清代价</strong>：止损放在哪、单笔风险占账户多少、连续亏损几次后是否停手。</li></ol><p>第 3 点最不吸引人，却最决定长期结果。技术分析能提高胜率或盈亏比，但无法消除不确定性；能控制的是每次下注的大小。</p><h2 id="栏目"><a href="#栏目" class="headerlink" title="栏目"></a>栏目</h2><ul><li><a href="/categories/%E8%82%A1%E7%A5%A8/">股票</a>：趋势跟随、结构判定、板块与个股的仓位分配</li><li><a href="/categories/%E6%9C%9F%E8%B4%A7/">期货</a>：杠杆、合约选择、基差与展期</li><li><a href="/categories/%E5%A4%96%E6%B1%87/">外汇</a>：时段结构、美元周期、主要货币对</li><li><a href="/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90/">技术分析</a>：形态、均线、量价、指标的原理与证伪</li><li><a href="/categories/%E4%BA%A4%E6%98%93%E7%AC%94%E8%AE%B0/">交易笔记</a>：阶段复盘、错误清单、规则迭代</li></ul><h2 id="三条底线"><a href="#三条底线" class="headerlink" title="三条底线"></a>三条底线</h2><ol><li>不荐股、不喊单、不代客理财。</li><li>不展示无法核验的收益曲线，不写”跟单就能赚”。</li><li>所有内容均为个人研究记录，<strong>不构成投资建议</strong>。</li></ol><p>市场有风险，判断会错，错了要认，认了要止损。这个站记录的，就是这套反复校准的过程。</p>]]></content>
     
@@ -42,7 +42,7 @@
     <link href="https://mazhenren.github.io/impulsewave/posts/7386f697/"/>
     <id>https://mazhenren.github.io/impulsewave/posts/7386f697/</id>
     <published>2026-11-12T02:30:00.000Z</published>
-    <updated>2026-11-13T01:58:37.440Z</updated>
+    <updated>2026-11-13T02:13:04.576Z</updated>
     
     <content type="html"><![CDATA[<p>股票是这个站最先展开的栏目，原因很实际：它没有保证金强平的压力，容错空间最大，最适合用来打磨方法。</p><h2 id="记录范围"><a href="#记录范围" class="headerlink" title="记录范围"></a>记录范围</h2><p><strong>一、趋势结构</strong></p><p>不在”预测涨到哪”，而在判断当下处在哪种结构里：上升趋势的回调、区间震荡的上沿、还是趋势破坏后的反抽。结构判断决定了后续所有动作——顺势加仓、区间高抛低吸、还是空仓等待。</p><p>关键位只认三类：前期密集成交区、趋势线的有效触点、放量突破后的回踩位。三者重合的位置，权重最高。</p><p><strong>二、板块与个股的关系</strong></p><p>个股的技术形态经常被板块整体走势覆盖。所以本栏目会记录板块指数的相对强弱如何影响个股信号的成功率：板块向上时，个股回调到支撑位做多的胜率，明显高于板块走弱时同样的形态。</p><p><strong>三、仓位管理</strong></p><p>这是本栏目花篇幅最多的地方。单票仓位上限、分批建仓的节奏、浮盈后的移动止损、单日最大回撤触发的停手线，都会写成明确规则，而不是”看情况”。</p><h2 id="特别说明-A-股的约束"><a href="#特别说明-A-股的约束" class="headerlink" title="特别说明 A 股的约束"></a>特别说明 A 股的约束</h2><ul><li><strong>T+1</strong>：当天买入无法当天卖出，日内信号无法用于当日止损，所以买点必须留出次日波动的空间。</li><li><strong>涨跌停</strong>：连续涨跌停时技术位会失效，量价关系被扭曲，”放量突破”可能是流动性陷阱。</li><li><strong>流动性分层</strong>：日成交额过小的标的，形态可靠性大幅下降，本栏目默认不讨论。</li></ul><h2 id="这个栏目不做什么"><a href="#这个栏目不做什么" class="headerlink" title="这个栏目不做什么"></a>这个栏目不做什么</h2><p>不推荐具体标的，不做买卖点提示，不评价个股基本面价值。只记录方法、复盘和规则。</p>]]></content>
     
@@ -63,7 +63,7 @@
     <link href="https://mazhenren.github.io/impulsewave/posts/4638b794/"/>
     <id>https://mazhenren.github.io/impulsewave/posts/4638b794/</id>
     <published>2026-11-12T02:20:00.000Z</published>
-    <updated>2026-11-13T01:58:37.440Z</updated>
+    <updated>2026-11-13T02:13:04.576Z</updated>
     
     <content type="html"><![CDATA[<p>期货和股票最大的区别不是标的，而是<strong>杠杆和时间</strong>。同一张形态图，放到期货上，风险和收益的算法完全变了。</p><h2 id="记录范围"><a href="#记录范围" class="headerlink" title="记录范围"></a>记录范围</h2><p><strong>一、杠杆改变了止损的意义</strong></p><p>股票亏 10% 是账户亏 10%；期货用 10% 保证金，标的反向 10% 就是本金归零。所以期货的止损不是”技术位下方一点”，而是先算清：这个止损距离对应账户多少比例的风险，再决定手数。本栏目会把这套计算写成固定公式。</p><p><strong>二、合约选择与节奏</strong></p><p>同一品种，主力合约流动性最好，但临近交割时波动结构会变；次主力合约价差大、滑点高。本栏目记录：</p><ul><li>什么时候该换月，换月前后技术形态如何失真</li><li>近远月价差（基差）扩大或收敛时，单边信号该怎么降级处理</li><li>交割月前的持仓限制对仓位的影响</li></ul><p><strong>三、保证金与强平线</strong></p><p>强平不是理论风险。仓位计算要同时满足两个约束：技术止损距离允许的最大手数，以及账户权益能承受的最大回撤。两者取小。</p><p><strong>四、夜盘与跳空</strong></p><p>国内多数品种有夜盘，隔夜跳空经常直接越过止损位。本栏目会记录不同品种的跳空分布特征，以及隔夜持仓的风险预算。</p><h2 id="这个栏目不做什么"><a href="#这个栏目不做什么" class="headerlink" title="这个栏目不做什么"></a>这个栏目不做什么</h2><p>不做品种推荐，不做跨品种套利的具体方案，不预测库存与政策。只记录技术信号在杠杆环境下的修正方法和风控规则。</p>]]></content>
     
@@ -84,7 +84,7 @@
     <link href="https://mazhenren.github.io/impulsewave/posts/f9fa1ae0/"/>
     <id>https://mazhenren.github.io/impulsewave/posts/f9fa1ae0/</id>
     <published>2026-11-12T02:10:00.000Z</published>
-    <updated>2026-11-13T01:58:37.440Z</updated>
+    <updated>2026-11-13T02:13:04.576Z</updated>
     
     <content type="html"><![CDATA[<p>外汇是三个市场里最考验”时段意识”的。它几乎 24 小时连续交易，但不同时段的波动率、流动性、假突破概率差异极大。用股票的日内节奏去读外汇，最常见的错误就是把亚洲时段的窄幅震荡当成有效形态。</p><h2 id="记录范围"><a href="#记录范围" class="headerlink" title="记录范围"></a>记录范围</h2><p><strong>一、时段结构</strong></p><ul><li>亚洲时段：波动最窄，趋势延续性弱，容易出假突破</li><li>欧洲时段：波动放大，是当日方向的主要形成期</li><li>美洲时段：数据密集，波动最剧烈，也是最多假信号出现的时段</li></ul><p>每个时段的开盘、收盘、以及时段切换前后的关键位，会被单独标注。同一形态在三个时段的可靠性排名，是本栏目反复验证的内容。</p><p><strong>二、美元周期</strong></p><p>多数货币对的方向由美元驱动。美元指数处在什么位置、以什么节奏变化，会直接决定做多或做空某个货币对时，是在顺大周期还是逆大周期。顺周期时技术信号的成功率更高，逆周期时只做短周期、快进快出。</p><p><strong>三、成本结构</strong></p><p>外汇的点差、隔夜利息（掉期）、杠杆倍数，会影响一个信号到底值不值得做。5 个点的目标位，扣掉点差和隔夜成本后可能没有意义。本栏目的每篇复盘都会把成本算进去。</p><p><strong>四、黄金与主要货币对</strong></p><p>黄金、欧元&#x2F;美元、美元&#x2F;日元、英镑&#x2F;美元作为主要观察对象，记录它们对美元指数、利率预期、避险情绪的反应差异。</p><h2 id="这个栏目不做什么"><a href="#这个栏目不做什么" class="headerlink" title="这个栏目不做什么"></a>这个栏目不做什么</h2><p>不做汇率预测，不讨论央行政策路径的具体点位，不给交易信号。只记录时段框架、成本测算和复盘方法。</p>]]></content>
     
@@ -105,7 +105,7 @@
     <link href="https://mazhenren.github.io/impulsewave/posts/2b358586/"/>
     <id>https://mazhenren.github.io/impulsewave/posts/2b358586/</id>
     <published>2026-11-12T02:00:00.000Z</published>
-    <updated>2026-11-13T01:58:37.440Z</updated>
+    <updated>2026-11-13T02:13:04.576Z</updated>
     
     <content type="html"><![CDATA[<p>这个栏目是整个站的地基。股票、期货、外汇三个市场的方法，都从这里拆出来的工具组合而成。</p><h2 id="记录范围"><a href="#记录范围" class="headerlink" title="记录范围"></a>记录范围</h2><p><strong>一、工具的边界</strong></p><ul><li><strong>趋势线</strong>：有效触点的判定标准、什么情况下算破位、破位后的反抽该怎么处理</li><li><strong>均线</strong>：不同周期均线的滞后性代价，均线排列与乖离率的适用条件</li><li><strong>形态</strong>：头肩、三角形、旗形的识别必须配合量能和时间跨度，否则只是看图说话</li><li><strong>量价</strong>：放量突破、缩量回调、量价背离的成立前提，以及流动性不足时的失真</li><li><strong>指标</strong>：MACD、KDJ、RSI 的计算逻辑决定了它们必然滞后或必然后验，用之前先接受这个代价</li></ul><p><strong>二、从经验到规则</strong></p><p>“看起来要突破了”不是规则。规则要写成：满足 A、B、C 三个条件后在什么位置入场，止损放在哪，什么情况视为判断失效。本栏目会把常见形态逐条改写为可执行的判断语句。</p><p><strong>三、证伪</strong></p><p>一个方法有没有用，只能靠样本检验：同一形态在不同市场、不同周期、不同波动环境下分别统计结果。本栏目会记录检验方法、样本选取的陷阱（幸存者偏差、参数过拟合），以及”看起来有效其实是巧合”的识别方式。</p><p><strong>四、常见误区</strong></p><p>指标叠加越多越准？周期越小信号越多越容易赚？回测收益高等于实盘可用？这些问题的答案都会单独成篇。</p><h2 id="这个栏目不做什么"><a href="#这个栏目不做什么" class="headerlink" title="这个栏目不做什么"></a>这个栏目不做什么</h2><p>不打包票万能指标，不卖指标公式，不写”必涨形态”。工具本身没有对错，错的是用错了场景。</p>]]></content>
     

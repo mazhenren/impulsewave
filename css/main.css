@@ -1451,7 +1451,7 @@ pre code {
     vertical-align: middle;
   }
   .links-of-author a::before {
-    background: #fc1b9f;
+    background: #8777e0;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -3039,4 +3039,8 @@ header.header {
 }
 .site-state-item.site-state-categories {
   display: none;
+}
+.post-views-badge {
+  height: 18px;
+  vertical-align: middle;
 }
