@@ -1,5 +1,5 @@
 # NexT 主题配置（Hexo alternate theme config，不污染主题源文件）
-scheme: Pisces
+scheme: Muse
 
 menu:
   home: / || fa fa-home
