@@ -9,6 +9,7 @@
 | GitHub 账号 | mazhenren |
 | 仓库 | https://github.com/mazhenren/impulsewave |
 | 站点主题 | 股票期货外汇技术分析笔记（分类：股票/期货/外汇/技术分析/交易笔记） |
+| 站点署名 | 薛定谔（`_config.yml` 的 `author`，文章 front matter 不再写 author） |
 | 线上地址 | https://mazhenren.github.io/impulsewave/ |
 | 博客框架 | Hexo 7.3.0 + NexT 主题 v8.29.0（scheme: Pisces；git clone 固定 release 安装于 themes/next，内部 .git 已删除） |
 | 搜索插件 | hexo-generator-searchdb（limit 10000）；已启用阅读四件套/头像/GitHub 角标/Utterances 评论（评论需 Utterances App 已装才生效） |
