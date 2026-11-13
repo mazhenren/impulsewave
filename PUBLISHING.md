@@ -26,14 +26,14 @@
 
 - 文章入 `source/_posts/`，文件名 `YYYY-MM-DD-标题slug.md`
 - 图片入 `source/images/`，正文引用 `/images/xxx`（渲染器 prependRoot 自动补 /impulsewave 前缀）
-- front matter 由 AI 自动生成（title/date/description/keywords；author 由站点配置统一提供，不在文章里重复声明）
-- description 由 AI 通读全文提炼要点（≤100 字）；keywords 3-5 个，逗号分隔
+- front matter 由 AI 自动生成（title/date/description；author 由站点配置统一提供，不在文章里重复声明）
+- description 由 AI 通读全文提炼要点（≤100 字）；文章不写 keywords（搜索引擎早已忽略，仅站点级保留）
 - 每篇 3-5 条内链：至少 1 条到分类页、2 条到相关文章
 - 图片必须有 alt
 
 ## SEO 发布检查清单
 
-- [ ] front matter 含 `description`（≤100 字）与 `keywords`（3-5 个）
+- [ ] front matter 含 `description`（≤100 字）
 - [ ] 文中至少 3 条内链，其中 1 条指向分类页
 - [ ] 图片有 alt，正文首图可作为 og:image（front matter `cover`）
 - [ ] 本地 `npx hexo clean && npx hexo generate` 后，`public/sitemap.xml` 含新文章短链
