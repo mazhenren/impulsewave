@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mazhenren.github.io/impulsewave/sitemap.xml

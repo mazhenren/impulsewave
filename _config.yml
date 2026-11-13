@@ -10,11 +10,30 @@ timezone: 'Asia/Shanghai'
 # URL
 url: https://mazhenren.github.io/impulsewave
 root: /impulsewave/
-permalink: :year/:month/:day/:title/
+permalink: posts/:abbrlink/
 permalink_defaults:
 pretty_urls:
-  trailing_index: true
-  trailing_html: true
+  trailing_index: false
+  trailing_html: false
+
+# 永久链接短码（hexo-abbrlink）
+abbrlink:
+  alg: crc32
+  rep: hex
+  drafts: false
+
+# 正文外链加 nofollow（hexo-filter-nofollow）
+nofollow:
+  enable: true
+  field: post
+  exclude:
+    - mazhenren.github.io
+
+# 站点地图（hexo-generator-sitemap）
+sitemap:
+  path: sitemap.xml
+  tags: false
+  categories: false
 
 # Directory
 source_dir: source
@@ -69,7 +88,7 @@ meta_generator: true
 # Date / Time format
 date_format: YYYY-MM-DD
 time_format: HH:mm:ss
-updated_option: 'date'
+updated_option: 'mtime'
 
 # Pagination
 per_page: 10

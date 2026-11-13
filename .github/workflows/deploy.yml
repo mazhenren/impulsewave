@@ -32,3 +32,27 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+
+      # 主动推送新链接：IndexNow（Bing/Yandex/Seznam/Naver 生效，Google 不参与）
+      - name: Submit URLs to IndexNow
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: |
+          if [ -z "$INDEXNOW_KEY" ]; then echo "INDEXNOW_KEY 未配置，跳过"; exit 0; fi
+          URLS=$(grep -o '<loc>[^<]*</loc>' public/sitemap.xml | sed 's#<[^>]*>##g' | sed 's/.*/"&"/' | paste -sd, -)
+          if [ -z "$URLS" ]; then echo "sitemap 为空，跳过"; exit 0; fi
+          curl -sS -X POST https://api.indexnow.org/indexnow \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            -d "{\"host\":\"mazhenren.github.io\",\"key\":\"$INDEXNOW_KEY\",\"keyLocation\":\"https://mazhenren.github.io/$INDEXNOW_KEY.txt\",\"urlList\":[$URLS]}" \
+            -w '\nIndexNow HTTP %{http_code}\n' || true
+
+      # 百度主动推送（需先在百度搜索资源平台完成域名验证并取得 token）
+      - name: Submit URLs to Baidu
+        env:
+          BAIDU_TOKEN: ${{ secrets.BAIDU_TOKEN }}
+        run: |
+          if [ -z "$BAIDU_TOKEN" ]; then echo "BAIDU_TOKEN 未配置，跳过"; exit 0; fi
+          grep -o '<loc>[^<]*</loc>' public/sitemap.xml | sed 's#<[^>]*>##g' > urls.txt
+          curl -sS -X POST "https://data.zz.baidu.com/urls?site=https://mazhenren.github.io&token=$BAIDU_TOKEN" \
+            -H 'Content-Type: text/plain' --data-binary @urls.txt \
+            -w '\nBaidu HTTP %{http_code}\n' || true

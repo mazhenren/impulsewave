@@ -51,3 +51,15 @@ footer:
 # 自定义样式注入
 custom_file_path:
   style: source/_data/styles.styl
+  head: source/_data/head.ejs
+
+# 关闭主题内置 OG/Twitter 输出，由 source/_data/head.ejs 统一生成（保证 canonical 一致、图片为绝对地址）
+open_graph:
+  enable: false
+twitter_card:
+  enable: false
+
+# 搜索引擎验证（在对应平台取得后填入，留空不输出）
+google_site_verification:
+bing_site_verification:
+baidu_site_verification:
