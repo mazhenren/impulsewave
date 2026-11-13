@@ -8,6 +8,35 @@ menu:
   archives: /archives/ || fa fa-archive
   about: /about/ || fa fa-user
 
+# 侧栏：首页与文章页都显示站点概览
+sidebar:
+  display: always
+
+# 站点统计（不蒜子：站点总访客/总浏览 + 文章阅读数）
+busuanzi_count:
+  enable: true
+  total_visitors: true
+  total_visitors_icon: fa fa-user
+  total_views: true
+  total_views_icon: fa fa-eye
+  post_views: true
+  post_views_icon: far fa-eye
+
+# 版权协议：侧栏 CC 徽章 + 文末版权块
+creative_commons:
+  license: by-nc-sa
+  size: small
+  sidebar: true
+  post: true
+  language: deed.zh
+
+# 侧栏社交链接
+social:
+  GitHub: https://github.com/mazhenren || fab fa-github
+  E-Mail: mailto:ihuige@gmail.com || fa fa-envelope
+  站点地图: /sitemap.xml || fa fa-sitemap
+  RSS: /atom.xml || fa fa-rss
+
 # 阅读体验四件套
 back2top:
   enable: true

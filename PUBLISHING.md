@@ -24,7 +24,7 @@
 
 - 文章入 `source/_posts/`，文件名 `YYYY-MM-DD-标题slug.md`
 - 图片入 `source/images/`，正文引用 `/images/xxx`（渲染器 prependRoot 自动补 /impulsewave 前缀）
-- front matter 由 AI 自动生成（title/date/author/description/keywords）；存档键剥离与署名规则以各用户自己的配置为准
+- front matter 由 AI 自动生成（title/date/description/keywords；author 由站点配置统一提供，不在文章里重复声明）
 - description 由 AI 通读全文提炼要点（≤100 字）；keywords 3-5 个，逗号分隔
 - 每篇 3-5 条内链：至少 1 条到分类页、2 条到相关文章
 - 图片必须有 alt
