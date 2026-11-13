@@ -12,6 +12,7 @@
 | 线上地址 | https://mazhenren.github.io/impulsewave/ |
 | 博客框架 | Hexo 7.3.0 + NexT 主题 v8.29.0（scheme: Pisces；git clone 固定 release 安装于 themes/next，内部 .git 已删除） |
 | 搜索插件 | hexo-generator-searchdb（limit 10000）；已启用阅读四件套/头像/GitHub 角标/Utterances 评论（评论需 Utterances App 已装才生效） |
+| 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/sidebar.njk`）；不蒜子已关闭（官方接口浏览器端常被阻断） |
 | 主题配置 | _config.next.yml（alternate theme config）+ source/_data/styles.styl（自定义样式注入） |
 | 默认分支 | master（源码）/ gh-pages（成品，禁手改） |
 | 站点子路径 | /impulsewave/ |

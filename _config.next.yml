@@ -12,9 +12,9 @@ menu:
 sidebar:
   display: always
 
-# 站点统计（不蒜子：站点总访客/总浏览 + 文章阅读数）
+# 站点统计：不蒜子官方接口在浏览器端常被阻断，改为侧栏图片式计数器（source/_data/sidebar.njk）
 busuanzi_count:
-  enable: true
+  enable: false
   total_visitors: true
   total_visitors_icon: fa fa-user
   total_views: true
@@ -81,6 +81,7 @@ footer:
 custom_file_path:
   style: source/_data/styles.styl
   head: source/_data/head.ejs
+  sidebar: source/_data/sidebar.njk
 
 # 关闭主题内置 OG/Twitter 输出，由 source/_data/head.ejs 统一生成（保证 canonical 一致、图片为绝对地址）
 open_graph:
