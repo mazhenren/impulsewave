@@ -1,7 +1,233 @@
 /**
- * 星球动态增强样式：筛选栏 / 长动态折叠 / 卡片内评论区。
- * 变量与规范（圆角、字号、间距）对齐 Stellar 主题 timeline 组件。
+ * 星球动态：信息流按知识星球式通栏布局覆写 Stellar timeline。
+ * 变量沿用主题（--text-p1/p3、--block-border、--card、--theme）。
  */
+
+/* ============ 信息流容器：去时间轴竖线与卡片 ============ */
+.tag-plugin.timeline[data-api] {
+  padding-left: 0;
+}
+
+.tag-plugin.timeline[data-api]:before {
+  display: none;
+}
+
+.tag-plugin.timeline[data-api] .timenode .header:before {
+  display: none;
+}
+
+.tag-plugin.timeline[data-api] .timenode + .timenode {
+  margin-top: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--block-border);
+}
+
+.tag-plugin.timeline[data-api] .timenode > .body {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 10px;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+/* ============ 头部：左圆形头像 + 橙色作者名 + 灰色时间 ============ */
+.tag-plugin.timeline[data-api] .timenode .header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+}
+
+.tag-plugin.timeline[data-api] .timenode .header .user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 0;
+  border-radius: 0;
+}
+
+.tag-plugin.timeline[data-api] .timenode .header .user-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 0;
+  object-fit: cover;
+}
+
+.tag-plugin.timeline[data-api] .timenode .header .user-info span {
+  font-size: 15px;
+  font-weight: 600;
+  color: #bd7a50 !important;
+}
+
+.tag-plugin.timeline[data-api] .timenode .header > span {
+  flex-basis: 100%;
+  margin: 4px 0 0 50px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-p3);
+}
+
+.tag-plugin.timeline[data-api] .timenode:hover .header > span,
+.tag-plugin.timeline[data-api] .timenode:hover .header .user-info span {
+  color: inherit;
+}
+
+.tag-plugin.timeline[data-api] .timenode:hover .header .user-info span {
+  color: #bd7a50;
+}
+
+:root[data-theme="dark"] .tag-plugin.timeline[data-api] .timenode .header .user-info span {
+  color: #d8a07a !important;
+}
+
+/* ============ 正文：去标题、正文通栏排版 ============ */
+.tag-plugin.timeline[data-api] .body p.title {
+  display: none;
+}
+
+.tag-plugin.timeline[data-api] .body p {
+  margin: 0 0 0.7rem;
+  --fs-content: 16px;
+}
+
+.tag-plugin.timeline[data-api] .body p:last-child {
+  margin-bottom: 0;
+}
+
+.tag-plugin.timeline[data-api] .body img {
+  border-radius: 6px;
+  margin: 0.6rem auto;
+}
+
+/* 多图：三列网格（JS 给包含 2 张以上图片的段落加 .planet-gallery） */
+.tag-plugin.timeline[data-api] .body p.planet-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.tag-plugin.timeline[data-api] .body p.planet-gallery img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .tag-plugin.timeline[data-api] .body p.planet-gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============ 底部：左标签 + 右操作栏 ============ */
+.tag-plugin.timeline[data-api] .body .footer {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  align-items: center;
+}
+
+.tag-plugin.timeline[data-api] .body .footer .flex.right {
+  display: none;
+}
+
+.tag-plugin.timeline[data-api] .body .footer .item.label {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0 10px 0 0;
+  font-size: 12px;
+  color: var(--text-p3);
+}
+
+.tag-plugin.timeline[data-api] .body .footer .item.label span {
+  color: var(--text-p3);
+  line-height: 1.6;
+}
+
+/* 操作栏（planet-enhance.js 注入） */
+.planet-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.85rem;
+  color: var(--text-p3);
+  font-size: 13px;
+}
+
+.planet-actions .planet-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color .15s ease;
+}
+
+.planet-actions .planet-act:hover {
+  color: #bd7a50;
+}
+
+.planet-actions .planet-act svg {
+  width: 18px;
+  height: 18px;
+}
+
+.planet-actions .planet-more {
+  margin-left: auto;
+  color: var(--text-p3);
+}
+
+/* ============ 顶部置顶区 ============ */
+.planet-pinned {
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--block-border);
+}
+
+.planet-pin-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  text-decoration: none;
+  color: var(--text-p1);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.planet-pin-row:hover {
+  color: var(--theme);
+}
+
+.planet-pin-badge {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #22a06b;
+  color: #22a06b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.planet-pin-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 置顶帖已移入顶部置顶区，信息流里隐藏（!important 防止筛选逻辑用行内 display 恢复） */
+.tag-plugin.timeline[data-api] .timenode.planet-pinned-hidden {
+  display: none !important;
+}
 
 /* ============ 话题标签筛选栏 ============ */
 .planet-filter {
@@ -63,7 +289,7 @@
   position: relative;
 }
 
-/* 底部渐隐遮罩 */
+/* 底部渐隐遮罩（页面底色，深色模式为黑） */
 .tag-plugin.timeline .timenode.planet-collapsed > .body:after {
   content: '';
   position: absolute;
@@ -71,7 +297,7 @@
   right: 0;
   bottom: 0;
   height: 72px;
-  background: linear-gradient(180deg, transparent, var(--card) 85%);
+  background: linear-gradient(180deg, transparent, var(--background) 85%);
   pointer-events: none;
 }
 

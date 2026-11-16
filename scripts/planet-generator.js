@@ -24,8 +24,10 @@ hexo.extend.generator.register('planet-issues', function (locals) {
     return list.map(x => x.name);
   };
 
-  const metaData = (locals.data && locals.data.planetMeta) ||
-    (hexo.locals.get('data') || {}).planetMeta || {};
+  // 数据文件 source/_data/planet-meta.json 在 Hexo 中的键名是带连字符的 'planet-meta'，
+  // 驼峰形式 'planetMeta' 仅作兼容兜底（取不到会丢失置顶/精华/互动计数）
+  const data = locals.data || (hexo.locals.get('data') || {});
+  const metaData = data['planet-meta'] || data.planetMeta || {};
   const metaList = metaData.issues || [];
   const metaMap = new Map(metaList.map(i => [i.number, i]));
 
@@ -45,14 +47,9 @@ hexo.extend.generator.register('planet-issues', function (locals) {
     if (meta.featured) labels.push({ name: '★ 精华', color: 'FBCA04' });
     if (meta.pinned) labels.push({ name: '📌 置顶', color: 'D93F0B' });
 
-    // body 为原始 Markdown（Stellar 客户端用 marked 解析），正文完整内联展示；
-    // 不再附加「阅读全文」与「原帖讨论」链接行，阅读与讨论都在卡片内完成
-    const body = [
-      (p._content || '').trim(),
-      '',
-      '---',
-      `本文由 ${authorName} 原创，采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。`
-    ].join('\n');
+    // body 为原始 Markdown（Stellar 客户端用 marked 解析），正文完整内联展示。
+    // 信息流按知识星球式布局：不显示标题、不在帖内附加版权行（版权见站点页脚与文章页）
+    const body = (p._content || '').trim();
 
     items.push({
       // GitHub Issue 编号：planet-enhance.js 用它做 utterances issue-number 映射（评论直连原 Issue）
@@ -70,17 +67,16 @@ hexo.extend.generator.register('planet-issues', function (locals) {
       labels: labels,
       reactions: { total_count: meta.reactions || 0 },
       comments: meta.comments || 0,
-      // 排序辅助字段（适配器忽略未知字段）
-      _pinned: !!meta.pinned
+      // 置顶标记：planet-enhance.js 据此把置顶帖抽到页面顶部独立置顶区
+      pinned: !!meta.pinned
     });
   });
 
   // 置顶前置，其余按发布时间倒序
   items.sort((a, b) => {
-    if (a._pinned !== b._pinned) return a._pinned ? -1 : 1;
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
     return new Date(b.created_at) - new Date(a.created_at);
   });
-  items.forEach(i => { delete i._pinned; });
 
   return { path: 'planet-issues.json', data: JSON.stringify(items) };
 });

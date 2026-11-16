@@ -15,7 +15,7 @@
 hexo.extend.generator.register('planet-home', function () {
   const siteBase = hexo.config.url.replace(/\/$/, '');
   const content = [
-    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。帖子由 GitHub Issue 自动同步生成，点击标题阅读全文，评论区直连原 Issue 讨论，无需跳转。</p>',
+    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。帖子由 GitHub Issue 自动同步生成，正文直接在信息流内展开，点「查看详情」进入文章页，评论区直连原 Issue 讨论。</p>',
     `<div class="tag-plugin timeline data-service ds-timeline" data-api="${siteBase}/planet-issues.json"></div>`
   ].join('\n');
 

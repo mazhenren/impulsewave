@@ -30,7 +30,125 @@
     return jsonPromise;
   }
 
-  /* ============ 模块 1：话题标签筛选栏 ============ */
+  /* ============ 模块 1：卡片结构（星球式头部 / 操作栏 / 图片网格） ============ */
+
+  var ICONS = {
+    like: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3z"/><path d="M7 10l4.5-6.5a2 2 0 0 1 3.4 2L14 9h5.2a2 2 0 0 1 2 2.4l-1.4 7a2 2 0 0 1-2 1.6H7"/></svg>',
+    comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v13"/><path d="M8 7l4-4 4 4"/></svg>',
+    arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'
+  };
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function formatDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) +
+      ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+
+  function setupCard(node, item) {
+    // 置顶帖在顶部置顶区展示，信息流里隐藏（timeline 客户端渲染晚于置顶区生成，此处兜底）
+    if (item.pinned) {
+      node.classList.add('planet-pinned-hidden');
+      return;
+    }
+    if (node.dataset.cardInit) return;
+    node.dataset.cardInit = '1';
+
+    // 时间改成星球式 YYYY-MM-DD HH:mm（主题默认是受 locale 影响的完整格式）
+    // 注意：header 里第一个 span 是 user-info 内的作者名，必须取直接子级的时间 span
+    var header = node.querySelector('.header');
+    var dateEl = header ? header.querySelector(':scope > span') : null;
+    if (dateEl) dateEl.textContent = formatDate(item.created_at);
+
+    var body = node.querySelector('.body');
+    if (!body) return;
+
+    // 多图九宫格：同一段落里 2 张以上图片改网格
+    body.querySelectorAll('p').forEach(function (p) {
+      if (p.querySelectorAll('img').length >= 2) p.classList.add('planet-gallery');
+    });
+
+    var link = item.html_url;
+    var bar = document.createElement('div');
+    bar.className = 'planet-actions';
+
+    var like = document.createElement('button');
+    like.type = 'button';
+    like.className = 'planet-act';
+    like.title = '赞';
+    var likeCount = item.reactions && item.reactions.total_count > 0 ? item.reactions.total_count : 0;
+    like.innerHTML = ICONS.like + (likeCount ? '<span>' + likeCount + '</span>' : '');
+
+    // 评论与「查看详情」都落到文章页，评论区为直连原 Issue 的 utterances
+    var comment = document.createElement('a');
+    comment.className = 'planet-act';
+    comment.href = link + '#comments';
+    comment.title = '评论';
+    comment.innerHTML = ICONS.comment;
+
+    var share = document.createElement('button');
+    share.type = 'button';
+    share.className = 'planet-act';
+    share.title = '复制链接';
+    share.innerHTML = ICONS.share;
+    share.addEventListener('click', function () {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(link).then(function () {
+        share.innerHTML = ICONS.share + '<span>已复制</span>';
+        setTimeout(function () { share.innerHTML = ICONS.share; }, 1500);
+      });
+    });
+
+    var more = document.createElement('a');
+    more.className = 'planet-act planet-more';
+    more.href = link;
+    more.innerHTML = '查看详情' + ICONS.arrow;
+
+    bar.appendChild(like);
+    bar.appendChild(comment);
+    bar.appendChild(share);
+    bar.appendChild(more);
+    node.appendChild(bar);
+  }
+
+  function renderPinned(timeline, feed) {
+    if (timeline.parentNode.querySelector('.planet-pinned')) return;
+
+    var pinned = [];
+    feed.forEach(function (item, i) {
+      if (!item.pinned) return;
+      pinned.push(item);
+      var node = timeline.querySelector('.timenode[index="' + i + '"]');
+      if (node) node.classList.add('planet-pinned-hidden');
+    });
+    if (!pinned.length) return;
+
+    var box = document.createElement('div');
+    box.className = 'planet-pinned';
+    pinned.forEach(function (item) {
+      var row = document.createElement('a');
+      row.className = 'planet-pin-row';
+      row.href = item.html_url;
+
+      var badge = document.createElement('span');
+      badge.className = 'planet-pin-badge';
+      badge.textContent = '置顶';
+
+      var text = document.createElement('span');
+      text.className = 'planet-pin-text';
+      text.textContent = item.title || '（无标题）';
+
+      row.appendChild(badge);
+      row.appendChild(text);
+      box.appendChild(row);
+    });
+    timeline.parentNode.insertBefore(box, timeline);
+  }
+
+  /* ============ 模块 2：话题标签筛选栏 ============ */
 
   function nodeLabels(node) {
     // 卡片 DOM 中的标签文本（分类 + # 标签），装饰标签（★/📌）不参与筛选
@@ -46,6 +164,7 @@
   function buildFilter(timeline, feed) {
     var counts = {};
     feed.forEach(function (item) {
+      if (item.pinned) return; // 置顶帖在顶部置顶区，不参与筛选计数
       (item.labels || []).forEach(function (l) {
         var name = l.name;
         if (/^[★📌]/.test(name)) return;
@@ -58,7 +177,7 @@
     var bar = document.createElement('div');
     bar.className = 'planet-filter';
 
-    var total = feed.length;
+    var total = feed.filter(function (i) { return !i.pinned; }).length;
     var all = document.createElement('button');
     all.type = 'button';
     all.className = 'planet-chip active';
@@ -77,6 +196,7 @@
     function apply(selected) {
       var nodes = timeline.querySelectorAll('.timenode');
       nodes.forEach(function (node) {
+        if (node.classList.contains('planet-pinned-hidden')) return;
         var labels = nodeLabels(node);
         var show = !selected || labels.indexOf(selected) !== -1;
         node.style.display = show ? '' : 'none';
@@ -98,9 +218,10 @@
     timeline.parentNode.insertBefore(bar, timeline);
   }
 
-  /* ============ 模块 2：长动态折叠 ============ */
+  /* ============ 模块 3：长动态折叠 ============ */
 
   function setupCollapse(node) {
+    if (node.classList.contains('planet-pinned-hidden')) return;
     var body = node.querySelector('.body');
     if (!body || node.dataset.collapseInit) return;
     node.dataset.collapseInit = '1';
@@ -116,7 +237,9 @@
           btn.className = 'planet-expand';
           btn.textContent = '展开全文';
           btn.addEventListener('click', function () { toggle(); });
-          node.appendChild(btn);
+          // 展开按钮放在操作栏上方，操作栏始终贴在卡片底部
+          var actions = node.querySelector('.planet-actions');
+          if (actions) node.insertBefore(btn, actions); else node.appendChild(btn);
         }
       }
     }
@@ -187,17 +310,25 @@
 
     var feed = null;
 
-    // 幂等增强：setupCollapse 有防重保护
+    // 幂等增强：setupCard / setupCollapse 均有防重保护
     function enhanceAll() {
       if (!feed) return;
-      timeline.querySelectorAll('.timenode').forEach(function (n) { setupCollapse(n); });
+      timeline.querySelectorAll('.timenode').forEach(function (n) {
+        var idx = parseInt(n.getAttribute('index'), 10);
+        var item = isNaN(idx) ? null : feed[idx];
+        if (item) setupCard(n, item);
+        setupCollapse(n);
+      });
     }
 
-    // 数据就绪后构建筛选栏并首次增强；同时轮询兜底——
+    // 数据就绪后输出置顶区、构建筛选栏并首次增强；同时轮询兜底——
     // 主题 timeline service 的 fetch 渲染时机与本脚本无序，MutationObserver 无法覆盖所有竞态窗口
     loadFeed().then(function (data) {
       feed = data;
-      if (feed && feed.length) buildFilter(timeline, feed);
+      if (feed && feed.length) {
+        renderPinned(timeline, feed);
+        buildFilter(timeline, feed);
+      }
       enhanceAll();
       var started = Date.now();
       var timer = setInterval(function () {
@@ -213,6 +344,8 @@
       muts.forEach(function (m) {
         m.addedNodes.forEach(function (n) {
           if (n.nodeType !== 1 || !n.classList.contains('timenode')) return;
+          var idx = parseInt(n.getAttribute('index'), 10);
+          if (feed && !isNaN(idx) && feed[idx]) setupCard(n, feed[idx]);
           setupCollapse(n);
         });
       });
