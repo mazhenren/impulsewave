@@ -20,6 +20,8 @@
   var REPO = 'mazhenren/impulsewave';
   var SITE_BASE = 'https://mazhenren.github.io/impulsewave';
   var COLLAPSE_HEIGHT = 320;
+  // 正文字符数阈值：与高度阈值满足任一条件即折叠（移动端/PC 使用同一套阈值）
+  var COLLAPSE_CHARS = 200;
   var UTTERANCES_THEME = 'preferred-color-scheme';
 
   var feedPromise = null;
@@ -54,7 +56,7 @@
 
   /* ============ 模块 1：卡片渲染 ============ */
 
-  function buildActions(item) {
+  function buildActions(item, author) {
     var bar = document.createElement('div');
     bar.className = 'planet-actions';
 
@@ -65,7 +67,7 @@
     var likeCount = item.reactions > 0 ? item.reactions : 0;
     like.innerHTML = ICONS.like + (likeCount ? '<span>' + likeCount + '</span>' : '');
 
-    // 评论与「查看详情」都落到文章页，评论区为直连原帖的 utterances
+    // 评论落到文章页（评论区为直连原帖的 utterances）
     var comment = document.createElement('a');
     comment.className = 'planet-act';
     comment.href = item.url + '#comments';
@@ -85,10 +87,13 @@
       });
     });
 
-    var more = document.createElement('a');
+    // 详情在当前页弹窗展示，不跳转；仍保留文章页作为可分享的固定链接
+    var more = document.createElement('button');
+    more.type = 'button';
     more.className = 'planet-act planet-more';
-    more.href = item.url;
+    more.setAttribute('aria-haspopup', 'dialog');
     more.innerHTML = '查看详情' + ICONS.arrow;
+    more.addEventListener('click', function () { openModal(item, author); });
 
     bar.appendChild(like);
     bar.appendChild(comment);
@@ -179,7 +184,7 @@
 
     node.appendChild(header);
     node.appendChild(body);
-    node.appendChild(buildActions(item));
+    node.appendChild(buildActions(item, author));
     return node;
   }
 
@@ -267,43 +272,97 @@
     if (!body || node.dataset.collapseInit) return;
     node.dataset.collapseInit = '1';
 
+    var content = body.querySelector('.planet-content') || body;
+
+    // 截断判定：字符数阈值 或 渲染高度阈值，满足任一条件即折叠
+    function needCollapse() {
+      var text = (content.textContent || '').replace(/\s+/g, '');
+      if (text.length > COLLAPSE_CHARS) return true;
+      return body.scrollHeight > COLLAPSE_HEIGHT;
+    }
+
+    function ensureButton() {
+      var btn = node.querySelector('.planet-expand');
+      if (btn) return btn;
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'planet-expand';
+      btn.textContent = '展开全文';
+      btn.addEventListener('click', function () { toggle(); });
+      // 展开按钮放在操作栏上方，操作栏始终贴在卡片底部
+      var actions = node.querySelector('.planet-actions');
+      if (actions) node.insertBefore(btn, actions); else node.appendChild(btn);
+      return btn;
+    }
+
+    function collapse() {
+      node.classList.add('planet-collapsed');
+      body.style.maxHeight = COLLAPSE_HEIGHT + 'px';
+      ensureButton().textContent = '展开全文';
+    }
+
+    function expand(userAction) {
+      node.classList.remove('planet-collapsed');
+      // scrollHeight 不受 max-height 裁切影响，始终是内容完整高度
+      body.style.maxHeight = body.scrollHeight + 'px';
+      var btn = node.querySelector('.planet-expand');
+      if (btn) {
+        btn.style.display = '';
+        btn.textContent = '收起';
+      }
+      if (userAction) node.dataset.userToggled = '1';
+    }
+
+    // 自动测量：用户手动切换后不再改动其选择
     function measure() {
-      if (body.dataset.userToggled) return;
-      if (body.scrollHeight > COLLAPSE_HEIGHT) {
-        node.classList.add('planet-collapsed');
-        body.style.maxHeight = COLLAPSE_HEIGHT + 'px';
-        if (!node.querySelector('.planet-expand')) {
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'planet-expand';
-          btn.textContent = '展开全文';
-          btn.addEventListener('click', function () { toggle(); });
-          // 展开按钮放在操作栏上方，操作栏始终贴在卡片底部
-          var actions = node.querySelector('.planet-actions');
-          if (actions) node.insertBefore(btn, actions); else node.appendChild(btn);
-        }
+      var wanted = needCollapse();
+      var btn = node.querySelector('.planet-expand');
+      if (wanted) {
+        ensureButton().style.display = '';
+      }
+      if (node.dataset.userToggled) return;
+      if (wanted) {
+        collapse();
+      } else {
+        node.classList.remove('planet-collapsed');
+        body.style.maxHeight = '';
+        if (btn) btn.style.display = 'none';
       }
     }
 
     function toggle() {
-      body.dataset.userToggled = '1';
-      var collapsed = node.classList.toggle('planet-collapsed');
-      var btn = node.querySelector('.planet-expand');
-      if (collapsed) {
-        body.style.maxHeight = COLLAPSE_HEIGHT + 'px';
-        btn.textContent = '展开全文';
-      } else {
-        // scrollHeight 不受 max-height 裁切影响，始终是内容完整高度
-        body.style.maxHeight = body.scrollHeight + 'px';
-        btn.textContent = '收起';
+      if (node.classList.contains('planet-collapsed')) expand(true);
+      else {
+        node.dataset.userToggled = '1';
+        collapse();
       }
     }
+
+    // 视口变化后重新计算：未手动切换时按新尺寸重新判定，已展开时同步高度
+    function relayout() {
+      if (node.dataset.userToggled) {
+        if (!node.classList.contains('planet-collapsed')) {
+          body.style.maxHeight = body.scrollHeight + 'px';
+        }
+        return;
+      }
+      measure();
+    }
+
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(relayout, 150);
+    });
+    window.addEventListener('orientationchange', relayout);
 
     // 展开态下图片加载完成会撑高，需同步更新 max-height
     body.querySelectorAll('img').forEach(function (img) {
       img.addEventListener('load', function () {
         if (!node.classList.contains('planet-collapsed')) {
           body.style.maxHeight = body.scrollHeight + 'px';
+        } else if (!node.dataset.userToggled) {
+          measure();
         }
       });
     });
@@ -341,6 +400,120 @@
       }
     }, { rootMargin: '200px' });
     io.observe(box);
+  }
+
+  /* ============ 模块 4：详情弹窗（当前页展示，不跳转） ============ */
+
+  var modal = null;
+  var modalLastFocus = null;
+
+  function ensureModal() {
+    if (modal) return modal;
+    var el = document.createElement('div');
+    el.className = 'planet-modal';
+    el.dataset.open = '0';
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = [
+      '<div class="planet-modal-mask"></div>',
+      '<div class="planet-modal-panel" role="dialog" aria-modal="true" aria-label="动态详情">',
+      '  <div class="planet-modal-head">',
+      '    <img class="planet-modal-avatar" alt="">',
+      '    <div class="planet-modal-meta">',
+      '      <div class="planet-modal-author"></div>',
+      '      <div class="planet-modal-sub"></div>',
+      '    </div>',
+      '    <button type="button" class="planet-modal-close" aria-label="关闭">×</button>',
+      '  </div>',
+      '  <h3 class="planet-modal-title"></h3>',
+      '  <div class="planet-modal-body"></div>',
+      '  <div class="planet-modal-foot"></div>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(el);
+
+    // 点击遮罩或关闭按钮关闭；面板内容区点击不关闭
+    el.addEventListener('click', function (e) {
+      if (e.target.classList && e.target.classList.contains('planet-modal-mask')) closeModal();
+    });
+    el.querySelector('.planet-modal-close').addEventListener('click', closeModal);
+    // 捕获阶段监听：即使焦点落在弹窗内的链接/输入框，Esc 也能关闭
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && el.dataset.open === '1') closeModal();
+    }, true);
+
+    modal = el;
+    return el;
+  }
+
+  function openModal(item, author) {
+    try {
+      var el = ensureModal();
+      var a = author || {};
+      var avatar = el.querySelector('.planet-modal-avatar');
+      avatar.src = a.avatar || SITE_BASE + '/images/avatar.jpg';
+      avatar.alt = a.name || '';
+
+      el.querySelector('.planet-modal-author').textContent = a.name || '';
+      var sub = el.querySelector('.planet-modal-sub');
+      sub.textContent = formatDate(item.date);
+      var source = item.source && item.source.type === 'github-issue' ? item.source : null;
+      if (source && source.number != null) {
+        var issue = document.createElement('a');
+        issue.className = 'planet-issue-link';
+        issue.href = source.url || ('https://github.com/' + REPO + '/issues/' + source.number);
+        issue.target = '_blank';
+        issue.rel = 'external nofollow noopener noreferrer';
+        issue.title = '来自 GitHub Issue #' + source.number;
+        issue.textContent = '#' + source.number;
+        sub.appendChild(issue);
+      }
+
+      var title = el.querySelector('.planet-modal-title');
+      title.textContent = item.title || '';
+      title.style.display = item.title ? '' : 'none';
+
+      var body = el.querySelector('.planet-modal-body');
+      body.innerHTML = item.html || '<p>（正文为空）</p>';
+      // 兜底：若图片带惰性属性，弹窗内直接加载，避免空白
+      body.querySelectorAll('img').forEach(function (img) {
+        var lazy = img.getAttribute('data-src');
+        var src = img.getAttribute('src') || '';
+        if (lazy && (!src || src.indexOf('data:image') === 0)) img.src = lazy;
+      });
+
+      var foot = el.querySelector('.planet-modal-foot');
+      foot.innerHTML = '';
+      (item.tags || []).forEach(function (tag) {
+        var chip = document.createElement('span');
+        chip.className = 'planet-modal-tag';
+        chip.textContent = tag;
+        foot.appendChild(chip);
+      });
+      var open = document.createElement('a');
+      open.className = 'planet-modal-open';
+      open.href = item.url;
+      open.textContent = '打开文章页';
+      foot.appendChild(open);
+
+      el.dataset.open = '1';
+      el.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('planet-modal-open');
+      modalLastFocus = document.activeElement;
+      el.querySelector('.planet-modal-close').focus();
+    } catch (err) {
+      // 弹窗异常时退回原行为：跳转文章页，保证内容可达
+      if (window.console && console.warn) console.warn('[planet] 弹窗打开失败', err);
+      if (item && item.url) location.href = item.url;
+    }
+  }
+
+  function closeModal() {
+    if (!modal || modal.dataset.open !== '1') return;
+    modal.dataset.open = '0';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('planet-modal-open');
+    if (modalLastFocus && typeof modalLastFocus.focus === 'function') modalLastFocus.focus();
+    modalLastFocus = null;
   }
 
   /* ============ 信息流页入口 ============ */
