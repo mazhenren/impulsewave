@@ -1,21 +1,21 @@
 ---
-title: 星球信息流上线测试
-description: 星球信息流上线测试：Issue 自动同步为 Hexo 文章并部署上线。
+title: "星球信息流上线测试"
+date: 2026-11-16 09:02:44
+description: "星球信息流上线测试：Issue 自动同步为 Hexo 文章并部署上线。"
+abbrlink: 7db1fb38
 categories:
   - 技术分析
 tags:
   - 站点说明
   - 测试
+comments: false
 planet:
   issue: 2
   pinned: false
   featured: false
-  updated: 2026-11-16T01:02:44.000Z
-  url: 'https://github.com/mazhenren/impulsewave/issues/2'
-  checksum: fd3dfc3dfaba
-abbrlink: 7db1fb38
-date: 2026-11-16 09:02:44
-comments: false
+  updated: 2026-11-16T01:15:03Z
+  url: https://github.com/mazhenren/impulsewave/issues/2
+  checksum: 69d3679e022e
 ---
 
 星球信息流已上线。这篇帖子由 GitHub Issue 自动同步生成：提交 Issue → Actions 同步为文章 → 静态构建部署，全程无需本地操作。
