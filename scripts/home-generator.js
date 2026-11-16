@@ -1,24 +1,20 @@
 /**
  * 星球动态首页生成器：输出 /（path 空字符串 → public/index.html，layout: page）。
  *
- * 背景主题机制（源码核实，v1/v2 相同）：
- * - Stellar path_normalize.js 会把 Page 路径 index.html 归一为 index/，且主题脚本晚于站点
- *   脚本注册 generateBefore，站点侧无法后置修正 —— 因此首页不能走 source/index.md 的 Page 路由。
- * - path 为空字符串的路由不会被归一化，本 generator 采用该机制直接输出首页。
- * - timeline 标签服务端展开结果就是一个带 data-api 的空容器，内容由主题客户端脚本
- *   （source/js/services/timeline.js）fetch 渲染 —— 这里直接写等价 HTML，标签不参与构建。
- * - 必须绝对地址：timeline service 会执行 new URL(data-api)，相对路径抛 Invalid URL 导致整段不渲染。
- * - data.__index = true 让 is_home() 为真，导航高亮与标题逻辑与旧版一致。
+ * 数据源是构建期生成的 planet-feed.json（博客文章结构），由 source/js/planet-enhance.js
+ * 客户端渲染成星球式信息流。容器刻意不加 ds-timeline 类，避免 Stellar 的
+ * GitHub Issues timeline service 接管（它只认 Issue 字段格式）。
+ * data-api 带构建时间戳，避免 GitHub Pages CDN 缓存上一版数据。
  */
 'use strict';
 
 hexo.extend.generator.register('planet-home', function () {
   const siteBase = hexo.config.url.replace(/\/$/, '');
-  // 构建时间戳：避免 GitHub Pages CDN / 浏览器缓存到上一版 planet-issues.json
+  // 构建时间戳：避免 GitHub Pages CDN / 浏览器缓存到上一版 planet-feed.json
   const feedVersion = Date.now();
   const content = [
-    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。帖子由 GitHub Issue 自动同步生成，正文直接在信息流内展开，点「查看详情」进入文章页，评论区直连原 Issue 讨论。</p>',
-    `<div class="tag-plugin timeline data-service ds-timeline" data-api="${siteBase}/planet-issues.json?v=${feedVersion}"></div>`
+    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。内容由博客文章在构建时生成，正文直接在信息流内展开，点「查看详情」进入文章页，评论区直连原帖讨论。</p>',
+    `<div class="tag-plugin timeline planet-feed" data-api="${siteBase}/planet-feed.json?v=${feedVersion}"></div>`
   ].join('\n');
 
   return {

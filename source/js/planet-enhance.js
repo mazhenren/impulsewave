@@ -1,13 +1,17 @@
 /**
- * 星球动态增强：基于 Stellar 原生 {% timeline %} 的客户端扩展，无第三方依赖。
+ * 星球动态：客户端渲染 + 交互增强，无第三方依赖。
  *
- * 信息流页（.ds-timeline 存在）：
- *   1. 话题标签筛选栏：按 planet-issues.json 聚合统计，单选筛选 + 「全部」重置
- *   2. 长动态折叠：.body 高度 > 320px 自动折叠，展开/收起平滑过渡
- *   （卡片内不再挂评论框，讨论入口只在文章页）
+ * 数据源是构建期生成的 /planet-feed.json（博客文章结构：title/url/date/html/tags/pinned），
+ * 不再使用 Stellar 的 GitHub Issues timeline service。
  *
- * 文章页（路径命中 planet-issues.json 中的文章链接）：
- *   4. 评论区统一映射回原 Issue：已有 #utterances 时改属性（零竞态），否则注入新评论区
+ * 信息流页（.planet-feed[data-api] 存在）：
+ *   1. 渲染星球式卡片：左头像、橙色作者名、灰色时间、正文、标签、底部操作栏
+ *   2. 顶部置顶区：置顶帖从信息流抽出，单行截断展示
+ *   3. 话题标签筛选栏：按 tags 聚合统计，单选筛选 + 「全部」重置
+ *   4. 长动态折叠：.body 高度 > 320px 自动折叠，展开/收起平滑过渡
+ *
+ * 文章页（路径命中 planet-feed.json 中的文章链接）：
+ *   5. 评论区统一映射回原 Issue：已有 #utterances 时改属性（零竞态），否则注入新评论区
  */
 (function () {
   'use strict';
@@ -17,20 +21,19 @@
   var COLLAPSE_HEIGHT = 320;
   var UTTERANCES_THEME = 'preferred-color-scheme';
 
-  var jsonPromise = null;
+  var feedPromise = null;
   function loadFeed() {
-    if (!jsonPromise) {
-      var apiEl = document.querySelector('.ds-timeline[data-api]');
-      var url = apiEl ? apiEl.dataset.api : '/impulsewave/planet-issues.json';
-      jsonPromise = fetch(url)
+    if (!feedPromise) {
+      var el = document.querySelector('.planet-feed[data-api]');
+      var url = el ? el.dataset.api : SITE_BASE + '/planet-feed.json';
+      feedPromise = fetch(url)
         .then(function (r) { return r.json(); })
-        .then(function (d) { return d.content || d; })
         .catch(function () { return null; });
     }
-    return jsonPromise;
+    return feedPromise;
   }
 
-  /* ============ 模块 1：卡片结构（星球式头部 / 操作栏 / 图片网格） ============ */
+  /* ============ 基础工具 ============ */
 
   var ICONS = {
     like: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3z"/><path d="M7 10l4.5-6.5a2 2 0 0 1 3.4 2L14 9h5.2a2 2 0 0 1 2 2.4l-1.4 7a2 2 0 0 1-2 1.6H7"/></svg>',
@@ -48,30 +51,9 @@
       ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
   }
 
-  function setupCard(node, item) {
-    // 置顶帖在顶部置顶区展示，信息流里隐藏（timeline 客户端渲染晚于置顶区生成，此处兜底）
-    if (item.pinned) {
-      node.classList.add('planet-pinned-hidden');
-      return;
-    }
-    if (node.dataset.cardInit) return;
-    node.dataset.cardInit = '1';
+  /* ============ 模块 1：卡片渲染 ============ */
 
-    // 时间改成星球式 YYYY-MM-DD HH:mm（主题默认是受 locale 影响的完整格式）
-    // 注意：header 里第一个 span 是 user-info 内的作者名，必须取直接子级的时间 span
-    var header = node.querySelector('.header');
-    var dateEl = header ? header.querySelector(':scope > span') : null;
-    if (dateEl) dateEl.textContent = formatDate(item.created_at);
-
-    var body = node.querySelector('.body');
-    if (!body) return;
-
-    // 多图九宫格：同一段落里 2 张以上图片改网格
-    body.querySelectorAll('p').forEach(function (p) {
-      if (p.querySelectorAll('img').length >= 2) p.classList.add('planet-gallery');
-    });
-
-    var link = item.html_url;
+  function buildActions(item) {
     var bar = document.createElement('div');
     bar.className = 'planet-actions';
 
@@ -79,13 +61,13 @@
     like.type = 'button';
     like.className = 'planet-act';
     like.title = '赞';
-    var likeCount = item.reactions && item.reactions.total_count > 0 ? item.reactions.total_count : 0;
+    var likeCount = item.reactions > 0 ? item.reactions : 0;
     like.innerHTML = ICONS.like + (likeCount ? '<span>' + likeCount + '</span>' : '');
 
-    // 评论与「查看详情」都落到文章页，评论区为直连原 Issue 的 utterances
+    // 评论与「查看详情」都落到文章页，评论区为直连原帖的 utterances
     var comment = document.createElement('a');
     comment.className = 'planet-act';
-    comment.href = link + '#comments';
+    comment.href = item.url + '#comments';
     comment.title = '评论';
     comment.innerHTML = ICONS.comment;
 
@@ -96,7 +78,7 @@
     share.innerHTML = ICONS.share;
     share.addEventListener('click', function () {
       if (!navigator.clipboard) return;
-      navigator.clipboard.writeText(link).then(function () {
+      navigator.clipboard.writeText(item.url).then(function () {
         share.innerHTML = ICONS.share + '<span>已复制</span>';
         setTimeout(function () { share.innerHTML = ICONS.share; }, 1500);
       });
@@ -104,34 +86,88 @@
 
     var more = document.createElement('a');
     more.className = 'planet-act planet-more';
-    more.href = link;
+    more.href = item.url;
     more.innerHTML = '查看详情' + ICONS.arrow;
 
     bar.appendChild(like);
     bar.appendChild(comment);
     bar.appendChild(share);
     bar.appendChild(more);
-    node.appendChild(bar);
+    return bar;
   }
 
-  function renderPinned(timeline, feed) {
-    if (timeline.parentNode.querySelector('.planet-pinned')) return;
+  function buildPost(item, author) {
+    var node = document.createElement('div');
+    node.className = 'timenode';
+    node.dataset.labels = (item.tags || []).join('\u0001');
 
-    var pinned = [];
-    feed.forEach(function (item, i) {
-      if (!item.pinned) return;
-      pinned.push(item);
-      var node = timeline.querySelector('.timenode[index="' + i + '"]');
-      if (node) node.classList.add('planet-pinned-hidden');
-    });
-    if (!pinned.length) return;
+    var header = document.createElement('div');
+    header.className = 'header';
 
+    var user = document.createElement('a');
+    user.className = 'user-info';
+    user.href = author.url || SITE_BASE + '/about/';
+    var avatar = document.createElement('img');
+    avatar.src = author.avatar || SITE_BASE + '/images/avatar.jpg';
+    avatar.alt = author.name || '';
+    var name = document.createElement('span');
+    name.textContent = author.name || '';
+    user.appendChild(avatar);
+    user.appendChild(name);
+
+    var time = document.createElement('span');
+    time.textContent = formatDate(item.date);
+
+    header.appendChild(user);
+    header.appendChild(time);
+
+    var body = document.createElement('div');
+    body.className = 'body';
+
+    // 标题保留在 DOM 里供 CSS 隐藏（星球信息流不显示标题）
+    var title = document.createElement('p');
+    title.className = 'title';
+    var titleLink = document.createElement('a');
+    titleLink.href = item.url;
+    titleLink.textContent = item.title || '';
+    title.appendChild(titleLink);
+    body.appendChild(title);
+
+    var content = document.createElement('div');
+    content.className = 'planet-content';
+    content.innerHTML = item.html || '';
+    body.appendChild(content);
+
+    if (item.tags && item.tags.length) {
+      var footer = document.createElement('div');
+      footer.className = 'footer';
+      var left = document.createElement('div');
+      left.className = 'flex left';
+      item.tags.forEach(function (tag) {
+        var chip = document.createElement('div');
+        chip.className = 'item label';
+        var text = document.createElement('span');
+        text.textContent = tag;
+        chip.appendChild(text);
+        left.appendChild(chip);
+      });
+      footer.appendChild(left);
+      body.appendChild(footer);
+    }
+
+    node.appendChild(header);
+    node.appendChild(body);
+    node.appendChild(buildActions(item));
+    return node;
+  }
+
+  function renderPinned(container, pinned) {
     var box = document.createElement('div');
     box.className = 'planet-pinned';
     pinned.forEach(function (item) {
       var row = document.createElement('a');
       row.className = 'planet-pin-row';
-      row.href = item.html_url;
+      row.href = item.url;
 
       var badge = document.createElement('span');
       badge.className = 'planet-pin-badge';
@@ -145,28 +181,15 @@
       row.appendChild(text);
       box.appendChild(row);
     });
-    timeline.parentNode.insertBefore(box, timeline);
+    container.parentNode.insertBefore(box, container);
   }
 
   /* ============ 模块 2：话题标签筛选栏 ============ */
 
-  function nodeLabels(node) {
-    // 卡片 DOM 中的标签文本（分类 + # 标签），装饰标签（★/📌）不参与筛选
-    var spans = node.querySelectorAll('.body .footer .item.label span');
-    var out = [];
-    spans.forEach(function (s) {
-      var t = s.textContent.trim();
-      if (t && !/^[★📌]/.test(t)) out.push(t);
-    });
-    return out;
-  }
-
-  function buildFilter(timeline, feed) {
+  function buildFilter(container, posts) {
     var counts = {};
-    feed.forEach(function (item) {
-      if (item.pinned) return; // 置顶帖在顶部置顶区，不参与筛选计数
-      (item.labels || []).forEach(function (l) {
-        var name = l.name;
+    posts.forEach(function (item) {
+      (item.tags || []).forEach(function (name) {
         if (/^[★📌]/.test(name)) return;
         counts[name] = (counts[name] || 0) + 1;
       });
@@ -177,11 +200,10 @@
     var bar = document.createElement('div');
     bar.className = 'planet-filter';
 
-    var total = feed.filter(function (i) { return !i.pinned; }).length;
     var all = document.createElement('button');
     all.type = 'button';
     all.className = 'planet-chip active';
-    all.textContent = '全部 ' + total;
+    all.textContent = '全部 ' + posts.length;
     bar.appendChild(all);
 
     names.forEach(function (name) {
@@ -194,17 +216,15 @@
     });
 
     function apply(selected) {
-      var nodes = timeline.querySelectorAll('.timenode');
-      nodes.forEach(function (node) {
-        if (node.classList.contains('planet-pinned-hidden')) return;
-        var labels = nodeLabels(node);
+      container.querySelectorAll('.timenode').forEach(function (node) {
+        var labels = (node.dataset.labels || '').split('\u0001');
         var show = !selected || labels.indexOf(selected) !== -1;
         node.style.display = show ? '' : 'none';
       });
       bar.querySelectorAll('.planet-chip').forEach(function (chip) {
         var active = selected
           ? chip.dataset.label === selected
-          : chip.classList.contains('planet-chip') && !chip.dataset.label;
+          : !chip.dataset.label;
         chip.classList.toggle('active', active);
       });
     }
@@ -215,13 +235,12 @@
       apply(chip.dataset.label || null); // 「全部」无 data-label → 重置
     });
 
-    timeline.parentNode.insertBefore(bar, timeline);
+    container.parentNode.insertBefore(bar, container);
   }
 
   /* ============ 模块 3：长动态折叠 ============ */
 
   function setupCollapse(node) {
-    if (node.classList.contains('planet-pinned-hidden')) return;
     var body = node.querySelector('.body');
     if (!body || node.dataset.collapseInit) return;
     node.dataset.collapseInit = '1';
@@ -275,7 +294,7 @@
     setTimeout(measure, 800); // 主题 lazyload 重排后兜底
   }
 
-  /* ============ 模块 3：评论区挂载（仅文章页使用） ============ */
+  /* ============ 模块 4：评论区挂载（仅文章页使用） ============ */
 
   function mountUtterances(box, attrs) {
     var s = document.createElement('script');
@@ -304,53 +323,28 @@
 
   /* ============ 信息流页入口 ============ */
 
-  function initTimeline() {
-    var timeline = document.querySelector('.ds-timeline[data-api]');
-    if (!timeline) return;
+  function initFeed() {
+    var container = document.querySelector('.planet-feed[data-api]');
+    // 主题的部分导航可能重复执行初始化，加幂等保护避免重复渲染
+    if (!container || container.dataset.rendered) return;
+    container.dataset.rendered = '1';
 
-    var feed = null;
-
-    // 幂等增强：setupCard / setupCollapse 均有防重保护
-    function enhanceAll() {
-      if (!feed) return;
-      timeline.querySelectorAll('.timenode').forEach(function (n) {
-        var idx = parseInt(n.getAttribute('index'), 10);
-        var item = isNaN(idx) ? null : feed[idx];
-        if (item) setupCard(n, item);
-        setupCollapse(n);
-      });
-    }
-
-    // 数据就绪后输出置顶区、构建筛选栏并首次增强；同时轮询兜底——
-    // 主题 timeline service 的 fetch 渲染时机与本脚本无序，MutationObserver 无法覆盖所有竞态窗口
     loadFeed().then(function (data) {
-      feed = data;
-      if (feed && feed.length) {
-        renderPinned(timeline, feed);
-        buildFilter(timeline, feed);
-      }
-      enhanceAll();
-      var started = Date.now();
-      var timer = setInterval(function () {
-        enhanceAll();
-        // 所有卡片都完成折叠探测后停止轮询
-        var pending = timeline.querySelectorAll('.timenode:not([data-collapse-init])').length;
-        if (pending === 0 || Date.now() - started > 15000) clearInterval(timer);
-      }, 400);
-    });
+      if (!data || !data.posts || !data.posts.length) return;
+      var author = data.author || {};
+      var pinned = data.posts.filter(function (p) { return p.pinned; });
+      var list = data.posts.filter(function (p) { return !p.pinned; });
 
-    // 观察者处理轮询间隙外的增量插入（如后续翻页/动态追加）
-    var observer = new MutationObserver(function (muts) {
-      muts.forEach(function (m) {
-        m.addedNodes.forEach(function (n) {
-          if (n.nodeType !== 1 || !n.classList.contains('timenode')) return;
-          var idx = parseInt(n.getAttribute('index'), 10);
-          if (feed && !isNaN(idx) && feed[idx]) setupCard(n, feed[idx]);
-          setupCollapse(n);
-        });
-      });
+      if (pinned.length) renderPinned(container, pinned);
+      list.forEach(function (item) { container.appendChild(buildPost(item, author)); });
+      if (list.length) buildFilter(container, list);
+
+      // 主题懒加载扫描后注入的图片，需要手动接入
+      if (typeof window.wrapLazyloadImages === 'function') {
+        window.wrapLazyloadImages(container);
+      }
+      container.querySelectorAll('.timenode').forEach(setupCollapse);
     });
-    observer.observe(timeline, { childList: true });
   }
 
   /* ============ 文章页：评论区统一映射回原 Issue ============ */
@@ -377,13 +371,13 @@
   }
 
   function initPostComments() {
-    loadFeed().then(function (feed) {
-      if (!feed) return;
+    loadFeed().then(function (data) {
+      if (!data || !data.posts) return;
       var path = location.pathname.replace(/index\.html$/, '');
       var item = null;
-      for (var i = 0; i < feed.length; i++) {
-        var u = feed[i].html_url;
-        if (u && new URL(u).pathname === path) { item = feed[i]; break; }
+      for (var i = 0; i < data.posts.length; i++) {
+        var u = data.posts[i].url;
+        if (u && new URL(u).pathname === path) { item = data.posts[i]; break; }
       }
       if (!item) return;
 
@@ -405,8 +399,8 @@
   /* ============ 入口 ============ */
 
   function init() {
-    if (document.querySelector('.ds-timeline[data-api]')) {
-      initTimeline();
+    if (document.querySelector('.planet-feed[data-api]')) {
+      initFeed();
     } else {
       initPostComments();
     }
