@@ -40,6 +40,8 @@ jobs:
             echo "无变更，跳过提交"
           else
             git commit -m "planet: 同步 Issue 内容（$GITHUB_EVENT_NAME）"
+            # 多事件并发触发时可能同时产生提交，rebase 后再推，避免 non-fast-forward 失败
+            git pull --rebase origin master || true
             git push https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git HEAD:master
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
