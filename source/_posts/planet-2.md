@@ -8,7 +8,8 @@ categories:
 tags:
   - 站点说明
   - 测试
-comments: false
+comments:
+  enabled: false
 sitemap: false
 visibility:
   searchable: false

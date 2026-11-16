@@ -159,7 +159,8 @@ for (const issue of plain) {
   // 变更检测：标题+正文+标签+级别 任意变化才重写文件
   const checksum = crypto
     .createHash('sha1')
-    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v7'].join('\u0000'))
+    // 'fm-v8'：front matter 结构版本，改动生成格式时递增以强制重写存量文件
+    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v8'].join('\u0000'))
     .digest('hex')
     .slice(0, 12);
 
@@ -187,9 +188,10 @@ for (const issue of plain) {
     }
     if (cover) fm.push(`cover: ${cover}`);
     fm.push(
-      // 关掉主题默认评论区（issue-term: pathname 会另开新 Issue），
-      // 由 planet-enhance.js 按 Issue 编号注入 issue-number 版 utterances，讨论统一收敛到原 Issue
-      'comments: false',
+      // 关掉主题默认评论区（issue-term: pathname 会另开新 Issue）。
+      // v2 的 front matter schema 要求 comments 是 object，写成布尔值会告警并回落默认配置
+      'comments:',
+      '  enabled: false',
       // 星球帖不进博客 sitemap / 站内搜索（博客与星球动态是两个独立内容区）
       'sitemap: false',
       'visibility:',

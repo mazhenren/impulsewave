@@ -3,7 +3,8 @@ title: "Test"
 date: 2026-11-14 20:07:39
 description: "Test Test2"
 abbrlink: 784dd132
-comments: false
+comments:
+  enabled: false
 sitemap: false
 visibility:
   searchable: false
