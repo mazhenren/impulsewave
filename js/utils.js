@@ -1,515 +1,741 @@
-/* global NexT, CONFIG */
+(function () {
+  // 防重复执行：utils.js 可能被重复加载，二次执行直接跳过，避免重复声明报错。
+  if (window.__stellarUtilsLoaded) return;
+  window.__stellarUtilsLoaded = true;
 
-HTMLElement.prototype.wrap = function(wrapper) {
-  this.parentNode.insertBefore(wrapper, this);
-  this.parentNode.removeChild(this);
-  wrapper.appendChild(this);
-};
-
-(function() {
-  const onPageLoaded = () => document.dispatchEvent(
-    new Event('page:loaded', {
-      bubbles: true
-    })
-  );
-
-  document.addEventListener('DOMContentLoaded', onPageLoaded);
-  document.addEventListener('pjax:success', onPageLoaded);
-})();
-
-NexT.utils = {
-
-  scrollTo(target, top) {
-    if (window.CSS?.supports('scroll-behavior', 'smooth')) {
-      target.scrollTo({
-        top,
-        behavior: 'smooth'
-      });
-    } else {
-      target.scrollTo(0, top);
-    }
-  },
-
-  registerExtURL() {
-    document.querySelectorAll('span.exturl').forEach(element => {
-      const link = document.createElement('a');
-      // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
-      link.href = decodeURIComponent(atob(element.dataset.url).split('').map(c => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      link.rel = 'noopener external nofollow noreferrer';
-      link.target = '_blank';
-      link.className = element.className;
-      link.title = element.title;
-      link.innerHTML = element.innerHTML;
-      element.parentNode.replaceChild(link, element);
-    });
-  },
-
-  registerCopyButton(target, element, code = '') {
-    // One-click copy code support.
-    target.insertAdjacentHTML('beforeend', '<div class="copy-btn"><i class="fa fa-copy fa-fw"></i></div>');
-    const button = target.querySelector('.copy-btn');
-    button.addEventListener('click', async () => {
-      if (!code) {
-        const lines = element.querySelector('.code') || element.querySelector('code');
-        code = lines.innerText;
+  function RunItem() {
+    this.list = []; // 存放回调函数
+    this.start = () => {
+      for (var i = 0; i < this.list.length; i++) {
+        this.list[i].run();
       }
-      if (navigator.clipboard) {
-        // https://caniuse.com/mdn-api_clipboard_writetext
+    };
+    this.push = (fn, name, setRequestAnimationFrame = true) => {
+      let myfn = fn
+      if (setRequestAnimationFrame) {
+        myfn = () => {
+          utils.requestAnimationFrame(fn)
+        }
+      }
+      var f = new Item(myfn, name);
+      this.list.push(f);
+    };
+    this.remove = (name) => {
+      // 倒序遍历避免 splice 后的索引问题
+      for (let index = this.list.length - 1; index >= 0; index--) {
+        const e = this.list[index];
+        if (e.name === name) {
+          this.list.splice(index, 1);
+        }
+      }
+    }
+    // 构造一个可以run的对象
+    function Item(fn, name) {
+      // 函数名称
+      this.name = name || fn.name;
+      // run方法
+      this.run = () => {
         try {
-          await navigator.clipboard.writeText(code);
-          button.querySelector('i').className = 'fa fa-check-circle fa-fw';
-        } catch {
-          button.querySelector('i').className = 'fa fa-times-circle fa-fw';
+          fn()
+        } catch (error) {
+          console.log(error);
         }
-      } else {
-        button.querySelector('i').className = 'fa fa-times-circle fa-fw';
-      }
-    });
-    // If copycode.style is not mac, element is larger than target
-    // So we need to accept both of them as parameters
-    element.addEventListener('mouseleave', () => {
-      setTimeout(() => {
-        button.querySelector('i').className = 'fa fa-copy fa-fw';
-      }, 300);
-    });
-  },
-
-  registerCodeblock(element) {
-    const inited = !!element;
-    let figure;
-    if (CONFIG.hljswrap) {
-      figure = (inited ? element : document).querySelectorAll('figure.highlight');
-    } else {
-      figure = document.querySelectorAll('pre');
+      };
     }
-    figure.forEach(element => {
-      // Skip pre > .mermaid for folding and copy button
-      if (element.querySelector('.mermaid')) return;
-      const languageName = [...element.classList].find(cls => cls !== 'highlight');
-      if (!inited) {
-        let span = element.querySelectorAll('.code .line span');
-        if (span.length === 0) {
-          // Hljs without line_number and wrap
-          span = element.querySelectorAll('code.highlight span');
-        }
-        span.forEach(s => {
-          s.classList.forEach(name => {
-            s.classList.replace(name, `hljs-${name}`);
-          });
-        });
+  }
+
+  const utils = {
+    // 已加载样式缓存
+    _loadedStyles: new Set(),
+
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      // 如果样式已加载，直接返回 null
+      if (utils._loadedStyles.has(href)) {
+        return null;
       }
-      const height = parseInt(window.getComputedStyle(element).height, 10);
-      const needFold = CONFIG.codeblock.fold.enable && (height > CONFIG.codeblock.fold.height);
-      if (!needFold && !CONFIG.codeblock.copy_button.enable && !CONFIG.codeblock.language) return;
-      let target;
-      if (CONFIG.hljswrap && CONFIG.codeblock.copy_button.style === 'mac') {
-        target = element;
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
       } else {
-        let box = element.querySelector('.code-container');
-        if (!box) {
-          // https://github.com/next-theme/hexo-theme-next/issues/98
-          // https://github.com/next-theme/hexo-theme-next/pull/508
-          const container = element.querySelector('.table-container') || element;
-          box = document.createElement('div');
-          box.className = 'code-container';
-          container.wrap(box);
-
-          // add "notranslate" to prevent Google Translate from translating it, which also completely messes up the layout
-          box.classList.add('notranslate');
-        }
-        target = box;
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
       }
-      if (needFold && !target.classList.contains('unfold')) {
-        target.classList.add('highlight-fold');
-        target.insertAdjacentHTML('beforeend', '<div class="fold-cover"></div><div class="expand-btn"><i class="fa fa-angle-down fa-fw"></i></div>');
-        target.querySelector('.expand-btn').addEventListener('click', () => {
-          target.classList.remove('highlight-fold');
-          target.classList.add('unfold');
-        });
-      }
-      if (!inited && CONFIG.codeblock.copy_button.enable) {
-        this.registerCopyButton(target, element);
-      }
-      if (!inited && CONFIG.codeblock.language && languageName) {
-        const lang = document.createElement('div');
-        lang.className = 'code-lang';
-        lang.innerText = languageName.toUpperCase();
-        target.insertAdjacentElement('afterbegin', lang);
-      }
-    });
-  },
-
-  wrapTableWithBox() {
-    document.querySelectorAll('table').forEach(element => {
-      const box = document.createElement('div');
-      box.className = 'table-container';
-      element.wrap(box);
-    });
-  },
-
-  registerVideoIframe() {
-    document.querySelectorAll('iframe').forEach(element => {
-      const supported = [
-        'www.youtube.com',
-        'player.vimeo.com',
-        'player.youku.com',
-        'player.bilibili.com',
-        'www.tudou.com'
-      ].some(host => element.src.includes(host));
-      if (supported && !element.parentNode.matches('.video-container')) {
-        const box = document.createElement('div');
-        box.className = 'video-container';
-        element.wrap(box);
-        const width = Number(element.width);
-        const height = Number(element.height);
-        if (width && height) {
-          box.style.paddingTop = (height / width * 100) + '%';
-        }
-      }
-    });
-  },
-
-  updateActiveNav() {
-    if (!Array.isArray(this.sections)) return;
-    let index = this.sections.findIndex(element => {
-      return element?.getBoundingClientRect().top > 10;
-    });
-    if (index === -1) {
-      index = this.sections.length - 1;
-    } else if (index > 0) {
-      index--;
-    }
-    this.activateNavByIndex(index);
-  },
-
-  registerScrollPercent() {
-    const backToTop = document.querySelector('.back-to-top');
-    const readingProgressBar = document.querySelector('.reading-progress-bar');
-    // For init back to top in sidebar if page was scrolled after page refresh.
-    window.addEventListener('scroll', () => {
-      if (backToTop || readingProgressBar) {
-        const contentHeight = document.body.scrollHeight - window.innerHeight;
-        const scrollPercent = contentHeight > 0 ? Math.min(100 * window.scrollY / contentHeight, 100) : 0;
-        if (backToTop) {
-          backToTop.classList.toggle('back-to-top-on', Math.round(scrollPercent) >= 5);
-          backToTop.querySelector('span').innerText = Math.round(scrollPercent) + '%';
-        }
-        if (readingProgressBar) {
-          readingProgressBar.style.setProperty('--progress', scrollPercent.toFixed(2) + '%');
-        }
-      }
-      this.updateActiveNav();
-    }, { passive: true });
-
-    backToTop?.addEventListener('click', () => {
-      NexT.utils.scrollTo(window, 0);
-    });
-  },
-
-  /**
-   * Tabs tag listener (without twitter bootstrap).
-   */
-  registerTabsTag() {
-    // Binding `nav-tabs` & `tab-content` by real time permalink changing.
-    document.querySelectorAll('.tabs ul.nav-tabs .tab').forEach(element => {
-      element.addEventListener('click', event => {
-        event.preventDefault();
-        // Prevent selected tab to select again.
-        if (element.classList.contains('active')) return;
-        const nav = element.parentNode;
-        // Get the height of `tab-pane` which is activated before, and set it as the height of `tab-content` with extra margin / paddings.
-        const tabContent = nav.nextElementSibling;
-        tabContent.style.overflow = 'hidden';
-        tabContent.style.transition = 'height 1s';
-        // Comment system selection tab does not contain .active class.
-        const activeTab = tabContent.querySelector('.active') || tabContent.firstElementChild;
-        // Hight might be `auto`.
-        const prevHeight = parseInt(window.getComputedStyle(activeTab).height, 10) || 0;
-        const paddingTop = parseInt(window.getComputedStyle(activeTab).paddingTop, 10);
-        const marginBottom = parseInt(window.getComputedStyle(activeTab.firstElementChild).marginBottom, 10);
-        tabContent.style.height = prevHeight + paddingTop + marginBottom + 'px';
-        // Add & Remove active class on `nav-tabs` & `tab-content`.
-        [...nav.children].forEach(target => {
-          target.classList.toggle('active', target === element);
-        });
-        // https://stackoverflow.com/questions/20306204/using-queryselector-with-ids-that-are-numbers
-        const tActive = document.getElementById(element.querySelector('a').getAttribute('href').replace('#', ''));
-        [...tActive.parentNode.children].forEach(target => {
-          target.classList.toggle('active', target === tActive);
-        });
-        // Trigger event
-        tActive.dispatchEvent(new Event('tabs:click', {
-          bubbles: true
-        }));
-        // Get the height of `tab-pane` which is activated now.
-        const hasScrollBar = document.body.scrollHeight > (window.innerHeight || document.documentElement.clientHeight);
-        const currHeight = parseInt(window.getComputedStyle(tabContent.querySelector('.active')).height, 10);
-        // Reset the height of `tab-content` and see the animation.
-        tabContent.style.height = currHeight + paddingTop + marginBottom + 'px';
-        // Change the height of `tab-content` may cause scrollbar show / disappear, which may result in the change of the `tab-pane`'s height
-        setTimeout(() => {
-          if ((document.body.scrollHeight > (window.innerHeight || document.documentElement.clientHeight)) !== hasScrollBar) {
-            tabContent.style.transition = 'height 0.3s linear';
-            // After the animation, we need reset the height of `tab-content` again.
-            const currHeightAfterScrollBarChange = parseInt(window.getComputedStyle(tabContent.querySelector('.active')).height, 10);
-            tabContent.style.height = currHeightAfterScrollBarChange + paddingTop + marginBottom + 'px';
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (Object.prototype.hasOwnProperty.call(attributes, attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
           }
-          // Remove all the inline styles, and let the height be adaptive again.
-          setTimeout(() => {
-            tabContent.style.transition = '';
-            tabContent.style.height = '';
-          }, 250);
-        }, 1000);
-        if (!CONFIG.stickytabs) return;
-        const offset = nav.parentNode.getBoundingClientRect().top + window.scrollY + 10;
-        NexT.utils.scrollTo(window, offset);
-      });
-    });
-
-    window.dispatchEvent(new Event('tabs:register'));
-  },
-
-  registerCanIUseTag() {
-    // Get responsive height passed from iframe.
-    window.addEventListener('message', ({ data }) => {
-      if (typeof data === 'string' && data.includes('ciu_embed')) {
-        const featureID = data.split(':')[1];
-        const height = data.split(':')[2];
-        document.querySelector(`iframe[data-feature=${featureID}]`).style.height = parseInt(height, 10) + 5 + 'px';
-      }
-    }, false);
-  },
-
-  registerActiveMenuItem() {
-    document.querySelectorAll('.menu-item a[href]').forEach(target => {
-      const isSamePath = target.pathname === location.pathname || target.pathname === location.pathname.replace('index.html', '');
-      const isSubPath = !CONFIG.root.startsWith(target.pathname) && location.pathname.startsWith(target.pathname);
-      target.classList.toggle('menu-item-active', target.hostname === location.hostname && (isSamePath || isSubPath));
-    });
-  },
-
-  registerLangSelect() {
-    const selects = document.querySelectorAll('.lang-select');
-    selects.forEach(sel => {
-      sel.value = CONFIG.page.lang;
-      sel.addEventListener('change', () => {
-        const target = sel.options[sel.selectedIndex];
-        document.querySelectorAll('.lang-select-label span').forEach(span => {
-          span.innerText = target.text;
-        });
-        // Disable Pjax to force refresh translation of menu item
-        window.location.href = target.dataset.href;
-      });
-    });
-  },
-
-  registerSidebarTOC() {
-    this.sections = [...document.querySelectorAll('.post-toc:not(.placeholder-toc) li a.nav-link')].map(element => {
-      const target = document.getElementById(decodeURI(element.getAttribute('href')).replace('#', ''));
-      // TOC item animation navigate.
-      element.addEventListener('click', event => {
-        event.preventDefault();
-        const offset = target.getBoundingClientRect().top + window.scrollY;
-        NexT.utils.scrollTo(window, offset);
-        history.pushState(null, document.title, element.href);
-      });
-      return target;
-    });
-    this.updateActiveNav();
-  },
-
-  registerPostReward() {
-    const button = document.querySelector('.reward-container button');
-    if (!button) return;
-    button.addEventListener('click', () => {
-      document.querySelector('.post-reward').classList.toggle('active');
-    });
-  },
-
-  activateNavByIndex(index) {
-    const nav = document.querySelector('.post-toc:not(.placeholder-toc) .nav');
-    if (!nav) return;
-
-    const navItemList = nav.querySelectorAll('.nav-item');
-    const target = navItemList[index];
-    if (!target || target.classList.contains('active-current')) return;
-
-    nav.querySelectorAll('.active').forEach(navItem => {
-      navItem.classList.remove('active', 'active-current');
-    });
-    target.classList.add('active', 'active-current');
-
-    let activateEle = target.querySelector('.nav-child') || target.parentElement;
-    let navChildHeight = 0;
-
-    while (nav.contains(activateEle)) {
-      if (activateEle.classList.contains('nav-item')) {
-        activateEle.classList.add('active');
-      } else { // .nav-child or .nav
-        // Exclude nested lists so each item's own wrapped row is counted once.
-        const listItemHeight = [...activateEle.children].reduce((height, navItem) => {
-          const navChild = [...navItem.children].find(element => element.classList.contains('nav-child'));
-          return height + navItem.getBoundingClientRect().height - (navChild?.getBoundingClientRect().height || 0);
-        }, 0);
-        // The last nav-item in a list has a margin-bottom of 5px.
-        navChildHeight += listItemHeight + 5;
-        activateEle.style.setProperty('--height', `${navChildHeight}px`);
-      }
-      activateEle = activateEle.parentElement;
-    }
-
-    // Scrolling to center active TOC element if TOC content is taller then viewport.
-    const tocElement = document.querySelector(CONFIG.scheme === 'Pisces' || CONFIG.scheme === 'Gemini' ? '.sidebar-panel-container' : '.sidebar');
-    if (!document.querySelector('.sidebar-toc-active')) return;
-    NexT.utils.scrollTo(tocElement, tocElement.scrollTop - (tocElement.offsetHeight / 2) + target.getBoundingClientRect().top - tocElement.getBoundingClientRect().top);
-  },
-
-  updateSidebarPosition() {
-    if (window.innerWidth < 1200 || CONFIG.scheme === 'Pisces' || CONFIG.scheme === 'Gemini') return;
-    // Expand sidebar on post detail page by default, when post has a toc.
-    const hasTOC = document.querySelector('.post-toc:not(.placeholder-toc)');
-    let display = CONFIG.page.sidebar;
-    if (typeof display !== 'boolean') {
-      // There's no definition sidebar in the page front-matter.
-      display = CONFIG.sidebar.display === 'always' || (CONFIG.sidebar.display === 'post' && hasTOC);
-    }
-    if (display) {
-      window.dispatchEvent(new Event('sidebar:show'));
-    }
-  },
-
-  activateSidebarPanel(index) {
-    const sidebar = document.querySelector('.sidebar-inner');
-    const activeClassNames = ['sidebar-toc-active', 'sidebar-overview-active'];
-    if (sidebar.classList.contains(activeClassNames[index])) return;
-
-    const panelContainer = sidebar.querySelector('.sidebar-panel-container');
-    const tocPanel = panelContainer.firstElementChild;
-    const overviewPanel = panelContainer.lastElementChild;
-
-    let postTOCHeight = tocPanel.scrollHeight;
-    // For TOC activation, try to use the animated TOC height
-    if (index === 0) {
-      const nav = tocPanel.querySelector('.nav');
-      if (nav) {
-        postTOCHeight = parseInt(nav.style.getPropertyValue('--height'), 10);
-      }
-    }
-    const panelHeights = [
-      postTOCHeight,
-      overviewPanel.scrollHeight
-    ];
-    panelContainer.style.setProperty('--inactive-panel-height', `${panelHeights[1 - index]}px`);
-    panelContainer.style.setProperty('--active-panel-height', `${panelHeights[index]}px`);
-
-    sidebar.classList.replace(activeClassNames[1 - index], activeClassNames[index]);
-  },
-
-  updateFooterPosition() {
-    if (CONFIG.scheme === 'Pisces' || CONFIG.scheme === 'Gemini') return;
-    function updateFooterPosition() {
-      const footer = document.querySelector('.footer');
-      const containerHeight = document.querySelector('.main').offsetHeight + footer.offsetHeight;
-      footer.classList.toggle('footer-fixed', containerHeight <= window.innerHeight);
-    }
-
-    updateFooterPosition();
-    window.addEventListener('resize', updateFooterPosition);
-    window.addEventListener('scroll', updateFooterPosition, { passive: true });
-  },
-
-  /**
-   * Sets the CSS variable '--dialog-scrollgutter' to the specified gap value.
-   * If no gap is provided, it calculates the gap as the difference between
-   * the window's inner width and the document body's client width.
-   *
-   * @param {string} [gap] - The gap value to be set. If not provided, the
-   *                         default gap is calculated automatically.
-   */
-  setGutter(gap) {
-    document.body.style.setProperty('--dialog-scrollgutter', gap || `${window.innerWidth - document.body.clientWidth}px`);
-  },
-
-  getScript(src, options = {}, legacyCondition) {
-    if (typeof options === 'function') {
-      return this.getScript(src, {
-        condition: legacyCondition
-      }).then(options);
-    }
-    const {
-      condition = false,
-      attributes: {
-        id = '',
-        defer = false,
-        crossOrigin = '',
-        dataset = {},
-        ...otherAttributes
-      } = {},
-      parentNode = null
-    } = options;
-    const async = options.async ?? false;
-    return new Promise((resolve, reject) => {
-      if (condition) {
-        resolve();
-      } else {
-        const script = document.createElement('script');
-
-        if (id) script.id = id;
-        if (crossOrigin) script.crossOrigin = crossOrigin;
-        script.async = async;
-        script.defer = defer;
-        Object.assign(script.dataset, dataset);
-        Object.entries(otherAttributes).forEach(([name, value]) => {
-          script.setAttribute(name, String(value));
-        });
-
-        script.onload = resolve;
-        script.onerror = reject;
-
-        if (typeof src === 'object') {
-          const { url, integrity } = src;
-          script.src = url;
-          if (integrity) {
-            script.integrity = integrity;
-            script.crossOrigin = 'anonymous';
-          }
-        } else {
-          script.src = src;
         }
-        (parentNode || document.head).appendChild(script);
       }
-    });
-  },
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      // 标记样式为已加载 (在创建元素后立即标记，防止重复创建)
+      utils._loadedStyles.add(href);
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
 
-  loadComments(selector, legacyCallback) {
-    if (legacyCallback) {
-      return this.loadComments(selector).then(legacyCallback);
-    }
-    return new Promise(resolve => {
-      const element = document.querySelector(selector);
-      if (!CONFIG.comments.lazyload || !element) {
+    // 已加载脚本缓存
+    _loadedScripts: new Set(),
+
+    // 已加载元素缓存 (使用 WeakSet 追踪元素实例,避免重复加载)
+    _loadedElements: new WeakSet(),
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      if (src.startsWith('/')) {
+        src = ctx.root + src.substring(1);
+      }
+      // 如果脚本已加载，直接返回
+      if (utils._loadedScripts.has(src)) {
         resolve();
         return;
       }
-      const intersectionObserver = new IntersectionObserver((entries, observer) => {
-        const entry = entries[0];
-        if (!entry.isIntersecting) return;
+      var script = document.createElement('script');
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function () {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        utils._loadedScripts.add(src);
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
 
-        resolve();
-        observer.disconnect();
+    // 原生 DOM 工具：querySelector / querySelectorAll 简写
+    qs: (sel, ctx) => (ctx || document).querySelector(sel),
+    qsa: (sel, ctx) => Array.prototype.slice.call((ctx || document).querySelectorAll(sel)),
+
+    // 原生 DOM 封装：常用 DOM 操作方法子集（find/append/class/attr/事件等）
+    dom: (selector, ctx) => {
+      var els = [];
+      if (typeof selector === 'string') {
+        els = utils.qsa(selector, ctx);
+      } else if (selector && selector.nodeType === 1) {
+        els = [selector];
+      } else if (selector && typeof selector.length === 'number') {
+        els = Array.prototype.slice.call(selector);
+      }
+      var api = {
+        length: els.length,
+        each: function (fn) {
+          els.forEach(function (el, i) {
+            fn.call(el, i, el);
+          });
+          return api;
+        },
+        find: function (sel) {
+          var result = [];
+          els.forEach(function (el) {
+            Array.prototype.push.apply(result, el.querySelectorAll(sel));
+          });
+          return utils.dom(result);
+        },
+        append: function (content) {
+          els.forEach(function (el) {
+            if (typeof content === 'string') {
+              el.insertAdjacentHTML('beforeend', content);
+            } else if (content && content.nodeType === 1) {
+              el.appendChild(content);
+            } else if (content && typeof content.length === 'number') {
+              Array.prototype.forEach.call(content, function (child) {
+                if (child && child.nodeType === 1) el.appendChild(child);
+              });
+            }
+          });
+          return api;
+        },
+        remove: function () {
+          els.forEach(function (el) {
+            el.remove();
+          });
+        },
+        addClass: function (cls) {
+          els.forEach(function (el) {
+            cls.trim().split(/\s+/).forEach(function (c) {
+              if (c) el.classList.add(c);
+            });
+          });
+          return api;
+        },
+        removeClass: function (cls) {
+          els.forEach(function (el) {
+            cls.trim().split(/\s+/).forEach(function (c) {
+              if (c) el.classList.remove(c);
+            });
+          });
+          return api;
+        },
+        toggleClass: function (cls, force) {
+          els.forEach(function (el) {
+            cls.trim().split(/\s+/).forEach(function (c) {
+              if (c) el.classList.toggle(c, force);
+            });
+          });
+          return api;
+        },
+        attr: function (name, value) {
+          if (value === undefined) {
+            return els[0] ? els[0].getAttribute(name) : undefined;
+          }
+          els.forEach(function (el) {
+            el.setAttribute(name, value);
+          });
+          return api;
+        },
+        data: function (name) {
+          return els[0] ? els[0].getAttribute('data-' + name) : undefined;
+        },
+        text: function (value) {
+          if (value === undefined) {
+            return els[0] ? els[0].textContent : undefined;
+          }
+          els.forEach(function (el) {
+            el.textContent = value;
+          });
+          return api;
+        },
+        html: function (content) {
+          if (content === undefined) {
+            return els[0] ? els[0].innerHTML : undefined;
+          }
+          els.forEach(function (el) {
+            if (typeof content !== 'string' && content && typeof content.length === 'number' && content[0] && content[0].nodeType === 1) {
+              var frag = document.createDocumentFragment();
+              Array.prototype.forEach.call(content, function (child) {
+                frag.appendChild(child);
+              });
+              el.replaceChildren(frag);
+            } else {
+              el.innerHTML = content;
+            }
+          });
+          return api;
+        },
+        val: function (value) {
+          if (value === undefined) {
+            return els[0] ? els[0].value : undefined;
+          }
+          els.forEach(function (el) {
+            el.value = value;
+          });
+          return api;
+        },
+        offset: function () {
+          var el = els[0];
+          if (!el) return { top: 0, left: 0 };
+          var rect = el.getBoundingClientRect();
+          return { top: rect.top + window.scrollY, left: rect.left + window.scrollX };
+        },
+        on: function (event, cb) {
+          els.forEach(function (el) {
+            el.addEventListener(event, cb);
+          });
+          return api;
+        },
+        click: function (cb) { return api.on('click', cb); },
+        focus: function (cb) { return api.on('focus', cb); },
+        keydown: function (cb) { return api.on('keydown', cb); },
+        empty: function () {
+          els.forEach(function (el) {
+            el.replaceChildren();
+          });
+          return api;
+        }
+      };
+      els.forEach(function (el, i) {
+        api[i] = el;
       });
-      intersectionObserver.observe(element);
-    });
-  },
+      return api;
+    },
 
-  debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-      const context = this;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(context, args), wait);
-    };
+    onLoading: (el) => {
+      if (el) {
+        if (el.querySelector('.loading-wrap') === null) {
+          el.insertAdjacentHTML('beforeend', `<div class="loading-wrap"><div class="lazy-icon"></div></div>`);
+        }
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        var wrap = el.querySelector('.loading-wrap');
+        if (wrap) wrap.remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        var wrap = el.querySelector('.loading-wrap');
+        if (wrap) {
+          var svg = wrap.querySelector('svg');
+          if (svg) svg.remove();
+          wrap.insertAdjacentHTML('beforeend', ctx.icons['default:warning']);
+          wrap.classList.add('error');
+        }
+      }
+    },
+    /********************** data cache ********************************/
+    // 动态数据本地缓存：TTL 未过期直接命中；过期后先显示缓存再后台刷新（stale-while-revalidate）
+    _cacheEnabled: true,
+    _cacheMaxEntryBytes: 200 * 1024,
+    // 同 URL 并发请求去重：页面内多个组件请求同一接口时共享一次 fetch
+    _pendingRequests: {},
+    _fetchShared: (url, options) => {
+      const key = (options && options.method || 'GET') + ' ' + url;
+      if (utils._pendingRequests[key]) {
+        return utils._pendingRequests[key].then(resp => resp.clone());
+      }
+      const promise = fetch(url, options).then(resp => {
+        if (!resp.ok) throw new Error('响应失败');
+        return resp;
+      }).finally(() => {
+        delete utils._pendingRequests[key];
+      });
+      utils._pendingRequests[key] = promise;
+      // 每个调用方各自 clone，避免 Response body 被消费后其他调用方取不到数据
+      return promise.then(resp => resp.clone());
+    },
+    // 延迟执行：缓存写入等非关键操作让出主线程
+    _defer: (fn) => {
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(fn, { timeout: 3000 });
+      } else {
+        setTimeout(fn, 0);
+      }
+    },
+    cache: {
+      prefix: 'Stellar.data_cache.v1.',
+      enabled: () => !!def.data_cache?.enable && utils._cacheEnabled,
+      serviceId: (el, options) => {
+        if (options && options.service) return options.service;
+        if (el) {
+          const match = String(el.className || '').match(/\bds-([\w-]+)\b/);
+          if (match) return match[1];
+        }
+        return null;
+      },
+      ttl: (el, options) => {
+        const conf = def.data_cache || {};
+        const id = utils.cache.serviceId(el, options);
+        const value = id && conf.ttl && conf.ttl[id] != null ? conf.ttl[id] : conf.default_ttl;
+        return typeof value === 'number' && value > 0 ? value : 0;
+      },
+      shouldCache: (url, options) => {
+        if (!utils.cache.enabled()) return false;
+        if (options && (options.cache === false || options.cache === 'no-store')) return false;
+        if (options && options.method && options.method !== 'GET') return false;
+        // 带时间戳缓存破坏参数的请求不缓存（如 mdrender 的 ?t=）
+        if (/[?&]t=\d{10,}/.test(url)) return false;
+        return true;
+      },
+      get: (url) => {
+        try {
+          const raw = localStorage.getItem(utils.cache.prefix + url);
+          if (!raw) return null;
+          const entry = JSON.parse(raw);
+          if (!entry || typeof entry.text !== 'string' || typeof entry.ts !== 'number') return null;
+          return entry;
+        } catch (e) {
+          console.warn('[cache] 读取失败:', url, e);
+          return null;
+        }
+      },
+      set: (url, text, contentType, ttl) => {
+        if (!(ttl > 0)) return;
+        if (text.length > utils._cacheMaxEntryBytes) return;
+        const entry = JSON.stringify({
+          text: text,
+          contentType: contentType || 'application/json',
+          ts: Date.now(),
+          ttl: ttl
+        });
+        const trySet = () => {
+          try {
+            localStorage.setItem(utils.cache.prefix + url, entry);
+            utils.cache.trim();
+            return true;
+          } catch (e) {
+            return false;
+          }
+        };
+        if (!trySet()) {
+          // 配额不足时淘汰最旧条目后重试一次，仍失败则本会话禁用缓存
+          utils.cache.evictOldest(url);
+          if (!trySet()) {
+            console.warn('[cache] 写入失败，本会话禁用缓存:', url);
+            utils._cacheEnabled = false;
+          }
+        }
+      },
+      trim: () => {
+        try {
+          const max = (def.data_cache && def.data_cache.max_entries) || 200;
+          const keys = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.indexOf(utils.cache.prefix) === 0) keys.push(key);
+          }
+          if (keys.length <= max) return;
+          const sorted = keys.map((key) => {
+            let ts = 0;
+            try {
+              const entry = JSON.parse(localStorage.getItem(key) || 'null');
+              if (entry && typeof entry.ts === 'number') ts = entry.ts;
+            } catch (e) {}
+            return { key, ts };
+          }).sort((a, b) => a.ts - b.ts);
+          for (let i = 0; i < sorted.length - max; i++) {
+            localStorage.removeItem(sorted[i].key);
+          }
+        } catch (e) {
+          console.warn('[cache] 清理失败:', e);
+        }
+      },
+      evictOldest: (exceptUrl) => {
+        try {
+          let oldestKey = null;
+          let oldestTs = Infinity;
+          const exceptKey = utils.cache.prefix + exceptUrl;
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!key || key.indexOf(utils.cache.prefix) !== 0 || key === exceptKey) continue;
+            let ts = 0;
+            try {
+              const entry = JSON.parse(localStorage.getItem(key) || 'null');
+              if (entry && typeof entry.ts === 'number') ts = entry.ts;
+            } catch (e) {}
+            if (ts < oldestTs) {
+              oldestTs = ts;
+              oldestKey = key;
+            }
+          }
+          if (oldestKey) localStorage.removeItem(oldestKey);
+        } catch (e) {}
+      },
+      isFresh: (entry) => {
+        if (!entry || typeof entry.ts !== 'number' || typeof entry.ttl !== 'number') return false;
+        if (!(entry.ttl > 0)) return false;
+        return Date.now() - entry.ts < entry.ttl * 1000;
+      },
+      // 用缓存文本重建 Response，兼容回调中的 resp.json() / resp.text()
+      toResponse: (entry) => new Response(entry.text, {
+        status: 200,
+        statusText: 'OK',
+        headers: { 'Content-Type': entry.contentType }
+      })
+    },
+    request: (el, url, callback, onFailure, options) => {
+      // 检查元素实例是否已加载 (而不是检查属性)
+      if (el && utils._loadedElements.has(el)) {
+        return;
+      }
+      const maxRetry = 3;
+      let retryCount = 0;
+      const ttl = utils.cache.ttl(el, options);
+      const cacheable = utils.cache.shouldCache(url, options) && ttl > 0;
+      const cached = cacheable ? utils.cache.get(url) : null;
+      // 缓存渲染前的初始结构，后台刷新渲染前恢复，避免重复渲染
+      let initialHTML = null;
+      // 缓存渲染完成后（或超时兜底）再启动后台刷新，避免异步渲染未结束就清空重绘
+      let cacheRenderDone = null;
+
+      if (cached) {
+        if (el) {
+          // 已有缓存时不显示加载动画
+          utils.onLoadSuccess?.(el);
+          initialHTML = el.innerHTML;
+        }
+        try {
+          cacheRenderDone = Promise.resolve(callback(utils.cache.toResponse(cached))).catch(e => {
+            console.warn('[request] 缓存渲染失败:', url, e);
+          });
+        } catch (e) {
+          console.warn('[request] 缓存渲染失败:', url, e);
+        }
+        // 缓存未过期：直接完成，不发请求
+        if (utils.cache.isFresh(cached)) {
+          if (el) utils._loadedElements.add(el);
+          return Promise.resolve(cached.text);
+        }
+      } else {
+        utils.onLoading?.(el);
+      }
+
+      return new Promise((resolve, reject) => {
+        const load = () => {
+          let timedOut = false;
+          const timeout = setTimeout(() => {
+            timedOut = true;
+            console.warn('[request] 超时:', url);
+
+            if (++retryCount >= maxRetry) {
+              if (cached) {
+                // 已有缓存渲染，保留缓存内容，不显示失败
+                resolve(cached.text);
+              } else {
+                utils.onLoadFailure?.(el);
+                onFailure?.();
+                reject('请求超时');
+              }
+            } else {
+              setTimeout(load, 1000);
+            }
+          }, 5000);
+
+          utils._fetchShared(url).then(resp => {
+            if (timedOut) return;
+            clearTimeout(timeout);
+            return resp;
+          }).then(data => {
+            if (timedOut) return;
+            // 标记元素实例为已加载
+            if (el) utils._loadedElements.add(el);
+            // 写入缓存：回调会立即消费 data 的 body，必须先同步 clone 再延迟读取
+            if (cacheable && data.ok) {
+              const cacheClone = data.clone();
+              const contentType = data.headers.get('Content-Type') || 'application/json';
+              utils._defer(() => {
+                cacheClone.text().then(text => {
+                  utils.cache.set(url, text, contentType, ttl);
+                }).catch(() => {});
+              });
+            }
+            // 后台刷新渲染前恢复初始结构，避免缓存渲染的内容重复
+            if (el && initialHTML !== null) {
+              el.innerHTML = initialHTML;
+            }
+            utils.onLoadSuccess?.(el);
+            callback(data);
+            resolve(data);
+          }).catch(err => {
+            clearTimeout(timeout);
+            console.warn('[request] 错误:', err);
+
+            if (++retryCount >= maxRetry) {
+              if (cached) {
+                resolve(cached.text);
+              } else {
+                utils.onLoadFailure?.(el);
+                onFailure?.();
+                reject(err);
+              }
+            } else {
+              setTimeout(load, 1000);
+            }
+          });
+        };
+
+        if (cacheRenderDone) {
+          Promise.race([
+            cacheRenderDone,
+            new Promise(resolve => setTimeout(resolve, 5000))
+          ]).then(load);
+        } else {
+          load();
+        }
+      });
+    },
+    requestWithoutLoading: (url, options = {}, maxRetry = 2, timeout = 5000) => {
+      const ttl = utils.cache.ttl(null, options);
+      const cacheable = utils.cache.shouldCache(url, options) && ttl > 0;
+      const cached = cacheable ? utils.cache.get(url) : null;
+
+      if (cached && utils.cache.isFresh(cached)) {
+        return Promise.resolve(utils.cache.toResponse(cached));
+      }
+
+      return new Promise((resolve, reject) => {
+        let retryCount = 0;
+        // 与 request 保持一致：最终失败时回退 stale 缓存，避免闪失败态
+        const fallback = () => {
+          if (cached) {
+            resolve(utils.cache.toResponse(cached));
+          } else {
+            reject('timeout');
+          }
+        };
+
+        const tryRequest = () => {
+          let timedOut = false;
+          const timer = setTimeout(() => {
+            timedOut = true;
+            if (++retryCount > maxRetry) fallback();
+            else tryRequest();
+          }, timeout);
+
+          utils._fetchShared(url, options)
+            .then(resp => {
+              clearTimeout(timer);
+              if (timedOut) return;
+              if (cacheable) {
+                // 调用方会消费 resp 的 body，必须先同步 clone 再延迟读取
+                const cacheClone = resp.clone();
+                const contentType = resp.headers.get('Content-Type') || 'application/json';
+                utils._defer(() => {
+                  cacheClone.text().then(text => {
+                    utils.cache.set(url, text, contentType, ttl);
+                  }).catch(() => {});
+                });
+              }
+              resolve(resp);
+            })
+            .catch(err => {
+              clearTimeout(timer);
+              if (timedOut) return;
+              if (++retryCount > maxRetry) {
+                if (cached) {
+                  resolve(utils.cache.toResponse(cached));
+                } else {
+                  reject(err);
+                }
+              } else {
+                setTimeout(tryRequest, 500);
+              }
+            });
+        };
+
+        tryRequest();
+      });
+    },
+    /********************** requestAnimationFrame ********************************/
+    // 1、requestAnimationFrame 会把每一帧中的所有 DOM 操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+    // 2、在隐藏或不可见的元素中，requestAnimationFrame 将不会进行重绘或回流，这当然就意味着更少的的 cpu，gpu 和内存使用量。
+    requestAnimationFrame: (fn) => {
+      if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      }
+      window.requestAnimationFrame(fn)
+    },
+    dark: {},
+
+    // 插件初始化管理器 - 统一处理 DOMContentLoaded 事件
+    _pluginInitializers: [],
+    _pluginCleanups: new Map(), // 存储每个插件的清理函数
+    
+    initPlugin: (initFn, name, options = {}) => {
+      if (!initFn || typeof initFn !== 'function') return;
+      
+      // 避免重复注册
+      const pluginName = name || initFn.name;
+      if (utils._pluginInitializers.some(p => p.name === pluginName)) return;
+      
+      // 包装初始化函数，添加防重复执行的保护
+      const wrappedInit = () => {
+        try {
+          // 在执行前先清理旧的资源
+          if (utils._pluginCleanups.has(pluginName)) {
+            const cleanup = utils._pluginCleanups.get(pluginName);
+            if (typeof cleanup === 'function') {
+              cleanup();
+            }
+          }
+          
+          // 执行初始化，可能返回清理函数
+          const cleanup = initFn();
+          
+          // 如果初始化函数返回了清理函数，保存它
+          if (typeof cleanup === 'function') {
+            utils._pluginCleanups.set(pluginName, cleanup);
+          }
+        } catch (error) {
+          console.error(`[Plugin ${pluginName}] 初始化失败:`, error);
+        }
+      };
+      
+      utils._pluginInitializers.push({ 
+        fn: wrappedInit, 
+        name: pluginName,
+        options: options 
+      });
+      
+      // 如果 DOM 已经加载完成，立即执行
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        wrappedInit();
+      } else {
+        // 否则等待 DOMContentLoaded
+        window.addEventListener('DOMContentLoaded', wrappedInit, { once: true });
+      }
+    },
+
+    // 清理所有插件资源
+    cleanupPlugins: () => {
+      utils._pluginCleanups.forEach((cleanup, name) => {
+        try {
+          cleanup();
+        } catch (error) {
+          console.error(`[Plugin ${name}] 清理失败:`, error);
+        }
+      });
+      utils._pluginCleanups.clear();
+    },
+    
+    // 清理所有资源（用于页面卸载或重置）
+    cleanupAll: () => {
+      utils.cleanupPlugins();
+    },
+  };
+
+  // utils.dark.mode 当前模式 dark or light
+  // utils.dark.toggle() 暗黑模式触发器
+  // utils.dark.push(callBack[,"callBackName"]) 传入触发器回调函数
+  utils.dark.method = {
+    toggle: new RunItem(),
+  };
+  utils.dark = Object.assign(utils.dark, {
+    push: utils.dark.method.toggle.push,
+  });
+
+  // 暴露到 window：页尾插件片段经裸标识符 utils 即可使用
+  window.utils = utils;
+
+  // 补跑解析期注册的插件队列
+  if (window.stellar && typeof window.stellar._flushPlugins === 'function') {
+    window.stellar._flushPlugins();
   }
-};
+})();
