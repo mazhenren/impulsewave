@@ -159,5 +159,5 @@ footer:
 inject:
   head_begin: |
     <script defer src="/impulsewave/js/planet-badge.js"></script>
-    <script defer src="/impulsewave/js/planet-feed.js"></script>
-    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=2">
+    <script defer src="/impulsewave/js/planet-feed.js?v=3"></script>
+    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=3">

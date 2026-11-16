@@ -6,6 +6,7 @@
  *
  * 信息流页（.planet-feed[data-api] 存在）：
  *   1. 渲染星球式卡片：左头像、橙色作者名、灰色时间、正文、标签、底部操作栏
+ *      - 每条动态带 data-planet-source / data-issue-number，头部 #N 徽标直达原 Issue
  *   2. 顶部置顶区：置顶帖从信息流抽出，单行截断展示
  *   3. 话题标签筛选栏：按 tags 聚合统计，单选筛选 + 「全部」重置
  *   4. 长动态折叠：.body 高度 > 320px 自动折叠，展开/收起平滑过渡
@@ -101,6 +102,13 @@
     node.className = 'timenode';
     node.dataset.labels = (item.tags || []).join('\u0001');
 
+    // 来源关联：数据来自构建期 planet-generator.js 注入的 source 字段
+    var source = item.source && item.source.type === 'github-issue' ? item.source : null;
+    if (source && source.number != null) {
+      node.dataset.planetSource = 'github-issue';
+      node.dataset.issueNumber = String(source.number);
+    }
+
     var header = document.createElement('div');
     header.className = 'header';
 
@@ -119,6 +127,20 @@
     time.textContent = formatDate(item.date);
 
     header.appendChild(user);
+
+    // 可追溯的原帖入口：点徽标直接回到生成这条动态的 GitHub Issue
+    if (source && source.number != null) {
+      var issue = document.createElement('a');
+      issue.className = 'planet-issue-link';
+      issue.href = source.url || ('https://github.com/' + REPO + '/issues/' + source.number);
+      issue.target = '_blank';
+      issue.rel = 'external nofollow noopener noreferrer';
+      issue.title = '来自 GitHub Issue #' + source.number;
+      issue.textContent = '#' + source.number;
+      header.appendChild(issue);
+    }
+
+    // 时间放在最后：CSS 让 .header > span 占满整行，形成「头像/来源 + 时间」两行结构
     header.appendChild(time);
 
     var body = document.createElement('div');
@@ -330,20 +352,26 @@
     container.dataset.rendered = '1';
 
     loadFeed().then(function (data) {
-      if (!data || !data.posts || !data.posts.length) return;
+      // 数据缺失/格式异常：保留空容器，不影响页面其余部分
+      if (!data || !Array.isArray(data.posts) || !data.posts.length) return;
       var author = data.author || {};
-      var pinned = data.posts.filter(function (p) { return p.pinned; });
-      var list = data.posts.filter(function (p) { return !p.pinned; });
+      var pinned = data.posts.filter(function (p) { return p && p.pinned; });
+      var list = data.posts.filter(function (p) { return p && !p.pinned; });
 
-      if (pinned.length) renderPinned(container, pinned);
-      list.forEach(function (item) { container.appendChild(buildPost(item, author)); });
-      if (list.length) buildFilter(container, list);
+      try {
+        if (pinned.length) renderPinned(container, pinned);
+        list.forEach(function (item) { container.appendChild(buildPost(item, author)); });
+        if (list.length) buildFilter(container, list);
 
-      // 主题懒加载扫描后注入的图片，需要手动接入
-      if (typeof window.wrapLazyloadImages === 'function') {
-        window.wrapLazyloadImages(container);
+        // 主题懒加载扫描后注入的图片，需要手动接入
+        if (typeof window.wrapLazyloadImages === 'function') {
+          window.wrapLazyloadImages(container);
+        }
+        container.querySelectorAll('.timenode').forEach(setupCollapse);
+      } catch (err) {
+        container.dataset.rendered = 'error';
+        if (window.console && console.warn) console.warn('[planet] 信息流渲染失败', err);
       }
-      container.querySelectorAll('.timenode').forEach(setupCollapse);
     });
   }
 
@@ -372,12 +400,17 @@
 
   function initPostComments() {
     loadFeed().then(function (data) {
-      if (!data || !data.posts) return;
+      if (!data || !Array.isArray(data.posts)) return;
       var path = location.pathname.replace(/index\.html$/, '');
       var item = null;
-      for (var i = 0; i < data.posts.length; i++) {
-        var u = data.posts[i].url;
-        if (u && new URL(u).pathname === path) { item = data.posts[i]; break; }
+      try {
+        for (var i = 0; i < data.posts.length; i++) {
+          var u = data.posts[i] && data.posts[i].url;
+          if (u && new URL(u).pathname === path) { item = data.posts[i]; break; }
+        }
+      } catch (err) {
+        if (window.console && console.warn) console.warn('[planet] 文章匹配失败', err);
+        return;
       }
       if (!item) return;
 

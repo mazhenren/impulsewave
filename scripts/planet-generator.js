@@ -4,6 +4,8 @@
  * 与旧版 planet-issues.json 的区别：
  * - 不再照搬 GitHub Issue 字段（user/labels/html_url/created_at），改用博客文章语义：
  *   title / url / date / html / tags / pinned / featured / comments / reactions
+ * - source 字段保存来源关联（github-issue + Issue 编号 + 原文链接），供前端展示徽标、
+ *   并在排查时把一条动态准确回溯到原 Issue
  * - 正文在构建期用 Hexo 渲染成 HTML（p.content），前端不再依赖 marked 二次解析
  * - number 仅用于把评论映射回原 Issue（Utterances issue-number），不是内容来源
  *
@@ -14,6 +16,8 @@
  * 星球帖必须直接从 Post 模型读取，否则本文件会输出空数组。
  */
 'use strict';
+
+const { sourceInfo } = require('./planet-source');
 
 hexo.extend.generator.register('planet-feed', function (locals) {
   const arr = q => {
@@ -35,16 +39,24 @@ hexo.extend.generator.register('planet-feed', function (locals) {
   this.model('Post').find({ published: true }).each(p => {
     if (!p.source || !/_posts[\\/]planet-\d+\.md$/.test(p.source)) return;
     const num = parseInt(p.source.match(/planet-(\d+)\.md$/)[1], 10);
+    if (!Number.isFinite(num)) return; // 编号异常：跳过而不是产出错链
     const meta = metaMap.get(num) || {};
 
     const tags = arr(p.categories).concat(arr(p.tags).map(t => '# ' + t));
     if (meta.featured) tags.push('★ 精华');
 
+    // 链接以 Post 自身 path 为准（abbrlink 缺失时仍能生成有效地址）
+    let rel = String(p.path || '').replace(/^\/+/, '');
+    if (!rel) rel = 'posts/' + (p.abbrlink || num) + '/';
+    if (!/\/$/.test(rel)) rel += '/';
+
     posts.push({
       // 仅用于文章页评论映射（Utterances issue-number），不参与内容渲染
       number: num,
+      // 来源关联：来源类型 + 原 Issue 编号 + 原文链接，前端据此显示徽标并可追溯
+      source: sourceInfo(num),
       title: p.title || '',
-      url: siteBase + '/posts/' + (p.abbrlink || '') + '/',
+      url: siteBase + '/' + rel,
       date: p.date ? p.date.toISOString() : '',
       updated: p.updated ? p.updated.toISOString() : '',
       // 构建期已渲染的正文 HTML（图片路径已按 root 补全）

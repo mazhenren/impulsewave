@@ -21,7 +21,8 @@
  */
 'use strict';
 
-const PLANET_SOURCE = /_posts[\\/]planet-\d+\.md$/;
+// 判定规则只在 scripts/planet-source.js 维护一份，避免各脚本漂移
+const { PLANET_SOURCE } = require('./planet-source');
 
 /** 星球帖判定：文件名 planet-<n>.md */
 function isPlanetPost(p) {

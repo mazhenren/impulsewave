@@ -1,9 +1,10 @@
 /**
  * 星球动态首页生成器：输出 /（path 空字符串 → public/index.html，layout: page）。
  *
- * 数据源是构建期生成的 planet-feed.json（博客文章结构），由 source/js/planet-enhance.js
- * 客户端渲染成星球式信息流。容器刻意不加 ds-timeline 类，避免 Stellar 的
- * GitHub Issues timeline service 接管（它只认 Issue 字段格式）。
+ * 数据源是构建期生成的 planet-feed.json（博客文章结构），由 source/js/planet-feed.js
+ * 客户端渲染成星球式信息流。容器类名刻意用 .planet-feed，不再复用主题的
+ * tag-plugin/timeline 语义：Stellar 的 GitHub Issues timeline 服务只认 .ds-timeline，
+ * 且该标签插件已在 scripts/planet-timeline-off.js 里注销。
  * data-api 带构建时间戳，避免 GitHub Pages CDN 缓存上一版数据。
  */
 'use strict';
@@ -14,7 +15,7 @@ hexo.extend.generator.register('planet-home', function () {
   const feedVersion = Date.now();
   const content = [
     '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。内容由博客文章在构建时生成，正文直接在信息流内展开，点「查看详情」进入文章页，评论区直连原帖讨论。</p>',
-    `<div class="tag-plugin timeline planet-feed" data-api="${siteBase}/planet-feed.json?v=${feedVersion}"></div>`
+    `<div class="planet-feed" data-api="${siteBase}/planet-feed.json?v=${feedVersion}"></div>`
   ].join('\n');
 
   return {
