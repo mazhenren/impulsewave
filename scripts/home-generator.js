@@ -14,9 +14,11 @@
 
 hexo.extend.generator.register('planet-home', function () {
   const siteBase = hexo.config.url.replace(/\/$/, '');
+  // 构建时间戳：避免 GitHub Pages CDN / 浏览器缓存到上一版 planet-issues.json
+  const feedVersion = Date.now();
   const content = [
     '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。帖子由 GitHub Issue 自动同步生成，正文直接在信息流内展开，点「查看详情」进入文章页，评论区直连原 Issue 讨论。</p>',
-    `<div class="tag-plugin timeline data-service ds-timeline" data-api="${siteBase}/planet-issues.json"></div>`
+    `<div class="tag-plugin timeline data-service ds-timeline" data-api="${siteBase}/planet-issues.json?v=${feedVersion}"></div>`
   ].join('\n');
 
   return {
