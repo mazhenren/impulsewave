@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 博客文章评论
+    url: https://mazhenren.github.io/impulsewave/
+    about: 文章评论请使用文章页下方的评论框，勿在此新建 Issue

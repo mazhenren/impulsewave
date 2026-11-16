@@ -40,6 +40,16 @@
 - [ ] 新文章 head 中 canonical 与 og:url 一致、og:image 为绝对地址
 - [ ] 旧文有实质修改时，确认 `article:modified_time` 已更新
 
+## 星球内容发布规则（GitHub Issue 自动同步）
+
+- 发布入口：仓库 Issues → 「🪐 星球发帖」表单，填标题/正文/分类（可选：标签、摘要、封面图），提交即发布
+- 自动同步：`planet-sync.yml` 监听 Issues 事件，由 `tools/sync-planet.mjs` 生成 `source/_posts/planet-<n>.md`，再显式触发 `deploy.yml` 部署（GITHUB_TOKEN 的提交不会触发 on:push）
+- 帖子文件由脚本自动生成，**禁止手工修改** `planet-<n>.md`（下次同步会被覆盖）
+- 精华/置顶：在 Issue 右侧加 `featured` / `pin` 标签；下线：关闭 Issue 即从站点移除
+- 草稿：加 `status/draft` 标签则不同步
+- 信息流页：`/planet/`，数据来自构建期生成的 `/planet-data.json`（含评论/点赞计数）
+- 图床：Issue 中粘贴的图片使用 GitHub 官方图床（user-images.githubusercontent.com），暂不做本地转存
+
 ## 验证闭环
 
 1. push 后确认仓库 Actions 页 Deploy 工作流 success（20~60 秒）
