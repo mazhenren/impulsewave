@@ -14,7 +14,7 @@ hexo.extend.generator.register('planet-home', function () {
   // 构建时间戳：避免 GitHub Pages CDN / 浏览器缓存到上一版 planet-feed.json
   const feedVersion = Date.now();
   const content = [
-    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。内容由博客文章在构建时生成，正文直接在信息流内展开，点「查看详情」进入文章页，评论区直连原帖讨论。</p>',
+    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。内容由博客文章在构建时生成，正文直接在信息流内展开，点「查看详情」在当前页弹窗阅读全文，评论区直连原帖讨论。</p>',
     `<div class="planet-feed" data-api="${siteBase}/planet-feed.json?v=${feedVersion}"></div>`
   ].join('\n');
 
@@ -31,6 +31,25 @@ hexo.extend.generator.register('planet-home', function () {
     }
   };
 });
+
+/**
+ * 首页不显示页头横幅。
+ *
+ * 需求：星球动态页移除「主页 / 星球动态 / 作者 / 日期」这一组页头字段（含标题）。
+ * 主题的 banner.enabled 只对 collection pipeline 构建的页面生效，本 generator 输出的是
+ * 内存页、取不到 pageConfig，因此改为在 HTML 渲染完成后按模板结构裁掉整个横幅块：
+ * 从 `<div class="article-banner-wrap` 起，到正文 `<article class="md-text content` 止。
+ */
+hexo.extend.filter.register('after_render:html', function (html, locals) {
+  if (typeof html !== 'string' || !html) return html;
+  const page = locals && locals.page;
+  const isHome = page && page.__index && (!locals.path || locals.path === 'index.html');
+  if (!isHome) return html;
+  const start = html.indexOf('<div class="article-banner-wrap');
+  const end = html.indexOf('<article class="md-text content');
+  if (start === -1 || end === -1 || end <= start) return html;
+  return html.slice(0, start) + html.slice(end);
+}, 8);
 
 /**
  * 首页不显示主题评论区。
