@@ -4,7 +4,7 @@
  * 信息流页（.ds-timeline 存在）：
  *   1. 话题标签筛选栏：按 planet-issues.json 聚合统计，单选筛选 + 「全部」重置
  *   2. 长动态折叠：.body 高度 > 320px 自动折叠，展开/收起平滑过渡
- *   3. 卡片内评论：按 JSON 下标取 Issue 编号，utterances issue-number 直连原 Issue（懒加载）
+ *   （卡片内不再挂评论框，讨论入口只在文章页）
  *
  * 文章页（路径命中 planet-issues.json 中的文章链接）：
  *   4. 评论区统一映射回原 Issue：已有 #utterances 时改属性（零竞态），否则注入新评论区
@@ -152,7 +152,7 @@
     setTimeout(measure, 800); // 主题 lazyload 重排后兜底
   }
 
-  /* ============ 模块 3：卡片内评论（utterances，懒加载） ============ */
+  /* ============ 模块 3：评论区挂载（仅文章页使用） ============ */
 
   function mountUtterances(box, attrs) {
     var s = document.createElement('script');
@@ -179,24 +179,6 @@
     io.observe(box);
   }
 
-  function setupCardComments(node, feed) {
-    if (node.querySelector('.planet-comments')) return;
-    var idx = parseInt(node.getAttribute('index'), 10);
-    var item = feed && !isNaN(idx) ? feed[idx] : null;
-    if (!item) return; // 无对应数据时保持原「💬 原帖讨论」跳转
-
-    // issue-number 直连原 Issue；数据未更新时 fallback 为标题精确匹配
-    var attrs = item.number
-      ? { 'issue-number': String(item.number) }
-      : (item.title ? { 'issue-term': item.title } : null);
-    if (!attrs) return;
-
-    var box = document.createElement('div');
-    box.className = 'planet-comments';
-    node.appendChild(box);
-    lazyMount(box, attrs);
-  }
-
   /* ============ 信息流页入口 ============ */
 
   function initTimeline() {
@@ -205,14 +187,10 @@
 
     var feed = null;
 
-    // 幂等增强：对当前所有卡片执行折叠与评论挂载（setupCollapse/setupCardComments 均有防重保护）
+    // 幂等增强：setupCollapse 有防重保护
     function enhanceAll() {
       if (!feed) return;
-      var nodes = timeline.querySelectorAll('.timenode');
-      nodes.forEach(function (n) {
-        setupCollapse(n);
-        setupCardComments(n, feed);
-      });
+      timeline.querySelectorAll('.timenode').forEach(function (n) { setupCollapse(n); });
     }
 
     // 数据就绪后构建筛选栏并首次增强；同时轮询兜底——
@@ -224,11 +202,9 @@
       var started = Date.now();
       var timer = setInterval(function () {
         enhanceAll();
-        // 已挂载评论容器数 >= feed 条数（无 number 数据的除外）则停止轮询
-        var mounted = timeline.querySelectorAll('.timenode .planet-comments').length;
-        var expected = 0;
-        feed.forEach(function (item) { if (item.number) expected++; });
-        if (mounted >= expected || Date.now() - started > 15000) clearInterval(timer);
+        // 所有卡片都完成折叠探测后停止轮询
+        var pending = timeline.querySelectorAll('.timenode:not([data-collapse-init])').length;
+        if (pending === 0 || Date.now() - started > 15000) clearInterval(timer);
       }, 400);
     });
 
@@ -238,7 +214,6 @@
         m.addedNodes.forEach(function (n) {
           if (n.nodeType !== 1 || !n.classList.contains('timenode')) return;
           setupCollapse(n);
-          setupCardComments(n, feed);
         });
       });
     });
