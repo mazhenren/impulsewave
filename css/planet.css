@@ -1,0 +1,111 @@
+/**
+ * 星球动态增强样式：筛选栏 / 长动态折叠 / 卡片内评论区。
+ * 变量与规范（圆角、字号、间距）对齐 Stellar 主题 timeline 组件。
+ */
+
+/* ============ 话题标签筛选栏 ============ */
+.planet-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 1rem;
+  user-select: none;
+}
+
+.planet-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--block-border);
+  background: var(--block);
+  color: var(--text-p1);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s ease-in-out;
+}
+
+.planet-chip:hover {
+  background: var(--block-border);
+}
+
+.planet-chip.active {
+  border-color: var(--theme);
+  background: var(--theme);
+  color: white;
+}
+
+@media (max-width: 500px) {
+  .planet-filter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .planet-filter::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ============ 长动态折叠 ============ */
+/* transition 需挂在常态上，否则移除 .planet-collapsed 时无过渡（展开无动画） */
+.tag-plugin.timeline .timenode > .body {
+  transition: max-height .3s ease;
+}
+
+.tag-plugin.timeline .timenode.planet-collapsed > .body {
+  overflow: hidden;
+  position: relative;
+}
+
+/* 底部渐隐遮罩 */
+.tag-plugin.timeline .timenode.planet-collapsed > .body:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  background: linear-gradient(180deg, transparent, var(--card) 85%);
+  pointer-events: none;
+}
+
+.planet-expand {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-p1);
+  background: var(--block);
+  border: 1px solid var(--block-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s ease-in-out;
+}
+
+.planet-expand:hover {
+  background: var(--block-border);
+  color: var(--accent);
+}
+
+/* ============ 卡片内评论区 ============ */
+.planet-comments {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.planet-comments iframe,
+.planet-utterances iframe {
+  min-height: 180px;
+}
+
+/* 文章页自建评论区（主题 comments: false 时注入） */
+.planet-post-comments {
+  margin-top: 2rem;
+}
