@@ -1,28 +1,54 @@
 /**
- * 星球动态：信息流按知识星球式通栏布局覆写 Stellar timeline。
+ * 星球动态：信息流按知识星球式通栏布局。
+ * 与 Stellar timeline 完全解耦：容器只使用 .planet-feed，不再依赖
+ * .tag-plugin.timeline 的样式；下面的基座规则就是原先借用主题的那部分布局。
  * 变量沿用主题（--text-p1/p3、--block-border、--card、--theme）。
  */
 
 /* ============ 信息流容器：去时间轴竖线与卡片 ============ */
-.tag-plugin.timeline[data-api] {
+.planet-feed {
+  position: relative;
   padding-left: 0;
 }
 
-.tag-plugin.timeline[data-api]:before {
+.planet-feed .timenode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.planet-feed .timenode > .header,
+.planet-feed .timenode > .body {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* 正文块级排版（原先由主题 timeline 的 .body 规则提供） */
+.planet-feed .body p img {
+  display: block;
+}
+
+.planet-feed .body ul,
+.planet-feed .body ol {
+  margin: 0 0 0.7rem;
+  padding-left: 1.4em;
+}
+
+/* 头部时间轴圆点：主题结构已不参与，兜底隐藏 */
+.planet-feed .timenode .header:before {
   display: none;
 }
 
-.tag-plugin.timeline[data-api] .timenode .header:before {
-  display: none;
-}
-
-.tag-plugin.timeline[data-api] .timenode + .timenode {
+.planet-feed .timenode + .timenode {
   margin-top: 0;
   padding-top: 1.25rem;
   border-top: 1px solid var(--block-border);
 }
 
-.tag-plugin.timeline[data-api] .timenode > .body {
+.planet-feed .timenode > .body {
   background: transparent;
   border-radius: 0;
   box-shadow: none;
@@ -33,14 +59,14 @@
 }
 
 /* ============ 头部：左圆形头像 + 橙色作者名 + 灰色时间 ============ */
-.tag-plugin.timeline[data-api] .timenode .header {
+.planet-feed .timenode .header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   margin: 0;
 }
 
-.tag-plugin.timeline[data-api] .timenode .header .user-info {
+.planet-feed .timenode .header .user-info {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -48,7 +74,7 @@
   border-radius: 0;
 }
 
-.tag-plugin.timeline[data-api] .timenode .header .user-info img {
+.planet-feed .timenode .header .user-info img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -56,13 +82,13 @@
   object-fit: cover;
 }
 
-.tag-plugin.timeline[data-api] .timenode .header .user-info span {
+.planet-feed .timenode .header .user-info span {
   font-size: 15px;
   font-weight: 600;
   color: #bd7a50 !important;
 }
 
-.tag-plugin.timeline[data-api] .timenode .header > span {
+.planet-feed .timenode .header > span {
   flex-basis: 100%;
   margin: 4px 0 0 50px;
   font-size: 12px;
@@ -70,46 +96,65 @@
   color: var(--text-p3);
 }
 
-.tag-plugin.timeline[data-api] .timenode:hover .header > span,
-.tag-plugin.timeline[data-api] .timenode:hover .header .user-info span {
+.planet-feed .timenode:hover .header > span,
+.planet-feed .timenode:hover .header .user-info span {
   color: inherit;
 }
 
-.tag-plugin.timeline[data-api] .timenode:hover .header .user-info span {
+.planet-feed .timenode:hover .header .user-info span {
   color: #bd7a50;
 }
 
-:root[data-theme="dark"] .tag-plugin.timeline[data-api] .timenode .header .user-info span {
+:root[data-theme="dark"] .planet-feed .timenode .header .user-info span {
   color: #d8a07a !important;
 }
 
+/* 头部原帖徽标：直达生成这条动态的 GitHub Issue */
+.planet-issue-link {
+  margin-left: auto;
+  padding: 1px 8px;
+  border: 1px solid var(--block-border);
+  border-radius: 10px;
+  color: var(--text-p3);
+  font-size: 12px;
+  line-height: 1.6;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+
+.planet-issue-link:hover {
+  border-color: #bd7a50;
+  color: #bd7a50;
+}
+
 /* ============ 正文：去标题、正文通栏排版 ============ */
-.tag-plugin.timeline[data-api] .body p.title {
+.planet-feed .body p.title {
   display: none;
 }
 
-.tag-plugin.timeline[data-api] .body p {
+.planet-feed .body p {
   margin: 0 0 0.7rem;
   --fs-content: 16px;
 }
 
-.tag-plugin.timeline[data-api] .body p:last-child {
+.planet-feed .body p:last-child {
   margin-bottom: 0;
 }
 
-.tag-plugin.timeline[data-api] .body img {
+.planet-feed .body img {
   border-radius: 6px;
   margin: 0.6rem auto;
 }
 
 /* 多图：三列网格（JS 给包含 2 张以上图片的段落加 .planet-gallery） */
-.tag-plugin.timeline[data-api] .body p.planet-gallery {
+.planet-feed .body p.planet-gallery {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 
-.tag-plugin.timeline[data-api] .body p.planet-gallery img {
+.planet-feed .body p.planet-gallery img {
   width: 100%;
   height: 100%;
   aspect-ratio: 1 / 1;
@@ -118,23 +163,23 @@
 }
 
 @media (max-width: 600px) {
-  .tag-plugin.timeline[data-api] .body p.planet-gallery {
+  .planet-feed .body p.planet-gallery {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 /* ============ 底部：左标签 + 右操作栏 ============ */
-.tag-plugin.timeline[data-api] .body .footer {
+.planet-feed .body .footer {
   margin: 0.75rem 0 0;
   padding: 0;
   align-items: center;
 }
 
-.tag-plugin.timeline[data-api] .body .footer .flex.right {
+.planet-feed .body .footer .flex.right {
   display: none;
 }
 
-.tag-plugin.timeline[data-api] .body .footer .item.label {
+.planet-feed .body .footer .item.label {
   border: none;
   background: none;
   padding: 0;
@@ -143,7 +188,7 @@
   color: var(--text-p3);
 }
 
-.tag-plugin.timeline[data-api] .body .footer .item.label span {
+.planet-feed .body .footer .item.label span {
   color: var(--text-p3);
   line-height: 1.6;
 }
@@ -225,7 +270,7 @@
 }
 
 /* 置顶帖已移入顶部置顶区，信息流里隐藏（!important 防止筛选逻辑用行内 display 恢复） */
-.tag-plugin.timeline[data-api] .timenode.planet-pinned-hidden {
+.planet-feed .timenode.planet-pinned-hidden {
   display: none !important;
 }
 
@@ -280,17 +325,17 @@
 
 /* ============ 长动态折叠 ============ */
 /* transition 需挂在常态上，否则移除 .planet-collapsed 时无过渡（展开无动画） */
-.tag-plugin.timeline .timenode > .body {
+.planet-feed .timenode > .body {
   transition: max-height .3s ease;
 }
 
-.tag-plugin.timeline .timenode.planet-collapsed > .body {
+.planet-feed .timenode.planet-collapsed > .body {
   overflow: hidden;
   position: relative;
 }
 
 /* 底部渐隐遮罩（页面底色，深色模式为黑） */
-.tag-plugin.timeline .timenode.planet-collapsed > .body:after {
+.planet-feed .timenode.planet-collapsed > .body:after {
   content: '';
   position: absolute;
   left: 0;
@@ -329,3 +374,41 @@
 .planet-post-comments {
   margin-top: 2rem;
 }
+
+/* ============ 文章页来源徽标（构建期由 scripts/planet-marker.js 注入） ============ */
+.planet-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 1rem;
+  padding: 5px 10px;
+  border: 1px solid var(--block-border);
+  border-radius: 8px;
+  color: var(--text-p3);
+  font-size: 12px;
+  line-height: 1.5;
+  text-decoration: none;
+  transition: all .15s ease;
+}
+
+.planet-source-badge:hover {
+  border-color: #bd7a50;
+  color: #bd7a50;
+}
+
+.planet-source-badge .planet-source-tag {
+  font-weight: 600;
+  color: var(--text-p1);
+}
+
+.planet-source-badge .planet-source-num {
+  padding: 0 5px;
+  border-radius: 4px;
+  background: rgba(189, 122, 80, .12);
+  color: #bd7a50;
+}
+
+.planet-source-badge:hover .planet-source-tag {
+  color: #bd7a50;
+}
+
