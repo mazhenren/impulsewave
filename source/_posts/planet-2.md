@@ -15,7 +15,7 @@ planet:
   featured: false
   updated: 2026-11-16T01:15:03Z
   url: https://github.com/mazhenren/impulsewave/issues/2
-  checksum: 69d3679e022e
+  checksum: 6429d7f09b88
 ---
 
 星球信息流已上线。这篇帖子由 GitHub Issue 自动同步生成：提交 Issue → Actions 同步为文章 → 静态构建部署，全程无需本地操作。

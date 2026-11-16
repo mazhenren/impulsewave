@@ -1,7 +1,8 @@
 ---
 title: "Test"
 date: 2026-11-14 20:07:39
-description: "Test promphoto_1794629017188.jpghttps://github.com/userattachments/assets/73871f204a044931addb25d3df"
+description: "Test Test2"
+abbrlink: 784dd132
 comments: false
 planet:
   issue: 1
@@ -9,7 +10,7 @@ planet:
   featured: false
   updated: 2026-11-16T04:16:12Z
   url: https://github.com/mazhenren/impulsewave/issues/1
-  checksum: e5bdbf5aee03
+  checksum: 58938546c774
 ---
 
 Test

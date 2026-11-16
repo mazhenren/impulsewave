@@ -47,9 +47,11 @@
 
 ## 星球内容发布规则（GitHub Issue 自动同步）
 
-- 发布入口：仓库 Issues → 「🪐 星球发帖」表单，填标题/正文/分类（可选：标签、摘要、封面图），提交即发布
-- 自动同步：`planet-sync.yml` 监听 Issues 事件，由 `tools/sync-planet.mjs` 生成 `source/_posts/planet-<n>.md`，再显式触发 `deploy.yml` 部署（GITHUB_TOKEN 的提交不会触发 on:push）
-- 帖子文件由脚本自动生成，**禁止手工修改** `planet-<n>.md`（下次同步会被覆盖）
+- 发布入口：仓库 Issues → 新建 Issue（用「🪐 星球发帖」表单更好，可直接选分类/标签/摘要/封面）。**仓库所有者创建的 Issue 默认就是星球帖，无需打 `planet` 标签**
+- 收录规则：`tools/sync-planet.mjs` 拉取全部 Issue 后本地筛选——所有者创建的直接收录；他人创建的需带 `planet` 标签；Bot 创建的（utterances 评论机器人等）自动排除；PR 与 `status/draft` 跳过
+- 分类来源优先级：Issue 表单的「分类」字段 → `cat/股票` 这类分类标签；都没有则无分类
+- 自动同步：`planet-sync.yml` 监听 Issues 事件（工作流已加 `concurrency` 串行，避免同一次发帖的多事件并发推送冲突），由 `tools/sync-planet.mjs` 生成 `source/_posts/planet-<n>.md`，再显式触发 `deploy.yml` 部署（GITHUB_TOKEN 的提交不会触发 on:push）
+- 帖子文件由脚本自动生成，**禁止手工修改** `planet-<n>.md`（下次同步会被覆盖）。要改内容请直接编辑原 Issue
 - 精华/置顶：在 Issue 右侧加 `featured` / `pin` 标签；下线：关闭 Issue 即从站点移除
 - 草稿：加 `status/draft` 标签则不同步
 - 信息流首页：`/`（Stellar timeline 渲染），数据来自构建期生成的 `/planet-issues.json`（含 number/评论/点赞计数）；置顶帖由生成器排序前置。旧地址 `/planet/` 为跳转页，自动转回首页

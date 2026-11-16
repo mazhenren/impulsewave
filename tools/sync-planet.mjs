@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 /**
  * 星球内容同步：GitHub Issues → source/_posts/planet-<n>.md + source/_data/planet-meta.json
- * 只处理带 planet 标签的 Issue；status/draft 跳过；closed 视为下线（删除对应文件）。
+ *
+ * 收录规则（默认收录，无需打标签）：
+ *   - 仓库所有者的 Issue 自动视为星球帖（发帖即同步）
+ *   - 其他人的 Issue 仅在带 planet 标签时同步
+ *   - 排除：Bot 创建的 Issue（utterances 评论机器人会建 Issue）、status/draft、PR
+ *   - closed 视为下线（删除对应文件）；想单独排除一条就加 status/draft 标签
  * 幂等：文件名固定 planet-<number>.md；正文+标签+标题未变化（checksum 相同）时不重写。
  */
 'use strict';
@@ -77,15 +82,32 @@ function escYaml(s) {
   return String(s).replace(/"/g, '”');
 }
 
+const owner = (process.env.GITHUB_REPOSITORY_OWNER || repo.split('/')[0]).toLowerCase();
+
+// 拉全部 Issue（含 PR，后面过滤），本地按「所有者默认收录」规则筛选
 const issues = [];
 let page = 1;
 for (;;) {
-  const batch = await gh(`/repos/${repo}/issues?labels=planet&state=all&per_page=100&page=${page}`);
+  const batch = await gh(`/repos/${repo}/issues?state=all&sort=created&direction=desc&per_page=100&page=${page}`);
   issues.push(...batch);
   if (batch.length < 100) break;
   page++;
 }
-const plain = issues.filter(i => !i.pull_request);
+
+function isBot(issue) {
+  const u = issue.user || {};
+  const login = (u.login || '').toLowerCase();
+  return u.type === 'Bot' || /\[bot\]$/.test(login) || login.includes('utterances');
+}
+
+const plain = issues.filter(i => {
+  if (i.pull_request) return false;
+  if (isBot(i)) return false; // 评论机器人自动建的 Issue 不是星球帖
+  const labels = i.labels.map(l => l.name);
+  if (labels.includes('planet')) return true;
+  // 仓库所有者发的 Issue 默认就是星球帖，无需打标签
+  return (i.user && i.user.login || '').toLowerCase() === owner;
+});
 const meta = { generated_at: new Date().toISOString(), issues: [] };
 let added = 0, updated = 0, removed = 0, skipped = 0;
 const keep = new Set();
@@ -103,13 +125,18 @@ for (const issue of plain) {
   const { content, sections } = parseBody(issue.body || '');
   const pinned = labels.includes('pin') || /- \[x\]/i.test(sections['置顶'] || '');
   const featured = labels.includes('featured');
-  const category = pick(sections['分类']);
+  const category = pick(sections['分类']) ||
+    // 未走发帖表单的 Issue 没有「分类」字段，回退到 cat/ 前缀标签
+    labels.filter(l => l.startsWith('cat/')).map(l => l.slice(4))[0] || '';
   const tags = pick(sections['标签']).split(/[,，]/).map(s => s.trim()).filter(Boolean);
   let description = pick(sections['摘要']);
   if (!description) {
     description = content
+      // 先剔除图片语法，否则 URL 会被当作正文摘要（表单外的 Issue 常见写法）
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
       .replace(/<!--[\s\S]*?-->/g, '')
-      .replace(/[#>*`!\[\]()\-]/g, '')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/[#>*`\[\]()\-]/g, '')
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, 100);
@@ -119,7 +146,7 @@ for (const issue of plain) {
   // 变更检测：标题+正文+标签+级别 任意变化才重写文件
   const checksum = crypto
     .createHash('sha1')
-    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v2'].join('\u0000'))
+    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v4'].join('\u0000'))
     .digest('hex')
     .slice(0, 12);
 
