@@ -1,13 +1,16 @@
 author_card:
   layout: author
+
 recent:
   layout: recent
   rss: /atom.xml
+
 planet_tip:
   layout: markdown
   title: 星球
   content: |
     本页内容由 GitHub Issue 自动同步生成。可在[仓库 Issues](https://github.com/mazhenren/impulsewave/issues) 发帖，1~3 分钟自动上线。
+
 visitor:
   layout: markdown
   title: 访问统计

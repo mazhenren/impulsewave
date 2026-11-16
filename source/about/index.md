@@ -1,8 +1,9 @@
 ---
 title: 关于本站
 date: 2025-01-01 00:00:00
-type: about
-comments: false
+active_menu: planet
+comments:
+  enabled: false
 ---
 
 记录股票（ETF）/ 主要外汇 / 大宗商品复盘总结

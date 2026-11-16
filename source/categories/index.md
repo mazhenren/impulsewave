@@ -1,8 +1,9 @@
 ﻿---
 title: 分类
 date: 2025-01-01 08:00:00
-menu_id: categories
-comments: false
+active_menu: categories
+comments:
+  enabled: false
 ---
 
 - [股票](/categories/股票/)

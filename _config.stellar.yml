@@ -1,107 +1,147 @@
-# Stellar 主题配置（站点根 _config.stellar.yml，覆盖主题默认配置）
-# 主题默认配置见 node_modules/hexo-theme-stellar/_config.yml
+# Stellar v2 站点配置（覆盖 node_modules/hexo-theme-stellar/_config.yml 的默认值）
+# 字段参考：https://xaoxuu.com/wiki/stellar/reference/theme/
+# 迁移对照：https://xaoxuu.com/wiki/stellar/migration/fields/
 
-# 源站地址：用于生成每页 canonical
+######## SEO ########
 canonical:
-  originalHost: mazhenren.github.io
+  # 正式域名（GitHub Pages 项目站）；用于生成每页 canonical
+  host: mazhenren.github.io
+  allowed_hosts:
+    - localhost
 
 open_graph:
-  enable: true
+  enabled: true
 
 structured_data:
-  links:
+  same_as:
     - https://github.com/mazhenren
 
-######## 侧栏顶部 ########
-logo:
-  avatar: '[https://mazhenren.github.io/impulsewave/images/avatar.jpg](/about/)'
-  title: '[{config.title}](/)'
-  subtitle: '{config.subtitle}'
-
-# 主导航（左侧竖排）：星球动态为主页 /，文章列表在 /posts/
-menubar:
-  items:
+######## 左栏 Brand 与菜单 ########
+leftbar:
+  brand:
+    # 头像与标题拆成结构化字段（不能像 v1 那样塞 Markdown 链接）
+    image:
+      src: /images/avatar.jpg
+      variant: avatar
+    name: '{config.title}'
+    tagline: '{config.subtitle}'
+    href: /
+    # Brand 区搜索按钮（需要 search.provider）
+    search: true
+  # 一级导航：星球动态（首页 /）与博客（/posts/）分列两个入口
+  menu:
     - id: planet
-      theme: '#FA6400'
-      icon: example:planet
       title: 星球动态
+      icon: example:planet
+      accent: '#FA6400'
       url: /
     - id: post
-      theme: '#1BCDFC'
-      icon: default:documents
       title: 博客
+      icon: default:documents
+      accent: '#1BCDFC'
       url: /posts/
     - id: categories
-      theme: '#3DC550'
-      icon: default:category
       title: 分类
+      icon: default:category
+      accent: '#3DC550'
       url: /categories/
     - id: tags
-      theme: '#8A2BE2'
-      icon: default:hashtag
       title: 标签
+      icon: default:hashtag
+      accent: '#8A2BE2'
       url: /tags/
     - id: archives
-      theme: '#F44336'
-      icon: default:calendar
       title: 归档
+      icon: default:calendar
+      accent: '#F44336'
       url: /archives/
     - id: about
-      theme: '#00B8D4'
-      icon: default:shield-user
       title: 关于
+      icon: default:shield-user
+      accent: '#00B8D4'
       url: /about/
 
-######## 页面结构 ########
-site_tree:
+######## 各类型页面的 Region 与导航 ########
+# 组件目录见 source/_data/widgets.yml（v2 从站点数据文件合并进 runtime widgets）
+profiles:
   home:
-    leftbar: author_card, recent, visitor
-  index_blog:
-    menu_id: post
-    leftbar: author_card, recent
+    active_menu: planet
+    leftbar:
+      widgets:
+        - author_card
+        - recent
+        - planet_tip
+        - visitor
+  blog_index:
+    active_menu: post
+    leftbar:
+      widgets:
+        - author_card
+        - recent
   post:
-    menu_id: post
-    leftbar: author_card, recent, planet_tip
-    rightbar: toc
+    active_menu: post
+    leftbar:
+      widgets:
+        - author_card
+        - recent
+        - planet_tip
+    rightbar:
+      widgets:
+        - toc
   page:
-    leftbar: author_card, recent
-  error_page:
-    '404': '/404.html'
-    leftbar: author_card, recent
-
-######## 左栏组件 ########
-# widgets 与 authors 定义在 source/_data/widgets.yml、source/_data/authors.yml（Stellar 从站点数据文件读取）
+    active_menu: planet
+    leftbar:
+      widgets:
+        - author_card
+        - recent
+  error:
+    active_menu: planet
+    image: null
+    leftbar:
+      widgets:
+        - author_card
+        - recent
 
 ######## 文章 ########
 article:
-  # 置顶：首页平铺展示（不用轮播）
-  pin_style: flat
-  type: tech
-  cover_ratio: 2
-  card_style: classic
-  banner_ratio: 2.5
-  # 字数与预计阅读时长（原生支持）
-  reading_time: true
-  card_tags: false
-  tags: true
-  # 版权声明（文章页底部，{author.name}/{author.url} 自动替换）
-  license: '本文由 [{author.name}]({author.url}) 原创，采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。'
-  share:
-    - link
+  style: tech
+  banner:
+    # 有封面才显示横幅背景，星球帖无封面时保持纯色
+    background: true
+  listing:
+    # 置顶平铺展示，不用轮播
+    pinned_layout: flat
+    card_layout: classic
+    cover_ratio: 2
+    show_tags: false
+  # 分类配色（星球帖的话题分类）
+  category_colors:
+    股票: '#0E8A16'
+    期货: '#1D76DB'
+    外汇: '#006B75'
+    技术分析: '#B60205'
+    交易笔记: '#2E7D32'
+  show_reading_time: true
+  # 关闭「相关文章」：未安装 hexo-related-popular-posts，且 0 表示不显示
+  related_posts_limit: 0
+  footer:
+    license: '本文由 [{author.name}]({author.url}) 原创，采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。'
+    # v2 分享服务改为 qrcode/weibo/x/telegram/whatsapp/email
+    share:
+      - qrcode
 
 ######## 搜索 ########
 search:
-  service: local_search
-  local_search:
-    field: all
-    path: /search.json
-    content: true
-    lazy_load: true
+  provider: local
+  local:
+    scope: all
+    include_content: true
+    cache_ttl_seconds: 86400
 
 ######## 评论 ########
 comments:
-  service: utterances
-  comment_title: 快来参与讨论吧~
+  provider: utterances
+  title: 快来参与讨论吧~
   utterances:
     repo: mazhenren/impulsewave
     issue-term: pathname
@@ -115,8 +155,9 @@ footer:
     本站为个人研究与交易记录，不构成任何投资建议。本博客所有文章除特别声明外，均采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。
 
 ######## 注入 ########
+# v2 只有 head_begin/head_end/body_begin/body_end，字符串形式（不再是数组）
 inject:
-  head:
-    - '<script defer src="/impulsewave/js/planet-badge.js"></script>'
-    - '<script defer src="/impulsewave/js/planet-enhance.js"></script>'
-    - '<link rel="stylesheet" href="/impulsewave/css/planet.css">'
+  head_begin: |
+    <script defer src="/impulsewave/js/planet-badge.js"></script>
+    <script defer src="/impulsewave/js/planet-enhance.js"></script>
+    <link rel="stylesheet" href="/impulsewave/css/planet.css">

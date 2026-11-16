@@ -5,3 +5,4 @@ package-lock.json.bak
 .DS_Store
 Thumbs.db
 *.log
+source/_data/caches/

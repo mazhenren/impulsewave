@@ -8,6 +8,12 @@
  *   - 排除：Bot 创建的 Issue（utterances 评论机器人会建 Issue）、status/draft、PR
  *   - closed 视为下线（删除对应文件）；想单独排除一条就加 status/draft 标签
  * 幂等：文件名固定 planet-<number>.md；正文+标签+标题未变化（checksum 相同）时不重写。
+ *
+ * 与 Stellar v2 的配合：
+ *   - v2 对 front matter 做严格 schema 校验，未知字段会产生构建警告。因此这里不再写
+ *     自定义 `planet:` 块，Issue 编号由文件名 planet-<n>.md 表达，其它元数据（评论/点赞/
+ *     置顶/精华/checksum）统一放在 _data/planet-meta.json。
+ *   - 星球帖不进搜索：`visibility.searchable: false`（v2 字段，替代 v1 的 indexing）。
  */
 'use strict';
 
@@ -19,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const postsDir = path.join(root, 'source', '_posts');
 const dataDir = path.join(root, 'source', '_data');
+const metaPath = path.join(dataDir, 'planet-meta.json');
 
 const repo = process.env.GITHUB_REPOSITORY || 'mazhenren/impulsewave';
 const token = process.env.GITHUB_TOKEN;
@@ -48,13 +55,6 @@ function toLocalDate(iso) {
   return d.toISOString().replace('T', ' ').slice(0, 19);
 }
 
-function slugify(t) {
-  return String(t)
-    .replace(/[\\/:*?"<>|#%&{}$!'@+`=\[\]\s]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 30) || 'post';
-}
-
 /** 解析 Issue Form 生成的 "### 字段" 分节 */
 function parseBody(body) {
   const sections = {};
@@ -78,6 +78,7 @@ function pick(s) {
   return String(s || '').replace(/^["']|["']$/g, '').trim();
 }
 
+/** YAML 双引号字符串转义：内部双引号换成全角，避免破坏 front matter */
 function escYaml(s) {
   return String(s).replace(/"/g, '”');
 }
@@ -108,6 +109,18 @@ const plain = issues.filter(i => {
   // 仓库所有者发的 Issue 默认就是星球帖，无需打标签
   return (i.user && i.user.login || '').toLowerCase() === owner;
 });
+
+// 上一次同步的元数据：checksum 用于变更检测
+let prevMeta = { issues: [] };
+if (fs.existsSync(metaPath)) {
+  try {
+    prevMeta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+  } catch {
+    prevMeta = { issues: [] };
+  }
+}
+const prevChecksums = new Map((prevMeta.issues || []).map(i => [i.number, i.checksum]));
+
 const meta = { generated_at: new Date().toISOString(), issues: [] };
 let added = 0, updated = 0, removed = 0, skipped = 0;
 const keep = new Set();
@@ -146,22 +159,18 @@ for (const issue of plain) {
   // 变更检测：标题+正文+标签+级别 任意变化才重写文件
   const checksum = crypto
     .createHash('sha1')
-    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v4'].join('\u0000'))
+    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v7'].join('\u0000'))
     .digest('hex')
     .slice(0, 12);
 
-  let prevChecksum = null;
+  // hexo-abbrlink 构建时会写回 abbrlink，重写文件必须保留，否则永久链接变化导致旧链接失效
   let prevAbbrlink = null;
   if (fs.existsSync(filePath)) {
-    const prev = fs.readFileSync(filePath, 'utf8');
-    const m = prev.match(/checksum:\s*(\S+)/);
-    prevChecksum = m ? m[1] : null;
-    // hexo-abbrlink 构建时会写回 abbrlink，重写文件必须保留，否则永久链接变化导致旧链接失效
-    const a = prev.match(/^abbrlink:\s*(\S+)/m);
+    const a = fs.readFileSync(filePath, 'utf8').match(/^abbrlink:\s*(\S+)/m);
     prevAbbrlink = a ? a[1] : null;
   }
 
-  if (prevChecksum === checksum) {
+  if (prevChecksums.get(num) === checksum) {
     skipped++;
   } else {
     const fm = [
@@ -179,20 +188,17 @@ for (const issue of plain) {
     if (cover) fm.push(`cover: ${cover}`);
     fm.push(
       // 关掉主题默认评论区（issue-term: pathname 会另开新 Issue），
-      // 由 planet-enhance.js 按 planet.issue 注入 issue-number 版 utterances，讨论统一收敛到原 Issue
+      // 由 planet-enhance.js 按 Issue 编号注入 issue-number 版 utterances，讨论统一收敛到原 Issue
       'comments: false',
-      'planet:',
-      `  issue: ${num}`,
-      `  pinned: ${pinned}`,
-      `  featured: ${featured}`,
-      `  updated: ${issue.updated_at}`,
-      `  url: https://github.com/${repo}/issues/${num}`,
-      `  checksum: ${checksum}`,
+      // 星球帖不进博客 sitemap / 站内搜索（博客与星球动态是两个独立内容区）
+      'sitemap: false',
+      'visibility:',
+      '  searchable: false',
       '---'
     );
     fs.writeFileSync(filePath, fm.join('\n') + '\n\n' + content.trim() + '\n', 'utf8');
-    if (prevChecksum === null) added++; else updated++;
-    console.log(`同步: #${num} ${issue.title} (${prevChecksum === null ? '新增' : '更新'})`);
+    if (!prevChecksums.has(num)) added++; else updated++;
+    console.log(`同步: #${num} ${issue.title} (${prevChecksums.has(num) ? '更新' : '新增'})`);
   }
 
   meta.issues.push({
@@ -200,7 +206,10 @@ for (const issue of plain) {
     comments: issue.comments || 0,
     reactions: (issue.reactions && issue.reactions.total_count) || 0,
     updated: issue.updated_at,
-    state: issue.state
+    state: issue.state,
+    pinned,
+    featured,
+    checksum
   });
 }
 
@@ -214,6 +223,6 @@ for (const f of fs.readdirSync(postsDir)) {
 }
 
 fs.mkdirSync(dataDir, { recursive: true });
-fs.writeFileSync(path.join(dataDir, 'planet-meta.json'), JSON.stringify(meta, null, 2) + '\n', 'utf8');
+fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2) + '\n', 'utf8');
 
 console.log(`完成：新增 ${added}，更新 ${updated}，跳过 ${skipped}，下线 ${removed}，在线 ${meta.issues.length}`);
