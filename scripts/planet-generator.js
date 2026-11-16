@@ -45,12 +45,10 @@ hexo.extend.generator.register('planet-issues', function (locals) {
     if (meta.featured) labels.push({ name: '★ 精华', color: 'FBCA04' });
     if (meta.pinned) labels.push({ name: '📌 置顶', color: 'D93F0B' });
 
-    // body 为原始 Markdown（Stellar 客户端用 marked 解析），末尾附讨论链接与版权行
+    // body 为原始 Markdown（Stellar 客户端用 marked 解析），正文完整内联展示；
+    // 不再附加「阅读全文」与「原帖讨论」链接行，阅读与讨论都在卡片内完成
     const body = [
       (p._content || '').trim(),
-      '',
-      `**阅读全文**：${link}`,
-      `💬 [原帖讨论](https://github.com/mazhenren/impulsewave/issues/${num})`,
       '',
       '---',
       `本文由 ${authorName} 原创，采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。`
