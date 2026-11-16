@@ -12,6 +12,11 @@ permissions:
   issues: read
   actions: write
 
+# 同一时刻只跑一个同步任务（发帖会同时触发 opened/labeled 等事件，避免并发推送互相冲突）
+concurrency:
+  group: planet-sync
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
