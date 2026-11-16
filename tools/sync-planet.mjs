@@ -119,15 +119,19 @@ for (const issue of plain) {
   // 变更检测：标题+正文+标签+级别 任意变化才重写文件
   const checksum = crypto
     .createHash('sha1')
-    .update([issue.title, issue.body || '', labels.join(','), pinned, featured].join('\u0000'))
+    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v2'].join('\u0000'))
     .digest('hex')
     .slice(0, 12);
 
   let prevChecksum = null;
+  let prevAbbrlink = null;
   if (fs.existsSync(filePath)) {
     const prev = fs.readFileSync(filePath, 'utf8');
     const m = prev.match(/checksum:\s*(\S+)/);
     prevChecksum = m ? m[1] : null;
+    // hexo-abbrlink 构建时会写回 abbrlink，重写文件必须保留，否则永久链接变化导致旧链接失效
+    const a = prev.match(/^abbrlink:\s*(\S+)/m);
+    prevAbbrlink = a ? a[1] : null;
   }
 
   if (prevChecksum === checksum) {
@@ -139,6 +143,7 @@ for (const issue of plain) {
       `date: ${toLocalDate(issue.created_at)}`,
       `description: "${escYaml(description)}"`
     ];
+    if (prevAbbrlink) fm.push(`abbrlink: ${prevAbbrlink}`);
     if (category) fm.push('categories:', `  - ${category}`);
     if (tags.length) {
       fm.push('tags:');
@@ -146,6 +151,9 @@ for (const issue of plain) {
     }
     if (cover) fm.push(`cover: ${cover}`);
     fm.push(
+      // 关掉主题默认评论区（issue-term: pathname 会另开新 Issue），
+      // 由 planet-enhance.js 按 planet.issue 注入 issue-number 版 utterances，讨论统一收敛到原 Issue
+      'comments: false',
       'planet:',
       `  issue: ${num}`,
       `  pinned: ${pinned}`,

@@ -18,19 +18,19 @@ logo:
   title: '[{config.title}](/)'
   subtitle: '{config.subtitle}'
 
-# 主导航（左侧竖排）
+# 主导航（左侧竖排）：星球动态为主页 /，文章列表在 /posts/
 menubar:
   items:
+    - id: planet
+      theme: '#FA6400'
+      icon: example:planet
+      title: 星球动态
+      url: /
     - id: post
       theme: '#1BCDFC'
       icon: default:documents
       title: 博客
-      url: /
-    - id: planet
-      theme: '#FA6400'
-      icon: example:planet
-      title: 星球
-      url: /planet/
+      url: /posts/
     - id: categories
       theme: '#3DC550'
       icon: default:category
@@ -118,3 +118,5 @@ footer:
 inject:
   head:
     - '<script defer src="/impulsewave/js/planet-badge.js"></script>'
+    - '<script defer src="/impulsewave/js/planet-enhance.js"></script>'
+    - '<link rel="stylesheet" href="/impulsewave/css/planet.css">'

@@ -50,6 +50,8 @@ hexo.extend.generator.register('planet-issues', function (locals) {
     ].join('\n');
 
     items.push({
+      // GitHub Issue 编号：planet-enhance.js 用它做 utterances issue-number 映射（评论直连原 Issue）
+      number: p.planet.issue,
       title: p.title || '',
       body: body,
       created_at: p.date ? p.date.toISOString() : '',

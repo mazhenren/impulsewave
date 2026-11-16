@@ -12,15 +12,18 @@
 | 站点署名 | 薛定谔（`_config.yml` 的 `author`，文章 front matter 不再写 author） |
 | 线上地址 | https://mazhenren.github.io/impulsewave/ |
 | 博客框架 | Hexo 7.3.0 + Stellar 主题 1.44.0（npm 安装；主题配置 `_config.stellar.yml`，widgets/authors 组件在 `source/_data/widgets.yml`、`authors.yml`） |
-| 主题特性 | 原生 timeline（星球页）、文章 license、字数/阅读时长、置顶（pin front matter）、本地搜索（/search.json）、JSON-LD/canonical |
+| 主题特性 | 原生 timeline（首页星球动态）、文章 license、字数/阅读时长、置顶（pin front matter）、本地搜索（/search.json）、JSON-LD/canonical |
 | 搜索插件 | Stellar 内置 local_search（/search.json）；hexo-generator-searchdb 的 search.xml 仅作存档保留 |
-| 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/sidebar.njk`）；不蒜子已关闭（官方接口浏览器端常被阻断） |
+| 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/widgets.yml` 的 visitor 组件）+ 文章页 `#license` 区块（`source/js/planet-badge.js`）；不蒜子已关闭（官方接口浏览器端常被阻断） |
 | 主题配置 | `_config.stellar.yml` + `source/_data/widgets.yml`、`authors.yml`（左栏组件） |
-| 信息流页 | `/planet/`（Stellar `{% timeline %}` 标签），数据来自构建期生成的 `/planet-issues.json`（GitHub Issues 兼容格式，含评论/点赞计数） |
+| 首页 | `/` 为星球动态页（`scripts/home-generator.js` 输出 timeline 等价 HTML），文章列表在 `/posts/`（`index_generator.path: posts`） |
+| 信息流数据 | 构建期生成的 `/planet-issues.json`（GitHub Issues 兼容格式，含 `number`、评论/点赞计数） |
+| 信息流增强 | `source/js/planet-enhance.js` + `source/css/planet.css`（标签筛选栏、长动态折叠、卡片内 utterances 评论懒加载） |
+| 评论映射 | utterances 用 `issue-number` 直连原 Issue；星球文章 front matter 写 `comments: false`，其评论区由脚本注入对应 Issue，避免 pathname 另开新 Issue |
 | 默认分支 | master（源码）/ gh-pages（成品，禁手改） |
 | 站点子路径 | /impulsewave/ |
 | 永久链接 | `posts/:abbrlink/`（hexo-abbrlink，crc32/hex，8 位短码） |
-| SEO 插件 | hexo-generator-sitemap（sitemap.xml）、hexo-filter-nofollow（field: post）、source/_data/head.ejs（OG/Twitter/JSON-LD） |
+| SEO 插件 | hexo-generator-sitemap（sitemap.xml）、hexo-filter-nofollow（field: post）；OG/Twitter/JSON-LD 由 Stellar 原生输出（无需 source/_data/head.ejs，该文件为 NexT 时代遗留，已移出） |
 | 根目录仓库 | https://github.com/mazhenren/mazhenren.github.io（robots.txt、跳转页、验证文件、IndexNow key，Pages 源 main/） |
 | 部署链路 | push master → GitHub Actions（.github/workflows/deploy.yml，npm ci + hexo generate）→ gh-pages 分支 → Pages 发布 → IndexNow/百度主动推送 |
 
@@ -49,7 +52,9 @@
 - 帖子文件由脚本自动生成，**禁止手工修改** `planet-<n>.md`（下次同步会被覆盖）
 - 精华/置顶：在 Issue 右侧加 `featured` / `pin` 标签；下线：关闭 Issue 即从站点移除
 - 草稿：加 `status/draft` 标签则不同步
-- 信息流页：`/planet/`（Stellar timeline 标签），数据来自构建期生成的 `/planet-issues.json`（含评论/点赞计数）；置顶帖由生成器排序前置
+- 信息流首页：`/`（Stellar timeline 渲染），数据来自构建期生成的 `/planet-issues.json`（含 number/评论/点赞计数）；置顶帖由生成器排序前置。旧地址 `/planet/` 为跳转页，自动转回首页
+- 首页交互（`source/js/planet-enhance.js`）：顶部标签聚合筛选（单选 + 「全部」重置）、长动态 >320px 自动折叠并可展开/收起、卡片底部懒加载 utterances 评论（`issue-number` 直连原 Issue）
+- 帖子文章页：`comments: false` 关闭主题默认评论区，由同一脚本按 `planet.issue` 注入 issue-number 评论区 —— 卡片与文章页的讨论都收敛到同一个 Issue
 - 浏览量徽章：侧栏组件（widgets.yml）+ 文章页 `#license` 区块（source/js/planet-badge.js 注入）
 - 图床：Issue 中粘贴的图片使用 GitHub 官方图床（user-images.githubusercontent.com），暂不做本地转存
 
@@ -65,6 +70,7 @@
 - git clone 安装的主题目录必须删除内部 .git，否则 Actions 构建缺主题
 - 主题未识别的配置键会静默忽略：改配置后必须 grep 构建产物确认生效
 - `config.url` 已含 `/impulsewave` 子路径，拼绝对地址只能用 `config.url + '/' + 相对路径`，再加 `config.root` 会出现 `/impulsewave/impulsewave/`
+- 首页 `/` 不能用 `source/index.md`：Stellar 的 `path_normalize.js` 会把 Page 路径 `index.html` 归一为 `index/`（主题脚本注册晚于站点脚本，无法后置修正），必须用 `scripts/home-generator.js` 输出空路径路由
 - `404.html` 必须带 `sitemap: false`，否则会被写进 sitemap
 - `robots.txt` 只在域名根生效：本仓库的 `source/robots.txt` 仅供本地对照，线上以 `mazhenren.github.io` 根仓库为准
 - 站点未完成百度域名验证前，百度主动推送会返回错误（工作流按 best-effort 处理，不阻断构建）
