@@ -144,4 +144,18 @@
         <tag>栏目说明</tag>
       </tags>
   </entry>
+  <entry>
+    <title>星球信息流上线测试</title>
+    <url>/impulsewave/posts/7db1fb38/</url>
+    <content><![CDATA[<p>星球信息流已上线。这篇帖子由 GitHub Issue 自动同步生成：提交 Issue → Actions 同步为文章 → 静态构建部署，全程无需本地操作。</p>
+<p>支持分类筛选、标签点击、置顶与精华标记，卡片上会显示原帖的评论数和点赞数。</p>
+]]></content>
+      <categories>
+        <category>技术分析</category>
+      </categories>
+      <tags>
+        <tag>站点说明</tag>
+        <tag>测试</tag>
+      </tags>
+  </entry>
 </search>
