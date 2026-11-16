@@ -11,10 +11,12 @@
 | 站点主题 | 股票期货外汇技术分析笔记（分类：股票/期货/外汇/技术分析/交易笔记） |
 | 站点署名 | 薛定谔（`_config.yml` 的 `author`，文章 front matter 不再写 author） |
 | 线上地址 | https://mazhenren.github.io/impulsewave/ |
-| 博客框架 | Hexo 7.3.0 + NexT 主题 v8.29.0（scheme: Pisces；git clone 固定 release 安装于 themes/next，内部 .git 已删除） |
-| 搜索插件 | hexo-generator-searchdb（limit 10000）；已启用阅读四件套/头像/GitHub 角标/Utterances 评论（评论需 Utterances App 已装才生效） |
+| 博客框架 | Hexo 7.3.0 + Stellar 主题 1.44.0（npm 安装；主题配置 `_config.stellar.yml`，widgets/authors 组件在 `source/_data/widgets.yml`、`authors.yml`） |
+| 主题特性 | 原生 timeline（星球页）、文章 license、字数/阅读时长、置顶（pin front matter）、本地搜索（/search.json）、JSON-LD/canonical |
+| 搜索插件 | Stellar 内置 local_search（/search.json）；hexo-generator-searchdb 的 search.xml 仅作存档保留 |
 | 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/sidebar.njk`）；不蒜子已关闭（官方接口浏览器端常被阻断） |
-| 主题配置 | _config.next.yml（alternate theme config）+ source/_data/styles.styl（自定义样式注入） |
+| 主题配置 | `_config.stellar.yml` + `source/_data/widgets.yml`、`authors.yml`（左栏组件） |
+| 信息流页 | `/planet/`（Stellar `{% timeline %}` 标签），数据来自构建期生成的 `/planet-issues.json`（GitHub Issues 兼容格式，含评论/点赞计数） |
 | 默认分支 | master（源码）/ gh-pages（成品，禁手改） |
 | 站点子路径 | /impulsewave/ |
 | 永久链接 | `posts/:abbrlink/`（hexo-abbrlink，crc32/hex，8 位短码） |
@@ -47,7 +49,8 @@
 - 帖子文件由脚本自动生成，**禁止手工修改** `planet-<n>.md`（下次同步会被覆盖）
 - 精华/置顶：在 Issue 右侧加 `featured` / `pin` 标签；下线：关闭 Issue 即从站点移除
 - 草稿：加 `status/draft` 标签则不同步
-- 信息流页：`/planet/`，数据来自构建期生成的 `/planet-data.json`（含评论/点赞计数）
+- 信息流页：`/planet/`（Stellar timeline 标签），数据来自构建期生成的 `/planet-issues.json`（含评论/点赞计数）；置顶帖由生成器排序前置
+- 浏览量徽章：侧栏组件（widgets.yml）+ 文章页 `#license` 区块（source/js/planet-badge.js 注入）
 - 图床：Issue 中粘贴的图片使用 GitHub 官方图床（user-images.githubusercontent.com），暂不做本地转存
 
 ## 验证闭环

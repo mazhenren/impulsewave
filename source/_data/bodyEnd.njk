@@ -1,4 +1,0 @@
-{%- if page.path === 'planet/index.html' %}
-<script>window.PLANET_DATA_URL = '{{ url_for("planet-data.json") }}';</script>
-<script src="{{ url_for('js/planet-feed.js') }}" defer></script>
-{%- endif %}
