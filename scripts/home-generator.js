@@ -14,7 +14,7 @@ hexo.extend.generator.register('planet-home', function () {
   // 构建时间戳：避免 GitHub Pages CDN / 浏览器缓存到上一版 planet-feed.json
   const feedVersion = Date.now();
   const content = [
-    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。内容由博客文章在构建时生成，正文直接在信息流内展开，点「查看详情」在当前页弹窗阅读全文，评论区直连原帖讨论。</p>',
+    '<p>交易复盘短图文信息流：股票、期货、外汇的即时观察与笔记。内容由专栏文章在构建时生成，正文直接在信息流内展开，点「查看详情」在当前页弹窗阅读全文，评论区直连原帖讨论。</p>',
     `<div class="planet-feed" data-api="${siteBase}/planet-feed.json?v=${feedVersion}"></div>`
   ].join('\n');
 
@@ -23,7 +23,7 @@ hexo.extend.generator.register('planet-home', function () {
     layout: ['page'],
     data: {
       __index: true,
-      title: '星球动态',
+      title: '星球',
       subtitle: '股票 · 期货 · 外汇 技术分析笔记',
       date: '2025-01-01 09:00:00',
       path: '',

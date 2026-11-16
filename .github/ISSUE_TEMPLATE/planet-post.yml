@@ -1,5 +1,5 @@
 name: "🪐 星球发帖"
-description: 发布一条星球动态，1~3 分钟内自动同步为博客文章
+description: 发布一条星球内容，1~3 分钟内自动同步为站点文章
 labels: [planet]
 body:
   - type: markdown

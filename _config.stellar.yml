@@ -28,15 +28,15 @@ leftbar:
     href: /
     # Brand 区搜索按钮（需要 search.provider）
     search: true
-  # 一级导航：星球动态（首页 /）与博客（/posts/）分列两个入口
+  # 一级导航：星球（首页 /）与专栏（/posts/）分列两个入口
   menu:
     - id: planet
-      title: 星球动态
+      title: 星球
       icon: example:planet
       accent: '#FA6400'
       url: /
     - id: post
-      title: 博客
+      title: 专栏
       icon: default:documents
       accent: '#1BCDFC'
       url: /posts/
@@ -101,6 +101,16 @@ profiles:
       widgets:
         - author_card
         - recent
+  # 设置页「关于」条目：条目名改成站点自己的叫法
+  settings:
+    about:
+      items:
+        - key: 专栏框架
+          value: Hexo {hexo.version}
+          url: https://hexo.io/
+        - key: 主题版本
+          value: Stellar {theme.version}
+          url: '{theme.tree}'
 
 ######## 文章 ########
 article:
@@ -152,12 +162,12 @@ footer:
   content: |
     本站由 [{author.name}](/about/) 使用 [{theme.name} {theme.version}]({theme.tree}) 主题创建。
 
-    本站为个人研究与交易记录，不构成任何投资建议。本博客所有文章除特别声明外，均采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。
+    本站为个人研究与交易记录，不构成任何投资建议。本站所有文章除特别声明外，均采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。
 
 ######## 注入 ########
 # v2 只有 head_begin/head_end/body_begin/body_end，字符串形式（不再是数组）
 inject:
   head_begin: |
     <script defer src="/impulsewave/js/planet-badge.js"></script>
-    <script defer src="/impulsewave/js/planet-feed.js?v=6"></script>
-    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=6">
+    <script defer src="/impulsewave/js/planet-feed.js?v=7"></script>
+    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=7">
