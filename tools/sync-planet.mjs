@@ -259,7 +259,8 @@ for (const issue of plain) {
       // v2 的 front matter schema 要求 comments 是 object，写成布尔值会告警并回落默认配置
       'comments:',
       '  enabled: false',
-      // 星球帖不进博客 sitemap / 站内搜索（博客与星球动态是两个独立内容区）
+      // 星球帖只从专栏列表（/posts/）排除；归档/标签/搜索索引/RSS 正常收录。
+      // sitemap 与主题 visibility 标记保持关闭（星球内容不进搜索引擎站点地图与主题可见性标记）
       'sitemap: false',
       'visibility:',
       '  searchable: false',
