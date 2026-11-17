@@ -13,4 +13,4 @@ visibility:
 ---
 
 These people are going to be 
-![IMG_2026111614_2515_1690.jpg](https://github.com/user-attachments/assets/0b7193cc-c98b-4a88-a0f6-10f1684d8683)
+![IMG_2026111614_2515_1690.jpg](/images/planet/3/0b7193cc-c98b-4a88-a0f6-10f1684d8683.jpg)

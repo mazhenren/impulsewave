@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const postsDir = path.join(root, 'source', '_posts');
 const dataDir = path.join(root, 'source', '_data');
+const imagesDir = path.join(root, 'source', 'images', 'planet');
 const metaPath = path.join(dataDir, 'planet-meta.json');
 
 const repo = process.env.GITHUB_REPOSITORY || 'mazhenren/impulsewave';
@@ -76,6 +77,69 @@ function parseBody(body) {
 
 function pick(s) {
   return String(s || '').replace(/^["']|["']$/g, '').trim();
+}
+
+/* ============ 图片本地化 ============
+ * GitHub Issue 里的图片是 https://github.com/user-attachments/assets/<id> 外链：
+ *   - 需要能连上 github.com / S3 才能显示（国内网络常常打不开，表现为错误占位图）
+ *   - 实际资源是 302 跳转到带签名的 S3 地址，签名有效期只有几分钟，不适合长期直链
+ * 因此同步时把图片下载到 source/images/planet/<Issue编号>/，正文改写为站内路径。
+ * 下载失败时保留原外链并告警，不阻断同步。
+ */
+const GITHUB_IMG = /https:\/\/github\.com\/user-attachments\/assets\/[A-Za-z0-9-]+/g;
+const IMG_EXT = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/gif': '.gif', 'image/webp': '.webp' };
+
+let proxyReady = false;
+/** 本地走代理时让 fetch 也走代理；CI 无代理则直连 */
+async function prepareProxy() {
+  if (proxyReady) return;
+  proxyReady = true;
+  const proxy = process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY;
+  if (!proxy) return;
+  try {
+    const { ProxyAgent, setGlobalDispatcher } = await import('undici');
+    setGlobalDispatcher(new ProxyAgent(proxy));
+    console.log(`图片下载走代理: ${proxy}`);
+  } catch {
+    console.log('未能启用代理（undici 不可用），图片下载将直连');
+  }
+}
+
+async function downloadImage(url, num) {
+  const dir = path.join(imagesDir, String(num));
+  fs.mkdirSync(dir, { recursive: true });
+  const id = (url.match(/assets\/([A-Za-z0-9-]+)/) || [])[1];
+  if (!id) return url;
+
+  // 已下载过就复用（扩展名由首次下载时的 Content-Type 决定）
+  for (const ext of Object.values(IMG_EXT)) {
+    const hit = path.join(dir, id + ext);
+    if (fs.existsSync(hit)) return `/images/planet/${num}/${id}${ext}`;
+  }
+
+  try {
+    await prepareProxy();
+    const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const type = (res.headers.get('content-type') || '').split(';')[0].trim();
+    const ext = IMG_EXT[type] || '.png';
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (!buf.length) throw new Error('空文件');
+    fs.writeFileSync(path.join(dir, id + ext), buf);
+    return `/images/planet/${num}/${id}${ext}`;
+  } catch (err) {
+    console.warn(`图片下载失败，保留外链 #${num}: ${url} (${err.message})`);
+    return url;
+  }
+}
+
+/** 把正文里的 GitHub 图片外链替换为站内路径（同一 URL 只下载一次） */
+async function localizeImages(content, num) {
+  const urls = [...new Set(content.match(GITHUB_IMG) || [])];
+  if (!urls.length) return content;
+  const map = new Map();
+  for (const u of urls) map.set(u, await downloadImage(u, num));
+  return content.replace(GITHUB_IMG, u => map.get(u) || u);
 }
 
 /** YAML 双引号字符串转义：内部双引号换成全角，避免破坏 front matter */
@@ -159,8 +223,9 @@ for (const issue of plain) {
   // 变更检测：标题+正文+标签+级别 任意变化才重写文件
   const checksum = crypto
     .createHash('sha1')
-    // 'fm-v8'：front matter 结构版本，改动生成格式时递增以强制重写存量文件
-    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v8'].join('\u0000'))
+    // 'fm-v9'：front matter 结构版本，改动生成格式时递增以强制重写存量文件
+    // v9：图片改为下载到 source/images/planet/<n>/ 并改写为站内路径
+    .update([issue.title, issue.body || '', labels.join(','), pinned, featured, 'fm-v9'].join('\u0000'))
     .digest('hex')
     .slice(0, 12);
 
@@ -174,6 +239,8 @@ for (const issue of plain) {
   if (prevChecksums.get(num) === checksum) {
     skipped++;
   } else {
+    // 图片外链 → 站内路径（下载失败时保持原外链，不阻断同步）
+    const body = await localizeImages(content, num);
     const fm = [
       '---',
       `title: "${escYaml(issue.title)}"`,
@@ -198,7 +265,7 @@ for (const issue of plain) {
       '  searchable: false',
       '---'
     );
-    fs.writeFileSync(filePath, fm.join('\n') + '\n\n' + content.trim() + '\n', 'utf8');
+    fs.writeFileSync(filePath, fm.join('\n') + '\n\n' + body.trim() + '\n', 'utf8');
     if (!prevChecksums.has(num)) added++; else updated++;
     console.log(`同步: #${num} ${issue.title} (${prevChecksums.has(num) ? '更新' : '新增'})`);
   }
@@ -215,10 +282,12 @@ for (const issue of plain) {
   });
 }
 
-// 清理已下线（关闭/删除/转草稿）的帖子文件
+// 清理已下线（关闭/删除/转草稿）的帖子文件，并一并删除其图片目录
 for (const f of fs.readdirSync(postsDir)) {
   if (/^planet-\d+(\b|-)/.test(f) && f.endsWith('.md') && !keep.has(f)) {
+    const num = parseInt(f.match(/^planet-(\d+)/)[1], 10);
     fs.unlinkSync(path.join(postsDir, f));
+    fs.rmSync(path.join(imagesDir, String(num)), { recursive: true, force: true });
     removed++;
     console.log(`下线: ${f}`);
   }
