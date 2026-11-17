@@ -54,7 +54,13 @@ function buildStats() {
     'y=Math.floor(d/Y),rd=d-y*Y,dd=Math.floor(rd/D);rd-=dd*D;',
     'var h=Math.floor(rd/H);rd-=h*H;var m=Math.floor(rd/M),sec=Math.floor((rd-m*M)/1000);',
     `s.textContent='已运行 '+y+' 年 '+dd+' 天 '+h+' 小时 '+m+' 分 '+sec+' 秒 · ${summary}';}`,
-    'tick();setInterval(tick,1000);})();</script>'
+    'tick();setInterval(tick,1000);',
+    // 不蒜子接口不可用时（部分地区/被墙/限流）隐藏访问量，不留下占位横杠
+    'function hideUnavailable(){',
+    "['site_pv','page_pv'].forEach(function(k){var v=document.getElementById('busuanzi_value_'+k);",
+    'var c=document.getElementById("busuanzi_container_"+k);',
+    'if(v&&c&&(!v.textContent||v.textContent==="-")){c.style.display="none";}});}',
+    'setTimeout(hideUnavailable,6000);})();</script>'
   ].join('');
 
   return [
