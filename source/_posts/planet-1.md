@@ -5,9 +5,6 @@ description: "Test Test2"
 abbrlink: 784dd132
 comments:
   enabled: false
-sitemap: false
-visibility:
-  searchable: false
 ---
 
 Test

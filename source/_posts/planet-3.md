@@ -7,9 +7,6 @@ categories:
   - 技术分析
 comments:
   enabled: false
-sitemap: false
-visibility:
-  searchable: false
 ---
 
 These people are going to be 

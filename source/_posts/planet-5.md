@@ -7,9 +7,6 @@ categories:
   - 技术分析
 comments:
   enabled: false
-sitemap: false
-visibility:
-  searchable: false
 ---
 
 端到端验证：新建 Issue 不打标签自动上首页。

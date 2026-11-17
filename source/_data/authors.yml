@@ -1,5 +1,6 @@
 薛定谔:
-  avatar: /images/avatar.jpg
+  # 主题直接输出该地址，不会补站点 root，项目站必须写全 /impulsewave/ 前缀
+  avatar: /impulsewave/images/avatar.jpg
   name: 薛定谔
   desc: 贵金属、ETF、外汇、期货技术分析
   url: /about/

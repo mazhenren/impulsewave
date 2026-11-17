@@ -19,9 +19,9 @@ structured_data:
 ######## 左栏 Brand 与菜单 ########
 leftbar:
   brand:
-    # 头像与标题拆成结构化字段（不能像 v1 那样塞 Markdown 链接）
+    # 头像（项目站：主题直接输出 src，需带 /impulsewave/ 前缀）
     image:
-      src: /images/avatar.jpg
+      src: /impulsewave/images/avatar.jpg
       variant: avatar
     name: '{config.title}'
     tagline: '{config.subtitle}'
