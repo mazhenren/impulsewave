@@ -41,20 +41,6 @@
       </tags>
   </entry>
   <entry>
-    <title>星球信息流上线测试</title>
-    <url>/impulsewave/posts/7db1fb38/</url>
-    <content><![CDATA[<p>星球信息流已上线。这篇帖子由 GitHub Issue 自动同步生成：提交 Issue → Actions 同步为文章 → 静态构建部署，全程无需本地操作。</p>
-<p>支持分类筛选、标签点击、置顶与精华标记，卡片上会显示原帖的评论数和点赞数。</p>
-]]></content>
-      <categories>
-        <category>技术分析</category>
-      </categories>
-      <tags>
-        <tag>站点说明</tag>
-        <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Test</title>
     <url>/impulsewave/posts/784dd132/</url>
     <content><![CDATA[<p>Test<br><img src="/impulsewave/images/planet/1/73871f20-4a04-4931-addb-25d3df15748f.jpg" alt="promphoto_1794629017188.jpg"></p>
@@ -71,6 +57,26 @@
       </categories>
   </entry>
   <entry>
+    <title>星球信息流上线测试</title>
+    <url>/impulsewave/posts/7db1fb38/</url>
+    <content><![CDATA[<p>星球信息流已上线。这篇帖子由 GitHub Issue 自动同步生成：提交 Issue → Actions 同步为文章 → 静态构建部署，全程无需本地操作。</p>
+<p>支持分类筛选、标签点击、置顶与精华标记，卡片上会显示原帖的评论数和点赞数。</p>
+]]></content>
+      <categories>
+        <category>技术分析</category>
+      </categories>
+      <tags>
+        <tag>站点说明</tag>
+        <tag>测试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>家在哪里</title>
+    <url>/impulsewave/posts/33cc248c/</url>
+    <content><![CDATA[<p>我的家在哪里<br>我的家在哪里<br><img src="/impulsewave/images/planet/6/c611dd43-8d76-4a75-9dd8-e9b5ea341554.png" alt="2dbb550edf864b6787af225c0310738e.png"></p>
+]]></content>
+  </entry>
+  <entry>
     <title>端到端验证：新建 Issue 不打标签自动上首页</title>
     <url>/impulsewave/posts/dabadc33/</url>
     <content><![CDATA[<p>端到端验证：新建 Issue 不打标签自动上首页。</p>
@@ -78,11 +84,5 @@
       <categories>
         <category>技术分析</category>
       </categories>
-  </entry>
-  <entry>
-    <title>家在哪里</title>
-    <url>/impulsewave/posts/33cc248c/</url>
-    <content><![CDATA[<p>我的家在哪里<br>我的家在哪里<br><img src="/impulsewave/images/planet/6/c611dd43-8d76-4a75-9dd8-e9b5ea341554.png" alt="2dbb550edf864b6787af225c0310738e.png"></p>
-]]></content>
   </entry>
 </search>
