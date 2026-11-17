@@ -5,7 +5,7 @@
  * 变量沿用主题（--text-p1/p3、--block-border、--card、--theme）。
  */
 
-/* ============ 信息流容器：去时间轴竖线与卡片 ============ */
+/* ============ 信息流容器：去时间轴竖线，帖子按卡片分隔 ============ */
 .planet-feed {
   position: relative;
   padding-left: 0;
@@ -18,6 +18,26 @@
   align-items: stretch;
   box-sizing: border-box;
   max-width: 100%;
+  /* 卡片边界 + 上下留白：相邻帖子不再连成一片 */
+  margin: 0 0 1rem;
+  padding: 1.1rem 1.15rem 0.9rem;
+  background: var(--card);
+  border: 1px solid var(--block-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow .2s ease-in-out;
+}
+
+.planet-feed .timenode:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 600px) {
+  /* 手机端收窄卡片内边距，避免正文可用宽度过小 */
+  .planet-feed .timenode {
+    padding: 0.95rem 0.85rem 0.8rem;
+    border-radius: 10px;
+  }
 }
 
 .planet-feed .timenode > .header,
@@ -42,10 +62,11 @@
   display: none;
 }
 
+/* 分隔由卡片边界负责，相邻帖子之间不再画分隔线 */
 .planet-feed .timenode + .timenode {
   margin-top: 0;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--block-border);
+  padding-top: 1.1rem;
+  border-top: none;
 }
 
 .planet-feed .timenode > .body {
@@ -334,7 +355,7 @@
   position: relative;
 }
 
-/* 底部渐隐遮罩（页面底色，深色模式为黑） */
+/* 底部渐隐遮罩（与卡片底色一致，深色模式随 --card 变化） */
 .planet-feed .timenode.planet-collapsed > .body:after {
   content: '';
   position: absolute;
@@ -342,7 +363,7 @@
   right: 0;
   bottom: 0;
   height: 72px;
-  background: linear-gradient(180deg, transparent, var(--background) 85%);
+  background: linear-gradient(180deg, transparent, var(--card) 85%);
   pointer-events: none;
 }
 

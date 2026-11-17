@@ -197,5 +197,5 @@ inject:
   head_begin: |
     <script defer src="/impulsewave/js/planet-badge.js"></script>
     <script defer src="/impulsewave/js/planet-feed.js?v=8"></script>
-    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=8">
+    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=9">
     <link rel="stylesheet" href="/impulsewave/css/site.css?v=1">
