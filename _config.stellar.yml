@@ -28,11 +28,11 @@ leftbar:
     href: /
     # Brand 区搜索按钮（需要 search.provider）
     search: true
-  # 左栏固定底部：社交按钮区（社交分享/订阅入口）
+  # 左栏固定底部：社交按钮区（关注 / 订阅 / 导航 / 联系）
   footer:
     actions:
       - type: link
-        title: GitHub
+        title: Follow me on GitHub
         url: https://github.com/mazhenren
         icon: github:logo
       - type: link
@@ -43,6 +43,10 @@ leftbar:
         title: 站点地图
         url: /sitemap.xml
         icon: default:platforms
+      - type: link
+        title: 邮箱联系
+        url: mailto:ihuige@gmail.com
+        icon: share:email
   # 一级导航：星球（首页 /）与专栏（/posts/）分列两个入口
   menu:
     - id: planet
