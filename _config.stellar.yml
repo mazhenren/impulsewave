@@ -28,6 +28,21 @@ leftbar:
     href: /
     # Brand 区搜索按钮（需要 search.provider）
     search: true
+  # 左栏固定底部：社交按钮区（社交分享/订阅入口）
+  footer:
+    actions:
+      - type: link
+        title: GitHub
+        url: https://github.com/mazhenren
+        icon: github:logo
+      - type: link
+        title: RSS 订阅
+        url: /atom.xml
+        icon: default:rss
+      - type: link
+        title: 站点地图
+        url: /sitemap.xml
+        icon: default:platforms
   # 一级导航：星球（首页 /）与专栏（/posts/）分列两个入口
   menu:
     - id: planet
@@ -137,8 +152,10 @@ article:
   footer:
     license: '本文由 [{author.name}]({author.url}) 原创，采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议，转载请注明出处。'
     # v2 分享服务改为 qrcode/weibo/x/telegram/whatsapp/email
+    # email 会生成 mailto: 分享链接，不需要在站点里配置邮箱地址
     share:
       - qrcode
+      - email
 
 ######## 搜索 ########
 search:
