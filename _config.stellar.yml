@@ -91,12 +91,18 @@ profiles:
         - recent
         - planet_tip
         - visitor
+    rightbar:
+      widgets:
+        - welcome
   blog_index:
     active_menu: post
     leftbar:
       widgets:
         - author_card
         - recent
+    rightbar:
+      widgets:
+        - welcome
   post:
     active_menu: post
     leftbar:
@@ -192,3 +198,4 @@ inject:
     <script defer src="/impulsewave/js/planet-badge.js"></script>
     <script defer src="/impulsewave/js/planet-feed.js?v=8"></script>
     <link rel="stylesheet" href="/impulsewave/css/planet.css?v=8">
+    <link rel="stylesheet" href="/impulsewave/css/site.css?v=1">

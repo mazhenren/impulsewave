@@ -1,6 +1,17 @@
 author_card:
   layout: author
 
+welcome:
+  layout: markdown
+  title: 欢迎
+  content: |
+    这里是股票、期货、外汇的技术分析与交易复盘笔记，也记录判断出错时的修正过程。
+
+    内容仅供个人研究记录，不构成任何投资建议。
+
+    <div class="welcome-poem"><span id="jinrishici-sentence">今日诗词加载中…</span></div>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+
 recent:
   layout: recent
   rss: /atom.xml
