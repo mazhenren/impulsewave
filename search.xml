@@ -48,6 +48,15 @@
 ]]></content>
   </entry>
   <entry>
+    <title>Test </title>
+    <url>/impulsewave/posts/21c3d314/</url>
+    <content><![CDATA[<p>These people are going to be<br><img src="/impulsewave/images/planet/3/0b7193cc-c98b-4a88-a0f6-10f1684d8683.jpg" alt="IMG_2026111614_2515_1690.jpg"></p>
+]]></content>
+      <categories>
+        <category>技术分析</category>
+      </categories>
+  </entry>
+  <entry>
     <title>星球信息流上线测试</title>
     <url>/impulsewave/posts/7db1fb38/</url>
     <content><![CDATA[<p>星球信息流已上线。这篇帖子由 GitHub Issue 自动同步生成：提交 Issue → Actions 同步为文章 → 静态构建部署，全程无需本地操作。</p>
@@ -60,15 +69,6 @@
         <tag>站点说明</tag>
         <tag>测试</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Test </title>
-    <url>/impulsewave/posts/21c3d314/</url>
-    <content><![CDATA[<p>These people are going to be<br><img src="/impulsewave/images/planet/3/0b7193cc-c98b-4a88-a0f6-10f1684d8683.jpg" alt="IMG_2026111614_2515_1690.jpg"></p>
-]]></content>
-      <categories>
-        <category>技术分析</category>
-      </categories>
   </entry>
   <entry>
     <title>端到端验证：新建 Issue 不打标签自动上首页</title>
