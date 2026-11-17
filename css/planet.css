@@ -412,6 +412,13 @@
   color: #bd7a50;
 }
 
+/* ============ 星球帖文章页：不显示文章标题 ============ */
+/* 构建期脚本 planet-marker.js 给星球帖页面加了 html[data-planet-source]，
+   这里据此隐藏横幅里的标题块（博客文章不受影响） */
+html[data-planet-source="github-issue"] .article.banner.top .bottom {
+  display: none;
+}
+
 /* ============ 详情弹窗（当前页打开，不跳转） ============ */
 body.planet-modal-open {
   overflow: hidden;

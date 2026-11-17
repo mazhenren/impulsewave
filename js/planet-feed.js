@@ -468,9 +468,8 @@
         sub.appendChild(issue);
       }
 
-      var title = el.querySelector('.planet-modal-title');
-      title.textContent = item.title || '';
-      title.style.display = item.title ? '' : 'none';
+      // 星球内容不展示文章标题（与信息流、文章页保持一致）
+      el.querySelector('.planet-modal-title').style.display = 'none';
 
       var body = el.querySelector('.planet-modal-body');
       body.innerHTML = item.html || '<p>（正文为空）</p>';
