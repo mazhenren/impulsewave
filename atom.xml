@@ -10,7 +10,82 @@
   <rights>All rights reserved 2026, 薛定谔</rights>
   <subtitle>交易系统 · 复盘记录 · 风险管理</subtitle>
   <title>股票期货外汇技术分析笔记</title>
-  <updated>2026-11-17T01:39:52.393Z</updated>
+  <updated>2026-11-17T01:47:58.288Z</updated>
+  <entry>
+    <author>
+      <name>薛定谔</name>
+    </author>
+    <content>
+      <![CDATA[<p>我的家在哪里<br>我的家在哪里<br><img src="/impulsewave/images/planet/6/c611dd43-8d76-4a75-9dd8-e9b5ea341554.png" alt="2dbb550edf864b6787af225c0310738e.png"></p>]]>
+    </content>
+    <id>https://mazhenren.github.io/impulsewave/posts/33cc248c/</id>
+    <link href="https://mazhenren.github.io/impulsewave/posts/33cc248c/"/>
+    <published>2026-11-16T13:51:12.000Z</published>
+    <summary>我的家在哪里 我的家在哪里</summary>
+    <title>家在哪里</title>
+    <updated>2026-11-17T01:47:58.288Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>薛定谔</name>
+    </author>
+    <category term="技术分析" scheme="https://mazhenren.github.io/impulsewave/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90/"/>
+    <content>
+      <![CDATA[<p>端到端验证：新建 Issue 不打标签自动上首页。</p>]]>
+    </content>
+    <id>https://mazhenren.github.io/impulsewave/posts/dabadc33/</id>
+    <link href="https://mazhenren.github.io/impulsewave/posts/dabadc33/"/>
+    <published>2026-11-16T04:44:09.000Z</published>
+    <summary>端到端验证：新建 Issue 不打标签自动上首页。</summary>
+    <title>端到端验证：新建 Issue 不打标签自动上首页</title>
+    <updated>2026-11-17T01:47:58.288Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>薛定谔</name>
+    </author>
+    <category term="技术分析" scheme="https://mazhenren.github.io/impulsewave/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90/"/>
+    <content>
+      <![CDATA[<p>These people are going to be<br><img src="/impulsewave/images/planet/3/0b7193cc-c98b-4a88-a0f6-10f1684d8683.jpg" alt="IMG_2026111614_2515_1690.jpg"></p>]]>
+    </content>
+    <id>https://mazhenren.github.io/impulsewave/posts/21c3d314/</id>
+    <link href="https://mazhenren.github.io/impulsewave/posts/21c3d314/"/>
+    <published>2026-11-16T01:19:04.000Z</published>
+    <summary>These people are going to be</summary>
+    <title>Test</title>
+    <updated>2026-11-17T01:47:58.288Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>薛定谔</name>
+    </author>
+    <category term="技术分析" scheme="https://mazhenren.github.io/impulsewave/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90/"/>
+    <category term="站点说明" scheme="https://mazhenren.github.io/impulsewave/tags/%E7%AB%99%E7%82%B9%E8%AF%B4%E6%98%8E/"/>
+    <category term="测试" scheme="https://mazhenren.github.io/impulsewave/tags/%E6%B5%8B%E8%AF%95/"/>
+    <content>
+      <![CDATA[<p>星球信息流已上线。这篇帖子由 GitHub Issue 自动同步生成：提交 Issue → Actions 同步为文章 → 静态构建部署，全程无需本地操作。</p><p>支持分类筛选、标签点击、置顶与精华标记，卡片上会显示原帖的评论数和点赞数。</p>]]>
+    </content>
+    <id>https://mazhenren.github.io/impulsewave/posts/7db1fb38/</id>
+    <link href="https://mazhenren.github.io/impulsewave/posts/7db1fb38/"/>
+    <published>2026-11-16T01:02:44.000Z</published>
+    <summary>星球信息流上线测试：Issue 自动同步为 Hexo 文章并部署上线。</summary>
+    <title>星球信息流上线测试</title>
+    <updated>2026-11-17T01:47:58.288Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>薛定谔</name>
+    </author>
+    <content>
+      <![CDATA[<p>Test<br><img src="/impulsewave/images/planet/1/73871f20-4a04-4931-addb-25d3df15748f.jpg" alt="promphoto_1794629017188.jpg"></p><p>Test2<br><img src="/impulsewave/images/planet/1/b7f73062-82e6-4278-af0b-6b278cf9f20c.png" alt="mmexport1794448137032.png"></p>]]>
+    </content>
+    <id>https://mazhenren.github.io/impulsewave/posts/784dd132/</id>
+    <link href="https://mazhenren.github.io/impulsewave/posts/784dd132/"/>
+    <published>2026-11-14T12:07:39.000Z</published>
+    <summary>Test Test2</summary>
+    <title>Test</title>
+    <updated>2026-11-17T01:47:58.288Z</updated>
+  </entry>
   <entry>
     <author>
       <name>薛定谔</name>
@@ -25,6 +100,6 @@
     <published>2026-11-12T03:00:00.000Z</published>
     <summary>站点定位说明：记录股票、期货、外汇三个市场里可复用的技术分析流程、交易复盘与风控规则，不写行情点评，不荐股，不展示无法核验的业绩。</summary>
     <title>写在开始：这个站点记录什么</title>
-    <updated>2026-11-17T01:39:52.393Z</updated>
+    <updated>2026-11-17T01:47:58.287Z</updated>
   </entry>
 </feed>
