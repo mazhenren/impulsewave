@@ -13,7 +13,7 @@
 /** 站点上线时间（UTC 毫秒）：2026-11-12 00:00（东八区） */
 const SITE_START_MS = Date.UTC(2026, 10, 11, 16, 0, 0);
 
-let stats = { posts: 0, words: 0 };
+let stats = null;
 
 /** 与 hexo-symbols-count-time 相同的缩写规则：<999 原样，<9999 → 1.1k，其余 → 11k */
 function formatWords(n) {
@@ -22,22 +22,29 @@ function formatWords(n) {
   return String(n);
 }
 
-hexo.on('generateBefore', () => {
+/**
+ * 汇总站点数据。必须在渲染期（after_render:html）读取：
+ * generateBefore 阶段 locals 尚未构建完、post.length 也还没由 after_post_render 写入。
+ */
+function readStats() {
+  if (stats) return stats;
+  let posts = 0;
+  let words = 0;
   try {
-    let posts = 0;
-    let words = 0;
     hexo.locals.get('posts').each(post => {
       posts += 1;
       words += Number(post.length) || 0;
     });
-    stats = { posts, words };
   } catch (err) {
     hexo.log.warn('[site-stats] 汇总字数失败：%s', err.message);
   }
-});
+  stats = { posts, words };
+  return stats;
+}
 
 function buildStats() {
-  const summary = `共 ${stats.posts} 篇 · 总计 ${formatWords(stats.words)} 字`;
+  const { posts, words } = readStats();
+  const summary = `共 ${posts} 篇 · 总计 ${formatWords(words)} 字`;
   const script = [
     '<script>(function(){',
     `var t0=${SITE_START_MS};`,
