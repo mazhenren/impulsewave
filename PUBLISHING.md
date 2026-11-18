@@ -15,7 +15,7 @@
 | 主题配置 | `_config.stellar.yml` 采用 v2 结构（`leftbar`/`profiles`/`article`/`search`/`comments`/`inject`）；左栏组件在 `source/_data/widgets.yml` |
 | 主题特性 | 原生 timeline（首页星球动态）、文章 license、字数/阅读时长、置顶（`listing.priority`）、本地搜索（/search.json）、JSON-LD/canonical、ESM Runtime 按需加载 |
 | 搜索 | Stellar 内置 `search.provider: local`（/search.json） |
-| 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/widgets.yml` 的 visitor 组件）+ 文章页 `#license` 区块（`source/js/planet-badge.js`）；不蒜子已关闭（官方接口浏览器端常被阻断） |
+| 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/widgets.yml` 的 visitor 组件）；文章页不再注入浏览量徽章；不蒜子已关闭（官方接口浏览器端常被阻断） |
 | 首页 | `/` 为星球动态页（`scripts/home-generator.js` 输出 timeline 等价 HTML），文章列表在 `/posts/`（`index_generator.path: posts`） |
 | 信息流数据 | 构建期生成的 `/planet-issues.json`（GitHub Issues 兼容格式，含 `number`、评论/点赞计数、置顶/精华） |
 | 信息流增强 | `source/js/planet-enhance.js` + `source/css/planet.css`（标签筛选栏、长动态折叠、卡片底部评论入口） |
@@ -57,7 +57,7 @@
 - 信息流首页：`/`（Stellar timeline 渲染），数据来自构建期生成的 `/planet-issues.json`（含 number/评论/点赞计数）；置顶帖由生成器排序前置。旧地址 `/planet/` 为跳转页，自动转回首页
 - 首页交互（`source/js/planet-enhance.js`）：顶部标签聚合筛选（单选 + 「全部」重置）、长动态 >320px 自动折叠并可展开/收起、卡片底部评论入口（跳转文章页 Waline 评论区）
 - 帖子文章页：与普通文章一致，由主题渲染 Waline 评论区；不再需要 `comments.enabled: false`，也不再按 `planets.issue` 注入 utterances
-- 浏览量徽章：侧栏组件（widgets.yml）+ 文章页 `#license` 区块（source/js/planet-badge.js 注入）
+- 浏览量：仅侧栏访问统计组件（widgets.yml），文章页不再注入 planet-badge.js
 - 图床：Issue 中粘贴的图片使用 GitHub 官方图床（user-images.githubusercontent.com），暂不做本地转存
 
 ### 博客与星球的两套内容
