@@ -15,7 +15,7 @@
 | 主题配置 | `_config.stellar.yml` 采用 v2 结构（`leftbar`/`profiles`/`article`/`search`/`comments`/`inject`）；左栏组件在 `source/_data/widgets.yml` |
 | 主题特性 | 原生 timeline（首页星球动态）、文章 license、字数/阅读时长、置顶（`listing.priority`）、本地搜索（/search.json）、JSON-LD/canonical、ESM Runtime 按需加载 |
 | 搜索 | Stellar 内置 `search.provider: local`（/search.json） |
-| 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/widgets.yml` 的 visitor 组件）；文章页不再注入浏览量徽章；不蒜子已关闭（官方接口浏览器端常被阻断） |
+| 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/widgets.yml` 的 visitor 组件）+ 文章评论区阅读量（Waline `pageview`，由 `source/js/comment-pageview.js` 注入节点）；不蒜子已关闭（官方接口浏览器端常被阻断） |
 | 首页 | `/` 为星球动态页（`scripts/home-generator.js` 输出 timeline 等价 HTML），文章列表在 `/posts/`（`index_generator.path: posts`） |
 | 信息流数据 | 构建期生成的 `/planet-issues.json`（GitHub Issues 兼容格式，含 `number`、评论/点赞计数、置顶/精华） |
 | 信息流增强 | `source/js/planet-enhance.js` + `source/css/planet.css`（标签筛选栏、长动态折叠、卡片底部评论入口） |
