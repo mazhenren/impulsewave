@@ -1,8 +1,10 @@
 /**
- * 站点文案覆盖：把主题内置多语言里的「博客」改为「专栏」。
+ * 站点文案覆盖：把主题内置多语言里的「博客」改为「专栏」，
+ * 并把列表页标签栏的「近期发布」改为「专栏」。
  *
- * 主题 zh-CN.yml 里有若干写死的标签（如搜索范围 scope_blog = 博客），
- * 站点配置无法直接改；这里在 generateBefore 阶段包装 hexo.theme.i18n.__，
+ * 主题 zh-CN.yml 里有若干写死的标签（如搜索范围 scope_blog = 博客、
+ * 列表栏 btn.recent_publish = 近期发布），站点配置无法直接改；
+ * 这里在 generateBefore 阶段包装 hexo.theme.i18n.__，
  * 只替换下表列出的键，其余文案保持主题原值。
  */
 'use strict';
@@ -10,7 +12,8 @@
 const LABELS = {
   'menu.blog': '专栏',
   'btn.blog': '专栏',
-  'search.scope_blog': '专栏'
+  'search.scope_blog': '专栏',
+  'btn.recent_publish': '专栏'
 };
 
 hexo.on('generateBefore', () => {
