@@ -11,7 +11,7 @@
 | 站点主题 | 股票期货外汇技术分析笔记（分类：股票/期货/外汇/技术分析/交易笔记） |
 | 站点署名 | 薛定谔（`_config.yml` 的 `author`，文章 front matter 不再写 author） |
 | 线上地址 | https://mazhenren.github.io/impulsewave/ |
-| 博客框架 | Hexo 8.1.2 + Stellar 主题 2.0.0（npm 安装；要求 Node 22+，本地用 `C:\Users\xuhui\.workbuddy\binaries\node\versions\22.12.0`） |
+| 博客框架 | Hexo 8.1.2 + Stellar 主题 2.0.0（npm 安装；要求 Node 22+，本地使用 WorkBuddy 管理的 Node 22.12.0） |
 | 主题配置 | `_config.stellar.yml` 采用 v2 结构（`leftbar`/`profiles`/`article`/`search`/`comments`/`inject`）；左栏组件在 `source/_data/widgets.yml` |
 | 主题特性 | 原生 timeline（首页星球动态）、文章 license、字数/阅读时长、置顶（`listing.priority`）、本地搜索（/search.json）、JSON-LD/canonical、ESM Runtime 按需加载 |
 | 搜索 | Stellar 内置 `search.provider: local`（/search.json） |
@@ -79,7 +79,7 @@
 
 ## 已知坑
 
-- **Stellar v2 要求 Node 22+ / Hexo 8+**；本地构建必须用 `C:\Users\xuhui\.workbuddy\binaries\node\versions\22.12.0\node.exe`（PATH 里默认的 v20 会报 `Cannot read properties of undefined (reading 'override_pretty_urls')`）
+- **Stellar v2 要求 Node 22+ / Hexo 8+**；本地构建必须使用 Node 22（例如 WorkBuddy 管理的 22.12.0；PATH 里默认的 v20 会报 `Cannot read properties of undefined (reading 'override_pretty_urls')`）
 - v2 配置结构与 v1 完全不同（`logo`/`menubar`/`site_tree`/`article.type`/`search.service`/`comments.service`/`inject.head` 全部失效）：改配置后先跑 `npx hexo stellar doctor`，PASS 且无 warnings 才算迁移到位
 - v2 对 front matter 做严格 schema 校验：`indexing` → `visibility.searchable`、`menu_id` → `active_menu`、`comments: false` → `comments.enabled: false`、`type` → `article.style`；未知字段会被忽略并在构建时告警
 - 站点 scripts 与主题 scripts 在 `loadScripts` 阶段同批加载，顺序不保证：需要包装主题 helper 时不能在脚本顶层 `helper.get()`，必须在 `generateBefore`/`ready` 里做
