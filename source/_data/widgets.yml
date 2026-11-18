@@ -16,6 +16,13 @@ recent:
   layout: recent
   rss: /atom.xml
 
+latest_comment:
+  layout: timeline
+  title: 最新评论
+  api: https://waline-on-worker.ihuige-waline.workers.dev
+  type: waline
+  limit: 6
+
 planet_tip:
   layout: markdown
   title: 星球

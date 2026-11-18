@@ -89,6 +89,7 @@ profiles:
       widgets:
         - author_card
         - recent
+        - latest_comment
         - planet_tip
         - visitor
     rightbar:
@@ -182,7 +183,8 @@ comments:
   waline:
     serverURL: https://waline-on-worker.ihuige-waline.workers.dev
     commentCount: true
-    pageview: false
+    pageview: true
+    reaction: true
 
 ######## 页脚 ########
 footer:
