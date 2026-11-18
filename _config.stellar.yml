@@ -197,7 +197,7 @@ footer:
 # v2 只有 head_begin/head_end/body_begin/body_end，字符串形式（不再是数组）
 inject:
   head_begin: |
-    <script defer src="/impulsewave/js/comment-pageview.js"></script>
+    <script defer src="/impulsewave/js/comment-pageview.js?v=2"></script>
     <script defer src="/impulsewave/js/planet-feed.js?v=10"></script>
     <link rel="stylesheet" href="/impulsewave/css/planet.css?v=11">
     <link rel="stylesheet" href="/impulsewave/css/site.css?v=2">
