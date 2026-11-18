@@ -272,6 +272,148 @@
   color: var(--text-p3);
 }
 
+/* ============ 卡片底部：觉得很赞 / 评论预览 / 内联评论 ============ */
+.planet-likers {
+  margin-top: 0.5rem;
+  font-size: 12px;
+  color: #bd7a50;
+}
+
+.planet-cmt-preview {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--block-border);
+}
+
+.planet-cmt {
+  display: flex;
+  gap: 8px;
+  padding: 0.35rem 0;
+}
+
+.planet-cmt-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 26px;
+  margin: 0;
+}
+
+.planet-cmt-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.planet-cmt-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.planet-cmt-nick {
+  font-weight: 600;
+  color: var(--text-p1);
+}
+
+.planet-cmt-time {
+  color: var(--text-p3);
+}
+
+.planet-cmt-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-p2);
+  word-break: break-word;
+}
+
+.planet-cmt-text p {
+  margin: 0;
+}
+
+.planet-cmt-text img {
+  display: inline-block;
+  max-width: 120px;
+  margin: 2px 0;
+}
+
+.planet-cmt-all {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-size: 12px;
+  color: var(--text-p3);
+  text-decoration: none;
+}
+
+.planet-cmt-all:hover {
+  color: #bd7a50;
+}
+
+.planet-cmt-form {
+  margin-top: 0.6rem;
+}
+
+.planet-cmt-fields {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.planet-cmt-form input,
+.planet-cmt-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border: 1px solid var(--block-border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text-p1);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+
+.planet-cmt-form textarea {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.6;
+}
+
+.planet-cmt-form input:focus,
+.planet-cmt-form textarea:focus {
+  border-color: var(--theme);
+}
+
+.planet-cmt-form-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.planet-cmt-error {
+  flex: 1;
+  font-size: 12px;
+  color: #d93025;
+}
+
+.planet-cmt-submit {
+  padding: 5px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--theme);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.planet-cmt-submit:disabled {
+  opacity: .65;
+  cursor: default;
+}
+
 /* ============ 顶部置顶区 ============ */
 .planet-pinned {
   margin: 0 0 1.25rem;

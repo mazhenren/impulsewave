@@ -67,6 +67,42 @@
     return 'planet-liked:' + path;
   }
 
+  // 读取 Waline 登录态（与文章页评论区共用同一份 localStorage）
+  function getToken() {
+    try {
+      var raw =
+        localStorage.getItem('WALINE_USER') || sessionStorage.getItem('WALINE_USER');
+      var user = raw ? JSON.parse(raw) : null;
+      return (user && user.token) || '';
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function authHeaders() {
+    var token = getToken();
+    return token ? { Authorization: 'Bearer ' + token } : {};
+  }
+
+  var META_KEY = 'planet-comment-meta';
+
+  function readMeta() {
+    try {
+      var meta = JSON.parse(localStorage.getItem(META_KEY) || '{}');
+      return { nick: meta.nick || '', mail: meta.mail || '' };
+    } catch (err) {
+      return { nick: '', mail: '' };
+    }
+  }
+
+  function saveMeta(nick, mail) {
+    try {
+      localStorage.setItem(META_KEY, JSON.stringify({ nick: nick, mail: mail }));
+    } catch (err) {
+      /* 隐私模式忽略 */
+    }
+  }
+
   function isLiked(path) {
     try {
       return localStorage.getItem(likedKey(path)) === '1';
@@ -105,7 +141,7 @@
 
     fetch(WALINE_API + '/api/article', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
       body: JSON.stringify({
         path: path,
         type: 'reaction0',
@@ -118,12 +154,31 @@
         var row = Array.isArray(res.data) ? res.data[0] : null;
         btn.classList.toggle('is-liked', !liked);
         setLiked(path, !liked);
-        if (row && typeof row.reaction0 === 'number') setActCount(btn, row.reaction0);
+        if (row && typeof row.reaction0 === 'number') {
+          setActCount(btn, row.reaction0);
+          refreshLikers(btn, path, row.reaction0);
+        } else {
+          refreshLikers(btn, path, null);
+        }
       })
       .catch(function (err) {
         if (window.console && console.warn) console.warn('[planet] 点赞失败', err);
       })
       .then(function () { btn.disabled = false; });
+  }
+
+  // 点赞后刷新「XXX 觉得很赞」
+  function refreshLikers(btn, path, total) {
+    var foot = btn.closest('.planet-foot');
+    var box = foot && foot.querySelector('.planet-likers');
+    if (!box) return;
+    fetch(WALINE_API + '/api/article/likers?path=' + encodeURIComponent(path))
+      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
+        renderLikers(box, res.data[0], total);
+      })
+      .catch(function () { /* 静默 */ });
   }
 
   // 批量读取 Waline 评论数与 reaction0（点赞数），避免每张卡片单独请求
@@ -138,12 +193,26 @@
     var commentButtons = {};
     var likeButtons = {};
     var viewLabels = {};
-    container.querySelectorAll('.planet-act, .planet-views').forEach(function (btn) {
-      var path = btn.dataset.path;
+    var likerBoxes = {};
+    var previewBoxes = {};
+    var formBoxes = {};
+    var totalCounts = {};
+    var totalLikes = {};
+    var itemByPath = {};
+    items.forEach(function (item) {
+      var p = postPath(item.url);
+      if (p) itemByPath[p] = item;
+    });
+
+    container.querySelectorAll('.planet-act, .planet-views, .planet-likers, .planet-cmt-preview, .planet-cmt-form').forEach(function (box) {
+      var path = box.dataset.path;
       if (!path) return;
-      if (btn.classList.contains('planet-comment')) commentButtons[path] = btn;
-      if (btn.classList.contains('planet-like')) likeButtons[path] = btn;
-      if (btn.classList.contains('planet-views')) viewLabels[path] = btn;
+      if (box.classList.contains('planet-comment')) commentButtons[path] = box;
+      if (box.classList.contains('planet-like')) likeButtons[path] = box;
+      if (box.classList.contains('planet-views')) viewLabels[path] = box;
+      if (box.classList.contains('planet-likers')) likerBoxes[path] = box;
+      if (box.classList.contains('planet-cmt-preview')) previewBoxes[path] = box;
+      if (box.classList.contains('planet-cmt-form')) formBoxes[path] = box;
     });
 
     fetch(WALINE_API + '/api/comment?type=count&url=' + encodeURIComponent(paths.join(',')))
@@ -151,11 +220,28 @@
       .then(function (res) {
         if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
         paths.forEach(function (path, index) {
-          if (commentButtons[path]) setActCount(commentButtons[path], res.data[index] || 0);
+          var total = res.data[index] || 0;
+          totalCounts[path] = total;
+          if (commentButtons[path]) setActCount(commentButtons[path], total);
+          if (formBoxes[path]) formBoxes[path].dataset.total = String(total);
         });
+
+        return fetch(
+          WALINE_API + '/api/comment?type=preview&limit=2&path=' + encodeURIComponent(paths.join(','))
+        )
+          .then(function (res) { return res.json(); })
+          .then(function (res) {
+            if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
+            paths.forEach(function (path, index) {
+              var box = previewBoxes[path];
+              if (!box) return;
+              var item = itemByPath[path];
+              renderPreview(box, path, res.data[index], totalCounts[path] || 0, item ? item.url : path);
+            });
+          });
       })
       .catch(function (err) {
-        if (window.console && console.warn) console.warn('[planet] 评论数加载失败', err);
+        if (window.console && window.console.warn) window.console.warn('[planet] 评论数据加载失败', err);
       });
 
     fetch(
@@ -166,21 +252,241 @@
         if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
         paths.forEach(function (path, index) {
           var row = res.data[index];
-          if (likeButtons[path]) setActCount(likeButtons[path], (row && row.reaction0) || 0);
+          var likes = (row && row.reaction0) || 0;
+          totalLikes[path] = likes;
+          if (likeButtons[path]) setActCount(likeButtons[path], likes);
           if (viewLabels[path]) {
             var countEl = viewLabels[path].querySelector('.planet-views-count');
             if (countEl) countEl.textContent = String((row && row.time) || 0);
           }
         });
+
+        return fetch(
+          WALINE_API + '/api/article/likers?path=' + encodeURIComponent(paths.join(','))
+        )
+          .then(function (res) { return res.json(); })
+          .then(function (res) {
+            if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
+            paths.forEach(function (path, index) {
+              var box = likerBoxes[path];
+              if (box) renderLikers(box, res.data[index], totalLikes[path] || 0);
+            });
+          });
       })
       .catch(function (err) {
-        if (window.console && console.warn) console.warn('[planet] 点赞数加载失败', err);
+        if (window.console && window.console.warn) window.console.warn('[planet] 点赞数据加载失败', err);
       });
   }
 
   /* ============ 模块 1：卡片渲染 ============ */
 
+  /* ============ 卡片底部：点赞 / 评论预览 / 内联评论 ============ */
+
+  function escapeHtml(text) {
+    return String(text == null ? '' : text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderLikers(box, nicknames, total) {
+    if (!box) return;
+    var names = (nicknames || []).slice(0, 2);
+    if (!names.length) {
+      box.hidden = true;
+      return;
+    }
+    var lead = names.join('、');
+    var rest = total == null ? 0 : Math.max(0, Number(total) - names.length);
+    box.textContent = lead + (rest > 0 ? ' 等 ' + rest + ' 人觉得很赞' : ' 觉得很赞');
+    box.hidden = false;
+  }
+
+  function renderPreview(box, path, items, total, url) {
+    if (!box) return;
+    box.innerHTML = '';
+    if (!items || !items.length) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+
+    items.forEach(function (cmt) {
+      var row = document.createElement('div');
+      row.className = 'planet-cmt';
+
+      var avatar = document.createElement('img');
+      avatar.className = 'planet-cmt-avatar';
+      avatar.src = cmt.avatar || SITE_BASE + '/images/avatar.jpg';
+      avatar.alt = cmt.nick || '';
+      avatar.loading = 'lazy';
+
+      var main = document.createElement('div');
+      main.className = 'planet-cmt-main';
+
+      var head = document.createElement('div');
+      head.className = 'planet-cmt-head';
+      head.innerHTML =
+        '<span class="planet-cmt-nick">' + escapeHtml(cmt.nick || '匿名') + '</span>' +
+        '<span class="planet-cmt-time">' + escapeHtml(shortTime(cmt.insertedAt)) + '</span>';
+
+      var text = document.createElement('div');
+      text.className = 'planet-cmt-text';
+      // 服务端已渲染并过滤 HTML，这里直接用
+      text.innerHTML = cmt.comment || escapeHtml(cmt.orig || '');
+
+      main.appendChild(head);
+      main.appendChild(text);
+      row.appendChild(avatar);
+      row.appendChild(main);
+      box.appendChild(row);
+    });
+
+    if (total > items.length) {
+      var all = document.createElement('a');
+      all.className = 'planet-cmt-all';
+      all.href = url + '#comments';
+      all.textContent = '共 ' + total + ' 条 · 查看全部';
+      box.appendChild(all);
+    }
+  }
+
+  function shortTime(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 60) return '刚刚';
+    if (diff < 3600) return Math.floor(diff / 60) + ' 分钟前';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' 小时前';
+    if (diff < 86400 * 30) return Math.floor(diff / 86400) + ' 天前';
+    return formatDate(iso).slice(0, 10);
+  }
+
+  function buildCommentForm(item, path) {
+    var meta = readMeta();
+    var form = document.createElement('form');
+    form.className = 'planet-cmt-form';
+    form.dataset.path = path;
+    form.hidden = true;
+    form.innerHTML =
+      '<div class="planet-cmt-fields">' +
+      '  <input class="planet-cmt-nick-input" type="text" maxlength="60" placeholder="昵称（必填）" value="' +
+      escapeHtml(meta.nick) + '">' +
+      '  <input class="planet-cmt-mail-input" type="email" maxlength="120" placeholder="邮箱（选填）" value="' +
+      escapeHtml(meta.mail) + '">' +
+      '</div>' +
+      '<textarea class="planet-cmt-textarea" rows="2" maxlength="2000" placeholder="发布你的评论"></textarea>' +
+      '<div class="planet-cmt-form-foot">' +
+      '  <span class="planet-cmt-error"></span>' +
+      '  <button type="submit" class="planet-cmt-submit">评论</button>' +
+      '</div>';
+
+    var error = form.querySelector('.planet-cmt-error');
+    var submit = form.querySelector('.planet-cmt-submit');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (submit.disabled) return;
+
+      var nick = form.querySelector('.planet-cmt-nick-input').value.trim();
+      var mail = form.querySelector('.planet-cmt-mail-input').value.trim();
+      var text = form.querySelector('.planet-cmt-textarea').value.trim();
+
+      if (!nick) {
+        error.textContent = '请填写昵称';
+        return;
+      }
+      if (!text) {
+        error.textContent = '请填写评论内容';
+        return;
+      }
+
+      error.textContent = '';
+      submit.disabled = true;
+      submit.textContent = '发送中…';
+
+      var payload = {
+        nick: nick,
+        mail: mail,
+        comment: text,
+        url: path,
+        ua: navigator.userAgent
+      };
+
+      fetch(WALINE_API + '/api/comment', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (res) {
+          if (!res || res.errno !== 0) {
+            throw new Error((res && res.errmsg) || '发送失败');
+          }
+          saveMeta(nick, mail);
+          form.querySelector('.planet-cmt-textarea').value = '';
+          var box = form.parentNode.querySelector('.planet-cmt-preview');
+          var total = Number(form.dataset.total || 0) + 1;
+          form.dataset.total = String(total);
+          renderPreviewFromNodes(box, res.data, total, item.url);
+          var lbl = form.parentNode.querySelector('.planet-comment');
+          if (lbl) setActCount(lbl, total);
+        })
+        .catch(function (err) {
+          error.textContent = err && err.message ? err.message : '发送失败，请稍后再试';
+        })
+        .then(function () {
+          submit.disabled = false;
+          submit.textContent = '评论';
+        });
+    });
+
+    return form;
+  }
+
+  // 把刚提交的评论插到预览区最前面，只保留 2 条
+  function renderPreviewFromNodes(box, created, total, url) {
+    if (!box || !created) return;
+    box.hidden = false;
+
+    var row = document.createElement('div');
+    row.className = 'planet-cmt';
+    row.innerHTML =
+      '<img class="planet-cmt-avatar" src="' + escapeHtml(created.avatar || SITE_BASE + '/images/avatar.jpg') +
+      '" alt="" loading="lazy">' +
+      '<div class="planet-cmt-main">' +
+      '  <div class="planet-cmt-head">' +
+      '    <span class="planet-cmt-nick">' + escapeHtml(created.nick || '匿名') + '</span>' +
+      '    <span class="planet-cmt-time">刚刚</span>' +
+      '  </div>' +
+      '  <div class="planet-cmt-text">' + (created.comment || '') + '</div>' +
+      '</div>';
+
+    var first = box.firstChild;
+    if (first) box.insertBefore(row, first);
+    else box.appendChild(row);
+
+    while (box.querySelectorAll('.planet-cmt').length > 2) {
+      var rows = box.querySelectorAll('.planet-cmt');
+      rows[rows.length - 1].remove();
+    }
+
+    var allLink = box.querySelector('.planet-cmt-all');
+    if (!allLink) {
+      allLink = document.createElement('a');
+      allLink.className = 'planet-cmt-all';
+      box.appendChild(allLink);
+    }
+    allLink.href = url + '#comments';
+    allLink.textContent = '共 ' + total + ' 条 · 查看全部';
+  }
+
   function buildActions(item, author) {
+    var wrap = document.createElement('div');
+    wrap.className = 'planet-foot';
+
     var bar = document.createElement('div');
     bar.className = 'planet-actions';
 
@@ -195,11 +501,11 @@
     if (isLiked(path)) like.classList.add('is-liked');
     like.addEventListener('click', function () { toggleLike(like); });
 
-    // 评论落到文章页，评论数来自 Waline
-    var comment = document.createElement('a');
+    // 卡片内直接发评论，数据与文章页评论区共用同一份
+    var comment = document.createElement('button');
+    comment.type = 'button';
     comment.className = 'planet-act planet-comment';
     comment.dataset.path = path;
-    comment.href = item.url + '#comments';
     comment.title = '评论';
     comment.innerHTML = ICONS.comment + '<span hidden></span>';
 
@@ -228,7 +534,32 @@
     bar.appendChild(comment);
     bar.appendChild(share);
     bar.appendChild(more);
-    return bar;
+
+    var likers = document.createElement('div');
+    likers.className = 'planet-likers';
+    likers.dataset.path = path;
+    likers.hidden = true;
+
+    var preview = document.createElement('div');
+    preview.className = 'planet-cmt-preview';
+    preview.dataset.path = path;
+    preview.hidden = true;
+
+    var form = buildCommentForm(item, path);
+
+    comment.addEventListener('click', function () {
+      var opened = !form.hidden;
+      form.hidden = opened;
+      if (!opened) {
+        form.querySelector('.planet-cmt-textarea').focus();
+      }
+    });
+
+    wrap.appendChild(bar);
+    wrap.appendChild(likers);
+    wrap.appendChild(preview);
+    wrap.appendChild(form);
+    return wrap;
   }
 
   function buildPost(item, author) {
@@ -430,8 +761,9 @@
       btn.textContent = '展开全文';
       btn.addEventListener('click', function () { toggle(); });
       // 展开按钮放在操作栏上方，操作栏始终贴在卡片底部
-      var actions = node.querySelector('.planet-actions');
-      if (actions) node.insertBefore(btn, actions); else node.appendChild(btn);
+      var foot = node.querySelector('.planet-foot') || node.querySelector('.planet-actions');
+      if (foot && foot.parentNode === node) node.insertBefore(btn, foot);
+      else node.appendChild(btn);
       return btn;
     }
 
