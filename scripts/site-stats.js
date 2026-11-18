@@ -83,7 +83,8 @@ hexo.extend.filter.register('after_render:html', function (html) {
   if (html.indexOf('page-footer') === -1) return html;
   // 幂等：已注入则跳过
   if (html.indexOf('class="site-stats"') !== -1) return html;
-  const marker = /<footer class="page-footer[^"]*">\s*<hr>/i;
+  // 放在版权/许可说明之后、footer 结束之前，即页面最底部
+  const marker = /<\/div><\/footer>/;
   if (!marker.test(html)) return html;
-  return html.replace(marker, m => m + buildStats());
+  return html.replace(marker, m => `${buildStats()}</div></footer>`);
 }, 11);
