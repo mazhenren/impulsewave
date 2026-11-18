@@ -16,6 +16,8 @@
 
   var REPO = 'mazhenren/impulsewave';
   var SITE_BASE = 'https://mazhenren.github.io/impulsewave';
+  // Waline 服务端（与 _config.stellar.yml 中的 comments.waline.serverURL 保持一致）
+  var WALINE_API = 'https://waline-on-worker.ihuige-waline.workers.dev';
   var COLLAPSE_HEIGHT = 320;
   // 正文字符数阈值：与高度阈值满足任一条件即折叠（移动端/PC 使用同一套阈值）
   var COLLAPSE_CHARS = 200;
@@ -50,25 +52,150 @@
       ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
   }
 
+  /* ============ Waline 互动（卡片点赞 / 评论数） ============ */
+
+  // 与文章页 Waline 使用同一路径，保证卡片与评论区数据互通
+  function postPath(url) {
+    try {
+      return new URL(url, location.origin).pathname;
+    } catch (err) {
+      return url;
+    }
+  }
+
+  function likedKey(path) {
+    return 'planet-liked:' + path;
+  }
+
+  function isLiked(path) {
+    try {
+      return localStorage.getItem(likedKey(path)) === '1';
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function setLiked(path, liked) {
+    try {
+      if (liked) localStorage.setItem(likedKey(path), '1');
+      else localStorage.removeItem(likedKey(path));
+    } catch (err) {
+      /* 隐私模式下忽略 */
+    }
+  }
+
+  function setActCount(btn, count) {
+    var span = btn.querySelector('span');
+    if (!span) {
+      span = document.createElement('span');
+      btn.appendChild(span);
+    }
+    var value = Number(count) || 0;
+    span.textContent = value > 0 ? String(value) : '';
+    span.hidden = value <= 0;
+  }
+
+  function toggleLike(btn) {
+    if (btn.disabled) return;
+    var path = btn.dataset.path;
+    if (!path) return;
+
+    var liked = btn.classList.contains('is-liked');
+    btn.disabled = true;
+
+    fetch(WALINE_API + '/api/article', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: path,
+        type: 'reaction0',
+        action: liked ? 'desc' : 'inc'
+      })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        if (!res || res.errno !== 0) throw new Error((res && res.errmsg) || 'request failed');
+        var row = Array.isArray(res.data) ? res.data[0] : null;
+        btn.classList.toggle('is-liked', !liked);
+        setLiked(path, !liked);
+        if (row && typeof row.reaction0 === 'number') setActCount(btn, row.reaction0);
+      })
+      .catch(function (err) {
+        if (window.console && console.warn) console.warn('[planet] 点赞失败', err);
+      })
+      .then(function () { btn.disabled = false; });
+  }
+
+  // 批量读取 Waline 评论数与 reaction0（点赞数），避免每张卡片单独请求
+  function hydrateWaline(container, items) {
+    var paths = [];
+    items.forEach(function (item) {
+      var path = postPath(item.url);
+      if (path && paths.indexOf(path) === -1) paths.push(path);
+    });
+    if (!paths.length) return;
+
+    var commentButtons = {};
+    var likeButtons = {};
+    container.querySelectorAll('.planet-act').forEach(function (btn) {
+      var path = btn.dataset.path;
+      if (!path) return;
+      if (btn.classList.contains('planet-comment')) commentButtons[path] = btn;
+      if (btn.classList.contains('planet-like')) likeButtons[path] = btn;
+    });
+
+    fetch(WALINE_API + '/api/comment?type=count&url=' + encodeURIComponent(paths.join(',')))
+      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
+        paths.forEach(function (path, index) {
+          if (commentButtons[path]) setActCount(commentButtons[path], res.data[index] || 0);
+        });
+      })
+      .catch(function (err) {
+        if (window.console && console.warn) console.warn('[planet] 评论数加载失败', err);
+      });
+
+    fetch(
+      WALINE_API + '/api/article?path=' + encodeURIComponent(paths.join(',')) + '&type=reaction0'
+    )
+      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
+        paths.forEach(function (path, index) {
+          var row = res.data[index];
+          if (likeButtons[path]) setActCount(likeButtons[path], (row && row.reaction0) || 0);
+        });
+      })
+      .catch(function (err) {
+        if (window.console && console.warn) console.warn('[planet] 点赞数加载失败', err);
+      });
+  }
+
   /* ============ 模块 1：卡片渲染 ============ */
 
   function buildActions(item, author) {
     var bar = document.createElement('div');
     bar.className = 'planet-actions';
 
+    var path = postPath(item.url);
+
     var like = document.createElement('button');
     like.type = 'button';
-    like.className = 'planet-act';
+    like.className = 'planet-act planet-like';
+    like.dataset.path = path;
     like.title = '赞';
-    var likeCount = item.reactions > 0 ? item.reactions : 0;
-    like.innerHTML = ICONS.like + (likeCount ? '<span>' + likeCount + '</span>' : '');
+    like.innerHTML = ICONS.like + '<span hidden></span>';
+    if (isLiked(path)) like.classList.add('is-liked');
+    like.addEventListener('click', function () { toggleLike(like); });
 
-    // 评论落到文章页
+    // 评论落到文章页，评论数来自 Waline
     var comment = document.createElement('a');
-    comment.className = 'planet-act';
+    comment.className = 'planet-act planet-comment';
+    comment.dataset.path = path;
     comment.href = item.url + '#comments';
     comment.title = '评论';
-    comment.innerHTML = ICONS.comment;
+    comment.innerHTML = ICONS.comment + '<span hidden></span>';
 
     var share = document.createElement('button');
     share.type = 'button';
@@ -509,6 +636,7 @@
           window.wrapLazyloadImages(container);
         }
         container.querySelectorAll('.timenode').forEach(setupCollapse);
+        hydrateWaline(container, list);
       } catch (err) {
         container.dataset.rendered = 'error';
         if (window.console && console.warn) console.warn('[planet] 信息流渲染失败', err);
