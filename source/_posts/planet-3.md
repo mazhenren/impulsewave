@@ -5,8 +5,6 @@ description: "These people are going to be"
 abbrlink: 21c3d314
 categories:
   - 技术分析
-comments:
-  enabled: false
 ---
 
 These people are going to be 

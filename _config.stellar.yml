@@ -177,12 +177,12 @@ search:
 
 ######## 评论 ########
 comments:
-  provider: utterances
+  provider: waline
   title: 快来参与讨论吧~
-  utterances:
-    repo: mazhenren/impulsewave
-    issue-term: pathname
-    theme: preferred-color-scheme
+  waline:
+    serverURL: https://waline-on-worker.ihuige-waline.workers.dev
+    commentCount: true
+    pageview: false
 
 ######## 页脚 ########
 footer:

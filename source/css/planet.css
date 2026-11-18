@@ -386,16 +386,6 @@
   color: var(--accent);
 }
 
-/* ============ 文章页评论区 ============ */
-.planet-utterances iframe {
-  min-height: 180px;
-}
-
-/* 文章页自建评论区（主题 comments: false 时注入） */
-.planet-post-comments {
-  margin-top: 2rem;
-}
-
 /* ============ 文章页来源徽标（构建期由 scripts/planet-marker.js 注入） ============ */
 .planet-source-badge {
   display: inline-flex;

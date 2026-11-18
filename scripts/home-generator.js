@@ -79,8 +79,8 @@ hexo.extend.filter.register('after_render:html', function (html, locals) {
  * 首页不显示主题评论区。
  *
  * v2 的通用 page 布局统一调用 comments_model(page)（依据 front matter 解析结果），
- * 而本 generator 输出的是内存对象、没有源文件，解析结果为空 → 会回落到全局 utterances
- * （issue-term: pathname），在首页凭空开一个 Issue。
+ * 而本 generator 输出的是内存对象、没有源文件，解析结果为空 → 会回落到全局评论
+ * （Waline），在首页凭空出现一个评论框。
  *
  * 注意：站点 scripts 与主题 scripts 在 loadScripts 阶段同批加载，加载顺序不保证，
  * 因此不能在脚本顶层用 `hexo.extend.helper.get()` 取主题原实现；必须等 generateBefore（

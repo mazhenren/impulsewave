@@ -18,8 +18,8 @@
 | 访问统计 | 侧栏图片式计数器（visitor-badge.laobi.icu，`source/_data/widgets.yml` 的 visitor 组件）+ 文章页 `#license` 区块（`source/js/planet-badge.js`）；不蒜子已关闭（官方接口浏览器端常被阻断） |
 | 首页 | `/` 为星球动态页（`scripts/home-generator.js` 输出 timeline 等价 HTML），文章列表在 `/posts/`（`index_generator.path: posts`） |
 | 信息流数据 | 构建期生成的 `/planet-issues.json`（GitHub Issues 兼容格式，含 `number`、评论/点赞计数、置顶/精华） |
-| 信息流增强 | `source/js/planet-enhance.js` + `source/css/planet.css`（标签筛选栏、长动态折叠、卡片内 utterances 评论懒加载） |
-| 评论映射 | utterances 用 `issue-number` 直连原 Issue；星球帖 front matter 写 `comments.enabled: false`，其评论区由脚本注入对应 Issue，避免 pathname 另开新 Issue |
+| 信息流增强 | `source/js/planet-enhance.js` + `source/css/planet.css`（标签筛选栏、长动态折叠、卡片底部评论入口） |
+| 评论 | 全站使用 Waline（`_config.stellar.yml` 的 `comments.provider: waline`，服务端为 Cloudflare Workers）；星球帖与普通文章共用同一套评论区 |
 | 默认分支 | master（源码）/ gh-pages（成品，禁手改） |
 | 站点子路径 | /impulsewave/ |
 | 永久链接 | `posts/:abbrlink/`（hexo-abbrlink，crc32/hex，8 位短码） |
@@ -55,8 +55,8 @@
 - 精华/置顶：在 Issue 右侧加 `featured` / `pin` 标签；下线：关闭 Issue 即从站点移除
 - 草稿：加 `status/draft` 标签则不同步
 - 信息流首页：`/`（Stellar timeline 渲染），数据来自构建期生成的 `/planet-issues.json`（含 number/评论/点赞计数）；置顶帖由生成器排序前置。旧地址 `/planet/` 为跳转页，自动转回首页
-- 首页交互（`source/js/planet-enhance.js`）：顶部标签聚合筛选（单选 + 「全部」重置）、长动态 >320px 自动折叠并可展开/收起、卡片底部懒加载 utterances 评论（`issue-number` 直连原 Issue）
-- 帖子文章页：`comments: false` 关闭主题默认评论区，由同一脚本按 `planet.issue` 注入 issue-number 评论区 —— 卡片与文章页的讨论都收敛到同一个 Issue
+- 首页交互（`source/js/planet-enhance.js`）：顶部标签聚合筛选（单选 + 「全部」重置）、长动态 >320px 自动折叠并可展开/收起、卡片底部评论入口（跳转文章页 Waline 评论区）
+- 帖子文章页：与普通文章一致，由主题渲染 Waline 评论区；不再需要 `comments.enabled: false`，也不再按 `planets.issue` 注入 utterances
 - 浏览量徽章：侧栏组件（widgets.yml）+ 文章页 `#license` 区块（source/js/planet-badge.js 注入）
 - 图床：Issue 中粘贴的图片使用 GitHub 官方图床（user-images.githubusercontent.com），暂不做本地转存
 
@@ -88,7 +88,7 @@
 - 主题未识别的配置键会静默忽略：改配置后必须 grep 构建产物确认生效
 - `config.url` 已含 `/impulsewave` 子路径，拼绝对地址只能用 `config.url + '/' + 相对路径`，再加 `config.root` 会出现 `/impulsewave/impulsewave/`
 - 首页 `/` 不能用 `source/index.md`：Stellar 的 `path_normalize.js` 会把 Page 路径 `index.html` 归一为 `index/`（主题脚本注册晚于站点脚本，无法后置修正），必须用 `scripts/home-generator.js` 输出空路径路由
-- 首页的 `comments_model` 需显式禁用：v2 通用 page 布局无条件调用该 helper，生成页没有源文件 → 会回落到全局 utterances（在首页凭空开 Issue）
+- 首页的 `comments_model` 需显式禁用：v2 通用 page 布局无条件调用该 helper，生成页没有源文件 → 会回落到全局评论区（在首页凭空出现一个 Waline 评论框）
 - v2 构建会抓取页面图片补全尺寸/平均色（`features.image_optimization`），GitHub 附件图片在国内网络下可能超时，缓存写入 `source/_data/caches/images_metadata.json`（已加 gitignore）
 - v2 文章页 canonical 由 `canonical.host + 去掉 config.root 的路由` 拼成，项目站下会缺 `/impulsewave`；`canonical.host` 不能写成 `域名/子路径`（客户端用 `btoa(host)` 校验克隆站，会误报），由 `scripts/canonical-subpath.js` 在渲染后补回子路径
 - `404.html` 必须带 `sitemap: false`，否则会被写进 sitemap

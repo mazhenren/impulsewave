@@ -10,9 +10,6 @@
  *   2. 顶部置顶区：置顶帖从信息流抽出，单行截断展示
  *   3. 话题标签筛选栏：按 tags 聚合统计，单选筛选 + 「全部」重置
  *   4. 长动态折叠：.body 高度 > 320px 自动折叠，展开/收起平滑过渡
- *
- * 文章页（路径命中 planet-feed.json 中的文章链接）：
- *   5. 评论区统一映射回原 Issue：已有 #utterances 时改属性（零竞态），否则注入新评论区
  */
 (function () {
   'use strict';
@@ -22,7 +19,6 @@
   var COLLAPSE_HEIGHT = 320;
   // 正文字符数阈值：与高度阈值满足任一条件即折叠（移动端/PC 使用同一套阈值）
   var COLLAPSE_CHARS = 200;
-  var UTTERANCES_THEME = 'preferred-color-scheme';
 
   var feedPromise = null;
   function loadFeed() {
@@ -67,7 +63,7 @@
     var likeCount = item.reactions > 0 ? item.reactions : 0;
     like.innerHTML = ICONS.like + (likeCount ? '<span>' + likeCount + '</span>' : '');
 
-    // 评论落到文章页（评论区为直连原帖的 utterances）
+    // 评论落到文章页
     var comment = document.createElement('a');
     comment.className = 'planet-act';
     comment.href = item.url + '#comments';
@@ -375,33 +371,6 @@
     setTimeout(measure, 800); // 主题 lazyload 重排后兜底
   }
 
-  /* ============ 模块 4：评论区挂载（仅文章页使用） ============ */
-
-  function mountUtterances(box, attrs) {
-    var s = document.createElement('script');
-    s.src = 'https://utteranc.es/client.js';
-    s.async = true;
-    s.crossOrigin = 'anonymous';
-    s.setAttribute('repo', REPO);
-    Object.keys(attrs).forEach(function (k) { s.setAttribute(k, attrs[k]); });
-    s.setAttribute('theme', UTTERANCES_THEME);
-    box.appendChild(s);
-  }
-
-  function lazyMount(box, attrs) {
-    if (!('IntersectionObserver' in window)) {
-      mountUtterances(box, attrs);
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) {
-        io.disconnect();
-        mountUtterances(box, attrs);
-      }
-    }, { rootMargin: '200px' });
-    io.observe(box);
-  }
-
   /* ============ 模块 4：详情弹窗（当前页展示，不跳转） ============ */
 
   var modal = null;
@@ -547,67 +516,11 @@
     });
   }
 
-  /* ============ 文章页：评论区统一映射回原 Issue ============ */
-
-  function injectPostComments(anchor, item) {
-    var wrap = document.createElement('div');
-    wrap.className = 'related-wrap md-text planet-post-comments';
-    wrap.innerHTML =
-      '<section class="header cmt-title cap theme">快来参与讨论吧~</section>' +
-      '<section class="body cmt-body utterances"><div class="planet-utterances"></div></section>';
-    anchor.after(wrap);
-
-    // 主题的 utterances.css 由其加载器注入，自建评论区需手动引入
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = SITE_BASE + '/css/comments/utterances.css';
-    document.head.appendChild(link);
-
-    var box = wrap.querySelector('.planet-utterances');
-    var attrs = item.number
-      ? { 'issue-number': String(item.number) }
-      : { 'issue-term': item.title }; // 兜底：标题精确匹配
-    lazyMount(box, attrs);
-  }
-
-  function initPostComments() {
-    loadFeed().then(function (data) {
-      if (!data || !Array.isArray(data.posts)) return;
-      var path = location.pathname.replace(/index\.html$/, '');
-      var item = null;
-      try {
-        for (var i = 0; i < data.posts.length; i++) {
-          var u = data.posts[i] && data.posts[i].url;
-          if (u && new URL(u).pathname === path) { item = data.posts[i]; break; }
-        }
-      } catch (err) {
-        if (window.console && console.warn) console.warn('[planet] 文章匹配失败', err);
-        return;
-      }
-      if (!item) return;
-
-      // 情况 A：主题默认评论区已渲染（存量文章 issue-term: pathname）→ 直接改映射属性，
-      // 主题懒加载器执行时才复制属性，零竞态
-      var el = document.querySelector('#comments #utterances');
-      if (el) {
-        el.removeAttribute('issue-term');
-        el.setAttribute('issue-number', String(item.number));
-        return;
-      }
-
-      // 情况 B：comments: false 无评论区（新同步文章）→ 在 #license 之后注入
-      var anchor = document.getElementById('license');
-      if (anchor) injectPostComments(anchor, item);
-    });
-  }
-
   /* ============ 入口 ============ */
 
   function init() {
     if (document.querySelector('.planet-feed[data-api]')) {
       initFeed();
-    } else {
-      initPostComments();
     }
   }
 
