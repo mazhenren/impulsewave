@@ -117,6 +117,17 @@
   color: var(--text-p3);
 }
 
+/* 发帖时间 + 阅读量同一行 */
+.planet-feed .timenode .header > .planet-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.planet-feed .planet-views {
+  white-space: nowrap;
+}
+
 .planet-feed .timenode:hover .header > span,
 .planet-feed .timenode:hover .header .user-info span {
   color: inherit;

@@ -137,11 +137,13 @@
 
     var commentButtons = {};
     var likeButtons = {};
-    container.querySelectorAll('.planet-act').forEach(function (btn) {
+    var viewLabels = {};
+    container.querySelectorAll('.planet-act, .planet-views').forEach(function (btn) {
       var path = btn.dataset.path;
       if (!path) return;
       if (btn.classList.contains('planet-comment')) commentButtons[path] = btn;
       if (btn.classList.contains('planet-like')) likeButtons[path] = btn;
+      if (btn.classList.contains('planet-views')) viewLabels[path] = btn;
     });
 
     fetch(WALINE_API + '/api/comment?type=count&url=' + encodeURIComponent(paths.join(',')))
@@ -157,7 +159,7 @@
       });
 
     fetch(
-      WALINE_API + '/api/article?path=' + encodeURIComponent(paths.join(',')) + '&type=reaction0'
+      WALINE_API + '/api/article?path=' + encodeURIComponent(paths.join(',')) + '&type=time,reaction0'
     )
       .then(function (res) { return res.json(); })
       .then(function (res) {
@@ -165,6 +167,10 @@
         paths.forEach(function (path, index) {
           var row = res.data[index];
           if (likeButtons[path]) setActCount(likeButtons[path], (row && row.reaction0) || 0);
+          if (viewLabels[path]) {
+            var countEl = viewLabels[path].querySelector('.planet-views-count');
+            if (countEl) countEl.textContent = String((row && row.time) || 0);
+          }
         });
       })
       .catch(function (err) {
@@ -252,7 +258,18 @@
     user.appendChild(name);
 
     var time = document.createElement('span');
+    time.className = 'planet-time';
     time.textContent = formatDate(item.date);
+
+    var views = document.createElement('span');
+    views.className = 'planet-views';
+    views.dataset.path = postPath(item.url);
+    views.innerHTML = '· 阅读 <span class="planet-views-count">--</span>';
+
+    var meta = document.createElement('span');
+    meta.className = 'planet-meta';
+    meta.appendChild(time);
+    meta.appendChild(views);
 
     header.appendChild(user);
 
@@ -269,7 +286,7 @@
     }
 
     // 时间放在最后：CSS 让 .header > span 占满整行，形成「头像/来源 + 时间」两行结构
-    header.appendChild(time);
+    header.appendChild(meta);
 
     var body = document.createElement('div');
     body.className = 'body';
