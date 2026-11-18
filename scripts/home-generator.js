@@ -9,6 +9,8 @@
  */
 'use strict';
 
+const { url_for } = require('hexo-util');
+
 hexo.extend.generator.register('planet-home', function () {
   const siteBase = hexo.config.url.replace(/\/$/, '');
   // 构建时间戳：避免 GitHub Pages CDN / 浏览器缓存到上一版 planet-feed.json
@@ -39,6 +41,28 @@ hexo.extend.generator.register('planet-home', function () {
  * 内存页、取不到 pageConfig，因此改为在 HTML 渲染完成后按模板结构裁掉整个横幅块：
  * 从 `<div class="article-banner-wrap` 起，到正文 `<article class="md-text content` 止。
  */
+/**
+ * 星球页也要有列表页那条标签栏（星球 | 专栏 | 分类 | 标签 | 归档），
+ * 且「星球」处于 active，这样点标签时和点「专栏」的体验一致（同一组件、同样吸顶）。
+ *
+ * 主题的 listing-nav 只在 blog_index 等列表布局里渲染，星球页是内存页布局，
+ * 因此这里按主题相同的 DOM 结构补一份；data-planet-tab 让 listing-nav-planet.js
+ * 不会再往里插重复的「星球」。
+ */
+function buildListingNav() {
+  const link = (title, url, active) =>
+    `<a${active ? ' class="active"' : ''} href="${url_for.call(hexo, url)}">${title}</a>`;
+  return [
+    '<div class="listing-nav"><div class="listing-nav__surface"><div class="listing-nav__viewport"><nav class="post">',
+    `<a data-planet-tab class="active" href="${url_for.call(hexo, '/')}">星球</a>`,
+    link('专栏', '/posts/'),
+    link('分类', '/categories/'),
+    link('标签', '/tags/'),
+    link('归档', '/archives/'),
+    '</nav></div></div></div>'
+  ].join('');
+}
+
 hexo.extend.filter.register('after_render:html', function (html, locals) {
   if (typeof html !== 'string' || !html) return html;
   const page = locals && locals.page;
@@ -47,7 +71,8 @@ hexo.extend.filter.register('after_render:html', function (html, locals) {
   const start = html.indexOf('<div class="article-banner-wrap');
   const end = html.indexOf('<article class="md-text content');
   if (start === -1 || end === -1 || end <= start) return html;
-  return html.slice(0, start) + html.slice(end);
+  // 裁掉横幅，并在正文前补上标签栏
+  return html.slice(0, start) + buildListingNav() + html.slice(end);
 }, 8);
 
 /**
