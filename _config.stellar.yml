@@ -182,6 +182,10 @@ comments:
   title: 快来参与讨论吧~
   waline:
     serverURL: https://waline-on-worker.ihuige-waline.workers.dev
+    # 前端资源改用 npmmirror（国内实测 0.28s，jsDelivr gcore 冷启动 3.8s）
+    js: https://registry.npmmirror.com/@waline/client/3.15.2/files/dist/waline.js
+    css: https://registry.npmmirror.com/@waline/client/3.15.2/files/dist/waline.css
+    meta_css: https://registry.npmmirror.com/@waline/client/3.15.2/files/dist/waline-meta.css
     commentCount: true
     pageview: true
     reaction: true
