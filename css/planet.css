@@ -242,6 +242,15 @@
   color: #bd7a50;
 }
 
+.planet-actions .planet-act.is-liked {
+  color: #e8590c;
+}
+
+.planet-actions .planet-act:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
 .planet-actions .planet-act svg {
   width: 18px;
   height: 18px;
