@@ -198,6 +198,6 @@ footer:
 inject:
   head_begin: |
     <script defer src="/impulsewave/js/comment-pageview.js"></script>
-    <script defer src="/impulsewave/js/planet-feed.js?v=9"></script>
-    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=10">
+    <script defer src="/impulsewave/js/planet-feed.js?v=10"></script>
+    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=11">
     <link rel="stylesheet" href="/impulsewave/css/site.css?v=2">
