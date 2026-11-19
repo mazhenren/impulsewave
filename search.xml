@@ -41,6 +41,15 @@
       </tags>
   </entry>
   <entry>
+    <title>Test </title>
+    <url>/impulsewave/posts/21c3d314/</url>
+    <content><![CDATA[<p>These people are going to be<br><img src="/impulsewave/images/planet/3/0b7193cc-c98b-4a88-a0f6-10f1684d8683.jpg" alt="IMG_2026111614_2515_1690.jpg"></p>
+]]></content>
+      <categories>
+        <category>技术分析</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Test</title>
     <url>/impulsewave/posts/784dd132/</url>
     <content><![CDATA[<p>Test<br><img src="/impulsewave/images/planet/1/73871f20-4a04-4931-addb-25d3df15748f.jpg" alt="promphoto_1794629017188.jpg"></p>
@@ -60,15 +69,6 @@
         <tag>站点说明</tag>
         <tag>测试</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Test </title>
-    <url>/impulsewave/posts/21c3d314/</url>
-    <content><![CDATA[<p>These people are going to be<br><img src="/impulsewave/images/planet/3/0b7193cc-c98b-4a88-a0f6-10f1684d8683.jpg" alt="IMG_2026111614_2515_1690.jpg"></p>
-]]></content>
-      <categories>
-        <category>技术分析</category>
-      </categories>
   </entry>
   <entry>
     <title>端到端验证：新建 Issue 不打标签自动上首页</title>
