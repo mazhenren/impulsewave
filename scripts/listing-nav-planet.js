@@ -16,7 +16,7 @@ hexo.extend.filter.register('after_render:html', function (html) {
 
   // 直接指向星球首页（真实页面），不再经过 /planet/ 跳转页：
   // 少一次 meta refresh，点击后标签栏随页面一起消失，不会出现导航残留
-  const href = url_for.call(hexo, '/');
+  const href = url_for.call(hexo, '/plants/');
   const tab = `<a data-planet-tab href="${href}">星球</a>`;
 
   return html.replace(/(<div class="listing-nav">[\s\S]*?<nav class="post">)/, `$1${tab}`);

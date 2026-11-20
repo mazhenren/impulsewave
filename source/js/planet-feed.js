@@ -63,6 +63,12 @@
     }
   }
 
+  // 标签页地址：去掉星球数据里的「# 」前缀后按名称编码
+  function tagUrl(tag) {
+    var name = String(tag == null ? '' : tag).replace(/^#\s*/, '');
+    return SITE_BASE + '/tags/' + encodeURIComponent(name) + '/';
+  }
+
   function likedKey(path) {
     return 'planet-liked:' + path;
   }
@@ -152,14 +158,10 @@
       .then(function (res) {
         if (!res || res.errno !== 0) throw new Error((res && res.errmsg) || 'request failed');
         var row = Array.isArray(res.data) ? res.data[0] : null;
-        btn.classList.toggle('is-liked', !liked);
+        var count = row && typeof row.reaction0 === 'number' ? row.reaction0 : null;
         setLiked(path, !liked);
-        if (row && typeof row.reaction0 === 'number') {
-          setActCount(btn, row.reaction0);
-          refreshLikers(btn, path, row.reaction0);
-        } else {
-          refreshLikers(btn, path, null);
-        }
+        syncLikeButtons(path, !liked, count);
+        refreshLikers(path, count);
       })
       .catch(function (err) {
         if (window.console && console.warn) console.warn('[planet] 点赞失败', err);
@@ -167,16 +169,35 @@
       .then(function () { btn.disabled = false; });
   }
 
-  // 点赞后刷新「XXX 觉得很赞」
-  function refreshLikers(btn, path, total) {
-    var foot = btn.closest('.planet-foot');
-    var box = foot && foot.querySelector('.planet-likers');
-    if (!box) return;
+  // 按 data-path 过滤同类节点（避免拼接属性选择器时的转义问题）
+  function samePath(nodes, path) {
+    return Array.prototype.filter.call(nodes, function (el) {
+      return el && el.dataset && el.dataset.path === path;
+    });
+  }
+
+  // 卡片与弹窗共用同一份点赞状态：同步所有同路径按钮的样式与计数
+  function syncLikeButtons(path, liked, count) {
+    samePath(document.querySelectorAll('.planet-like'), path).forEach(function (btn) {
+      btn.classList.toggle('is-liked', liked);
+      if (count != null) setActCount(btn, count);
+    });
+  }
+
+  function actCount(btn) {
+    var span = btn && btn.querySelector('span');
+    return span ? Number(span.textContent) || 0 : 0;
+  }
+
+  // 点赞后刷新「XXX 觉得很赞」（卡片、弹窗共用）
+  function refreshLikers(path, total) {
+    var boxes = samePath(document.querySelectorAll('.planet-likers'), path);
+    if (!boxes.length) return;
     fetch(WALINE_API + '/api/article/likers?path=' + encodeURIComponent(path))
       .then(function (res) { return res.json(); })
       .then(function (res) {
         if (!res || res.errno !== 0 || !Array.isArray(res.data)) return;
-        renderLikers(box, res.data[0], total);
+        boxes.forEach(function (box) { renderLikers(box, res.data[0], total); });
       })
       .catch(function () { /* 静默 */ });
   }
@@ -637,20 +658,17 @@
     body.appendChild(content);
 
     if (item.tags && item.tags.length) {
-      var footer = document.createElement('div');
-      footer.className = 'footer';
-      var left = document.createElement('div');
-      left.className = 'flex left';
+      // 与文章页 .article-tags 保持同一套样式与交互：点击进入对应标签页
+      var tags = document.createElement('div');
+      tags.className = 'article-tags planet-tags';
       item.tags.forEach(function (tag) {
-        var chip = document.createElement('div');
-        chip.className = 'item label';
-        var text = document.createElement('span');
-        text.textContent = tag;
-        chip.appendChild(text);
-        left.appendChild(chip);
+        var link = document.createElement('a');
+        link.className = 'tag';
+        link.href = tagUrl(tag);
+        link.textContent = tag;
+        tags.appendChild(link);
       });
-      footer.appendChild(left);
-      body.appendChild(footer);
+      body.appendChild(tags);
     }
 
     node.appendChild(header);
@@ -871,6 +889,7 @@
       '  </div>',
       '  <h3 class="planet-modal-title"></h3>',
       '  <div class="planet-modal-body"></div>',
+      '  <div class="planet-modal-actions planet-actions"></div>',
       '  <div class="planet-modal-foot"></div>',
       '</div>'
     ].join('');
@@ -925,6 +944,47 @@
         if (lazy && (!src || src.indexOf('data:image') === 0)) img.src = lazy;
       });
 
+      // 弹窗操作栏：点赞 / 评论 / 分享，与卡片共用同一份数据
+      var actBar = el.querySelector('.planet-modal-actions');
+      actBar.innerHTML = '';
+      var path = postPath(item.url);
+
+      var like = document.createElement('button');
+      like.type = 'button';
+      like.className = 'planet-act planet-like';
+      like.dataset.path = path;
+      like.title = '赞';
+      like.innerHTML = ICONS.like + '<span hidden></span>';
+      if (isLiked(path)) like.classList.add('is-liked');
+      setActCount(like, actCount(samePath(document.querySelectorAll('.planet-like'), path)[0]));
+      like.addEventListener('click', function () { toggleLike(like); });
+
+      var comment = document.createElement('button');
+      comment.type = 'button';
+      comment.className = 'planet-act planet-comment';
+      comment.dataset.path = path;
+      comment.title = '评论';
+      comment.innerHTML = ICONS.comment + '<span hidden></span>';
+      setActCount(comment, actCount(samePath(document.querySelectorAll('.planet-comment'), path)[0]));
+      comment.addEventListener('click', function () { revealComment(path); });
+
+      var share = document.createElement('button');
+      share.type = 'button';
+      share.className = 'planet-act';
+      share.title = '复制链接';
+      share.innerHTML = ICONS.share;
+      share.addEventListener('click', function () {
+        if (!navigator.clipboard) return;
+        navigator.clipboard.writeText(item.url).then(function () {
+          share.innerHTML = ICONS.share + '<span>已复制</span>';
+          setTimeout(function () { share.innerHTML = ICONS.share; }, 1500);
+        });
+      });
+
+      actBar.appendChild(like);
+      actBar.appendChild(comment);
+      actBar.appendChild(share);
+
       var foot = el.querySelector('.planet-modal-foot');
       foot.innerHTML = '';
       (item.tags || []).forEach(function (tag) {
@@ -948,6 +1008,21 @@
       // 弹窗异常时退回原行为：跳转文章页，保证内容可达
       if (window.console && console.warn) console.warn('[planet] 弹窗打开失败', err);
       if (item && item.url) location.href = item.url;
+    }
+  }
+
+  // 弹窗内点「评论」：关闭弹窗，滚动到对应卡片并展开评论框
+  function revealComment(path) {
+    var trigger = samePath(document.querySelectorAll('.planet-comment'), path)[0];
+    var card = trigger ? trigger.closest('.timenode') : null;
+    closeModal();
+    if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var form = card.querySelector('.planet-cmt-form');
+    if (form && form.hidden) {
+      form.hidden = false;
+      var ta = form.querySelector('.planet-cmt-textarea');
+      if (ta) setTimeout(function () { ta.focus(); }, 280);
     }
   }
 

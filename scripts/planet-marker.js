@@ -69,6 +69,13 @@ function buildBadge(num) {
 function injectMarker(html, num) {
   let out = html;
 
+  // 面包屑：星球帖的「专栏」改为「星球」，并指向 /plants/ 信息流
+  const root = String(hexo.config.root || '/').replace(/\/?$/, '/');
+  const blogCrumb = `<a class="cap breadcrumb" href="${root}posts/">专栏</a>`;
+  if (out.indexOf(blogCrumb) !== -1) {
+    out = out.replace(blogCrumb, `<a class="cap breadcrumb" href="${root}plants/">星球</a>`);
+  }
+
   // 1. 文档级属性（幂等：已存在则不重复写入）
   out = out.replace(/<html(\s[^>]*)?>/i, (m, attrs) => {
     const a = attrs || '';

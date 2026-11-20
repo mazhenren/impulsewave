@@ -1,10 +1,9 @@
 /**
- * 站点统计（页脚）：运行时间 + 访问量 + 累计字数。
+ * 站点统计（页脚）：运行时间 + 累计字数。
  *
  * 主题的 footer.content 只支持静态 Markdown，拿不到构建期的字数汇总，
- * 因此在 after_render:html 阶段往 <footer class="page-footer"> 里注入一块统计区：
- *   1. 总访问 / 本页访问：不蒜子（busuanzi），请求失败时脚本会自行隐藏容器
- *   2. 运行时间 + 篇数 + 累计字数：每秒刷新运行时间
+ * 因此在 after_render:html 阶段往 <footer class="page-footer"> 里注入一块统计区，
+ * 展示「已运行 x 年 x 天 · 共 N 篇 · 总计 X 字」，每秒刷新运行时间。
  *
  * 累计字数取自 hexo-symbols-count-time 写入的 post.length（已剔除 HTML 标签）。
  */
@@ -55,25 +54,13 @@ function buildStats() {
     'var h=Math.floor(rd/H);rd-=h*H;var m=Math.floor(rd/M),sec=Math.floor((rd-m*M)/1000);',
     `s.textContent='已运行 '+y+' 年 '+dd+' 天 '+h+' 小时 '+m+' 分 '+sec+' 秒 · ${summary}';}`,
     'tick();setInterval(tick,1000);',
-    // 不蒜子接口不可用时（部分地区/被墙/限流）隐藏访问量，不留下占位横杠
-    'function hideUnavailable(){',
-    "['site_pv','page_pv'].forEach(function(k){var v=document.getElementById('busuanzi_value_'+k);",
-    'var c=document.getElementById("busuanzi_container_"+k);',
-    'if(v&&c&&(!v.textContent||v.textContent==="-")){c.style.display="none";}});}',
-    'setTimeout(hideUnavailable,6000);})();</script>'
+    '})();</script>'
   ].join('');
 
   return [
     '<div class="site-stats">',
-    '<span id="busuanzi_container_site_pv">总访问 ',
-    '<span id="busuanzi_value_site_pv" class="stat-num">-</span> 次</span>',
-    '<span class="stat-sep">|</span>',
-    '<span id="busuanzi_container_page_pv">本页访问 ',
-    '<span id="busuanzi_value_page_pv" class="stat-num">-</span> 次</span>',
-    '<br>',
     `<span id="runtime_span">${summary}</span>`,
     '</div>',
-    '<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>',
     script
   ].join('');
 }

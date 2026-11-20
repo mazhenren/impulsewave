@@ -53,7 +53,7 @@ leftbar:
       title: 星球
       icon: example:planet
       accent: '#FA6400'
-      url: /
+      url: /plants/
     - id: post
       title: 专栏
       icon: default:documents
@@ -90,8 +90,6 @@ profiles:
         - author_card
         - recent
         - latest_comment
-        - planet_tip
-        - visitor
     rightbar:
       widgets:
         - welcome
@@ -110,7 +108,6 @@ profiles:
       widgets:
         - author_card
         - recent
-        - planet_tip
     rightbar:
       widgets:
         - toc
@@ -202,6 +199,6 @@ footer:
 inject:
   head_begin: |
     <script defer src="/impulsewave/js/comment-pageview.js?v=2"></script>
-    <script defer src="/impulsewave/js/planet-feed.js?v=10"></script>
-    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=11">
+    <script defer src="/impulsewave/js/planet-feed.js?v=12"></script>
+    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=13">
     <link rel="stylesheet" href="/impulsewave/css/site.css?v=2">

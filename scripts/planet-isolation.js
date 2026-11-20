@@ -18,12 +18,81 @@
 const pagination = require('hexo-pagination');
 
 // 判定规则只在 scripts/planet-source.js 维护一份，避免各脚本漂移
-const { PLANET_SOURCE } = require('./planet-source');
+const { PLANET_SOURCE, parseIssueNumber } = require('./planet-source');
 
 /** 星球帖判定：文件名 planet-<n>.md */
 function isPlanetPost(p) {
   return !!p && typeof p.source === 'string' && PLANET_SOURCE.test(p.source);
 }
+
+/**
+ * 星球贴文章页统一迁到 /plants/<abbrlink>/。
+ *
+ * post.path 是只读虚拟属性，由 post_permalink 过滤器链计算；
+ * 且 Hexo 的过滤器是「值传递」的：priority 10 的内置过滤器先把 Post 转成
+ * 字符串 `posts/<abbrlink>/`，所以这里以 priority 11 在其后拿到字符串再改写。
+ * 星球帖 id 集合从 Post 模型懒加载，避免依赖过滤器执行时机。
+ */
+let planetIdCache = null;
+
+function collectPlanetIds() {
+  const ids = new Set();
+  try {
+    hexo.model('Post').find({ published: true }).each(post => {
+      const num = parseIssueNumber(post && post.source);
+      if (num != null) ids.add(String(post.abbrlink || num));
+    });
+  } catch (err) {
+    hexo.log.warn('[planet-path] 收集星球帖 id 失败：%s', err.message);
+  }
+  return ids;
+}
+
+/** 生成阶段模型已完整，此时缓存才是可靠的 */
+hexo.extend.filter.register('before_generate', function () {
+  planetIdCache = collectPlanetIds();
+  hexo.log.info('[planet-path] 已识别星球帖 %s 篇', planetIdCache.size);
+}, 1);
+
+function planetIds() {
+  // 处理阶段的模型可能尚未加载完，不能缓存，否则会把空集合固化下来
+  return planetIdCache || collectPlanetIds();
+}
+
+hexo.extend.filter.register('post_permalink', function (permalink) {
+  const raw = String(permalink == null ? '' : permalink);
+  const m = raw.match(/^(\/?)posts\/([^/]+)\/$/);
+  if (!m || !planetIds().has(m[2])) return permalink;
+  return m[1] + 'plants/' + m[2] + '/';
+}, 11);
+
+/**
+ * 旧地址兜底：星球帖原先位于 /posts/<abbrlink>/，为已分享的链接生成跳转页。
+ * 输出纯 HTML 字符串（无主题布局），不影响专栏文章的同名路径。
+ */
+hexo.extend.generator.register('planet-legacy-redirect', function () {
+  const siteUrl = String(this.config.url || '').replace(/\/+$/, '');
+  return this.model('Post').find({ published: true }).toArray()
+    .filter(isPlanetPost)
+    .map(post => {
+      const id = post.abbrlink || parseIssueNumber(post.source);
+      const target = siteUrl + '/plants/' + id + '/';
+      return {
+        path: 'posts/' + id + '/index.html',
+        data: [
+          '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">',
+          '<title>页面已迁移</title>',
+          '<link rel="canonical" href="' + target + '">',
+          '<meta name="robots" content="noindex">',
+          '<meta http-equiv="refresh" content="0; url=' + target + '">',
+          '<script>location.replace(' + JSON.stringify(target) + ');</script>',
+          '</head><body>',
+          '<p>页面已迁移到 <a href="' + target + '">' + target + '</a></p>',
+          '</body></html>'
+        ].join('')
+      };
+    });
+});
 
 /**
  * 覆盖 hexo-generator-index（node_modules/hexo-generator-index/lib/generator.js）：

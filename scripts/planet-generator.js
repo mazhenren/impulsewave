@@ -47,7 +47,7 @@ hexo.extend.generator.register('planet-feed', function (locals) {
 
     // 链接以 Post 自身 path 为准（abbrlink 缺失时仍能生成有效地址）
     let rel = String(p.path || '').replace(/^\/+/, '');
-    if (!rel) rel = 'posts/' + (p.abbrlink || num) + '/';
+    if (!rel) rel = 'plants/' + (p.abbrlink || num) + '/';
     if (!/\/$/.test(rel)) rel += '/';
 
     posts.push({

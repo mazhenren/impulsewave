@@ -20,16 +20,40 @@ hexo.extend.generator.register('planet-home', function () {
   ].join('\n');
 
   return {
-    path: '',
+    path: 'plants/',
     layout: ['page'],
     data: {
       __index: true,
       title: '星球',
       subtitle: '股票 · 期货 · 外汇 技术分析笔记',
       date: '2025-01-01 09:00:00',
-      path: '',
+      path: 'plants/',
       content: content
     }
+  };
+});
+
+/**
+ * 首页重定向：星球信息流已迁到 /plants/，站点根路径直接跳过去。
+ * 输出纯 HTML（无主题布局），保留 canonical 指向新地址。
+ */
+hexo.extend.generator.register('planet-home-redirect', function () {
+  const siteBase = String(this.config.url || '').replace(/\/+$/, '');
+  const root = String(this.config.root || '/').replace(/\/?$/, '/');
+  const target = root + 'plants/';
+  const absolute = siteBase + '/plants/';
+  return {
+    path: 'index.html',
+    data: [
+      '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">',
+      '<title>星球</title>',
+      '<link rel="canonical" href="' + absolute + '">',
+      '<meta http-equiv="refresh" content="0; url=' + target + '">',
+      '<script>location.replace(' + JSON.stringify(target) + ');</script>',
+      '</head><body>',
+      '<p>正在前往 <a href="' + target + '">星球</a></p>',
+      '</body></html>'
+    ].join('')
   };
 });
 
@@ -54,7 +78,7 @@ function buildListingNav() {
     `<a${active ? ' class="active"' : ''} href="${url_for.call(hexo, url)}">${title}</a>`;
   return [
     '<div class="listing-nav"><div class="listing-nav__surface"><div class="listing-nav__viewport"><nav class="post">',
-    `<a data-planet-tab class="active" href="${url_for.call(hexo, '/')}">星球</a>`,
+    `<a data-planet-tab class="active" href="${url_for.call(hexo, '/plants/')}">星球</a>`,
     link('专栏', '/posts/'),
     link('分类', '/categories/'),
     link('标签', '/tags/'),
@@ -66,7 +90,7 @@ function buildListingNav() {
 hexo.extend.filter.register('after_render:html', function (html, locals) {
   if (typeof html !== 'string' || !html) return html;
   const page = locals && locals.page;
-  const isHome = page && page.__index && (!locals.path || locals.path === 'index.html');
+  const isHome = page && page.__index && locals.path === 'plants/index.html';
   if (!isHome) return html;
   const start = html.indexOf('<div class="article-banner-wrap');
   const end = html.indexOf('<article class="md-text content');
@@ -91,7 +115,7 @@ hexo.on('generateBefore', () => {
   if (typeof themeCommentsModel !== 'function' || themeCommentsModel.__planetHome) return;
   const wrapped = function (page, overrides) {
     // path 为空字符串 = 本 generator 输出的首页
-    if (page && page.__index && page.path === '') {
+    if (page && page.__index && page.path === 'plants/') {
       return Object.freeze({
         enabled: false, title: '', id: '', service: '', options: Object.freeze({}),
         assets: Object.freeze({}), pageTitle: String(page.title || '')

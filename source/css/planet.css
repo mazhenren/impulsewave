@@ -272,6 +272,17 @@
   color: var(--text-p3);
 }
 
+/* 卡片标签：复用文章页 .article-tags / .tag 组件，仅调整排布 */
+.planet-feed .planet-tags {
+  justify-content: flex-start;
+  padding: 0.45rem 0 0;
+  column-gap: 0.6rem;
+}
+
+.planet-feed .planet-tags .tag {
+  font-size: 12px;
+}
+
 /* ============ 卡片底部：觉得很赞 / 评论预览 / 内联评论 ============ */
 .planet-likers {
   margin-top: 0.5rem;
@@ -728,6 +739,12 @@ body.planet-modal-open {
 .planet-modal-body ol {
   margin: 0 0 0.7rem;
   padding-left: 1.4em;
+}
+
+/* 弹窗操作栏：沿用 .planet-actions 的按钮样式，只调整外边距 */
+.planet-modal-actions {
+  margin-top: 0;
+  padding: 0 18px 10px;
 }
 
 .planet-modal-foot {
