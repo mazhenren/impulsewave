@@ -198,6 +198,7 @@ footer:
 # v2 只有 head_begin/head_end/body_begin/body_end，字符串形式（不再是数组）
 inject:
   head_begin: |
+    <script defer src="/impulsewave/js/lazyload-fallback.js?v=1"></script>
     <script defer src="/impulsewave/js/comment-pageview.js?v=2"></script>
     <script defer src="/impulsewave/js/planet-feed.js?v=12"></script>
     <link rel="stylesheet" href="/impulsewave/css/planet.css?v=13">
@@ -207,7 +208,9 @@ inject:
 # 第三方资源统一走 npmmirror：国内可达性远好于 gcore.jsdelivr.net
 features:
   lazy_loading:
-    js: https://registry.npmmirror.com/vanilla-lazyload/19.1.0/files/dist/lazyload.min.js
+    # 自托管：懒加载处于关键渲染路径，第三方 CDN 超时会导致图片永远停在占位符。
+    # 主题 asset-loader 会自动补站点前缀，这里必须写站点内相对路径
+    js: js/lazyload.min.js
   # 激进优化：关闭灯箱、链接预取与滚动揭示动画
   lightbox:
     enabled: false
