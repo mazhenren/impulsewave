@@ -9,9 +9,6 @@ welcome:
 
     内容仅供个人研究记录，不构成任何投资建议。
 
-    <div class="welcome-poem"><span id="jinrishici-sentence">今日诗词加载中…</span></div>
-    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-
 recent:
   layout: recent
   rss: /atom.xml
@@ -19,6 +16,7 @@ recent:
 latest_comment:
   layout: timeline
   title: 最新评论
-  api: https://waline-on-worker.ihuige-waline.workers.dev
+  # 主题会拼接 /comment?type=recent，因此这里必须带上 /api 前缀
+  api: https://waline-on-worker.ihuige-waline.workers.dev/api
   type: waline
   limit: 6

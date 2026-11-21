@@ -202,3 +202,25 @@ inject:
     <script defer src="/impulsewave/js/planet-feed.js?v=12"></script>
     <link rel="stylesheet" href="/impulsewave/css/planet.css?v=13">
     <link rel="stylesheet" href="/impulsewave/css/site.css?v=2">
+
+######## 性能相关（覆盖主题默认值） ########
+# 第三方资源统一走 npmmirror：国内可达性远好于 gcore.jsdelivr.net
+features:
+  lazy_loading:
+    js: https://registry.npmmirror.com/vanilla-lazyload/19.1.0/files/dist/lazyload.min.js
+  # 激进优化：关闭灯箱、链接预取与滚动揭示动画
+  lightbox:
+    enabled: false
+  link_prefetch:
+    enabled: false
+  reveal:
+    enabled: false
+
+services:
+  markdown:
+    js: https://registry.npmmirror.com/marked/13.0.0/files/marked.min.js
+
+# 预连接：仅为必须跨域的关键域名预热 TLS
+preconnect:
+  - https://registry.npmmirror.com
+  - https://waline-on-worker.ihuige-waline.workers.dev
