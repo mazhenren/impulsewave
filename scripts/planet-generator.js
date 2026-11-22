@@ -19,6 +19,21 @@
 
 const { sourceInfo } = require('./planet-source');
 
+// 标签项结构：{ name, type }，type 决定前端跳转的页面类型
+// - category → /categories/<name>/
+// - tag      → /tags/<name>/
+// - badge    → 不生成链接（如「★ 精华」）
+const TagUtils = {
+  push(list, seen, name, type) {
+    const label = String(name == null ? '' : name).trim();
+    if (!label) return;
+    const key = type + '\u0001' + label;
+    if (seen.has(key)) return;
+    seen.add(key);
+    list.push({ name: label, type });
+  }
+};
+
 hexo.extend.generator.register('planet-feed', function (locals) {
   const arr = q => {
     if (!q) return [];
@@ -42,8 +57,17 @@ hexo.extend.generator.register('planet-feed', function (locals) {
     if (!Number.isFinite(num)) return; // 编号异常：跳过而不是产出错链
     const meta = metaMap.get(num) || {};
 
-    const tags = arr(p.categories).concat(arr(p.tags).map(t => '# ' + t));
-    if (meta.featured) tags.push('★ 精华');
+    // 话题标签必须带类型：分类页在 /categories/<name>/，标签页在 /tags/<name>/，
+    // 前端只有知道类型才能拼出正确地址（此前混在一起统一拼 /tags/ 导致 404）。
+    const tags = [];
+    const seen = new Set();
+    arr(p.categories).forEach((name) => {
+      TagUtils.push(tags, seen, name, 'category');
+    });
+    arr(p.tags).forEach((name) => {
+      TagUtils.push(tags, seen, name, 'tag');
+    });
+    if (meta.featured) tags.push({ name: '★ 精华', type: 'badge' });
 
     // 链接以 Post 自身 path 为准（abbrlink 缺失时仍能生成有效地址）
     let rel = String(p.path || '').replace(/^\/+/, '');

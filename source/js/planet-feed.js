@@ -63,10 +63,23 @@
     }
   }
 
-  // 标签页地址：去掉星球数据里的「# 」前缀后按名称编码
+  // 标签项兼容两种形态：
+  //   新数据 { name, type }，type 为 category / tag / badge
+  //   旧缓存字符串（无类型信息时按 tag 处理）
+  function tagName(tag) {
+    var name = tag && typeof tag === 'object' ? tag.name : tag;
+    return String(name == null ? '' : name).replace(/^#\s*/, '');
+  }
+
+  function tagType(tag) {
+    return tag && typeof tag === 'object' && tag.type ? tag.type : 'tag';
+  }
+
+  // 标签页地址：分类走 /categories/，标签走 /tags/
   function tagUrl(tag) {
-    var name = String(tag == null ? '' : tag).replace(/^#\s*/, '');
-    return SITE_BASE + '/tags/' + encodeURIComponent(name) + '/';
+    var name = tagName(tag);
+    var dir = tagType(tag) === 'category' ? 'categories' : 'tags';
+    return SITE_BASE + '/' + dir + '/' + encodeURIComponent(name) + '/';
   }
 
   function likedKey(path) {
@@ -586,7 +599,7 @@
   function buildPost(item, author) {
     var node = document.createElement('div');
     node.className = 'timenode';
-    node.dataset.labels = (item.tags || []).join('\u0001');
+    node.dataset.labels = (item.tags || []).map(tagName).join('\u0001');
 
     // 来源关联：数据来自构建期 planet-generator.js 注入的 source 字段
     var source = item.source && item.source.type === 'github-issue' ? item.source : null;
@@ -658,17 +671,27 @@
     body.appendChild(content);
 
     if (item.tags && item.tags.length) {
-      // 与文章页 .article-tags 保持同一套样式与交互：点击进入对应标签页
+      // 与文章页 .article-tags 保持同一套样式与交互：点击进入对应标签/分类页
       var tags = document.createElement('div');
       tags.className = 'article-tags planet-tags';
       item.tags.forEach(function (tag) {
+        var name = tagName(tag);
+        if (!name) return;
+        // 精华等纯标记不提供跳转，避免指向不存在的页面
+        if (tagType(tag) === 'badge') {
+          var badge = document.createElement('span');
+          badge.className = 'tag';
+          badge.textContent = name;
+          tags.appendChild(badge);
+          return;
+        }
         var link = document.createElement('a');
         link.className = 'tag';
         link.href = tagUrl(tag);
-        link.textContent = tag;
+        link.textContent = name;
         tags.appendChild(link);
       });
-      body.appendChild(tags);
+      if (tags.children.length) body.appendChild(tags);
     }
 
     node.appendChild(header);
@@ -705,8 +728,10 @@
   function buildFilter(container, posts) {
     var counts = {};
     posts.forEach(function (item) {
-      (item.tags || []).forEach(function (name) {
-        if (/^[★📌]/.test(name)) return;
+      (item.tags || []).forEach(function (tag) {
+        var name = tagName(tag);
+        if (!name || /^[★📌]/.test(name)) return;
+        if (tagType(tag) === 'badge') return;
         counts[name] = (counts[name] || 0) + 1;
       });
     });
@@ -988,9 +1013,11 @@
       var foot = el.querySelector('.planet-modal-foot');
       foot.innerHTML = '';
       (item.tags || []).forEach(function (tag) {
+        var name = tagName(tag);
+        if (!name) return;
         var chip = document.createElement('span');
         chip.className = 'planet-modal-tag';
-        chip.textContent = tag;
+        chip.textContent = name;
         foot.appendChild(chip);
       });
       var open = document.createElement('a');
