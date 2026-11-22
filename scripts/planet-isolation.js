@@ -19,6 +19,17 @@ const pagination = require('hexo-pagination');
 
 // 判定规则只在 scripts/planet-source.js 维护一份，避免各脚本漂移
 const { PLANET_SOURCE, parseIssueNumber } = require('./planet-source');
+// 与 hexo-abbrlink 相同的 crc32 算法：新同步的帖子文件尚无 abbrlink，
+// 而 abbrlink 插件要到渲染阶段才赋值，before_generate 阶段只能自行推算
+const crc32 = require('hexo-abbrlink/lib/crc32');
+
+/** 星球帖的永久链接 id：已有 abbrlink 用存量值，否则按标题复算（与 abbrlink 插件一致） */
+function planetLinkId(post) {
+  if (post.abbrlink) return String(post.abbrlink);
+  const title = String(post.title || '');
+  if (!title) return String(parseIssueNumber(post.source));
+  return (crc32.str(title) >>> 0).toString(16);
+}
 
 /** 星球帖判定：文件名 planet-<n>.md */
 function isPlanetPost(p) {
@@ -40,7 +51,7 @@ function collectPlanetIds() {
   try {
     hexo.model('Post').find({ published: true }).each(post => {
       const num = parseIssueNumber(post && post.source);
-      if (num != null) ids.add(String(post.abbrlink || num));
+      if (num != null) ids.add(planetLinkId(post));
     });
   } catch (err) {
     hexo.log.warn('[planet-path] 收集星球帖 id 失败：%s', err.message);
@@ -75,7 +86,7 @@ hexo.extend.generator.register('planet-legacy-redirect', function () {
   return this.model('Post').find({ published: true }).toArray()
     .filter(isPlanetPost)
     .map(post => {
-      const id = post.abbrlink || parseIssueNumber(post.source);
+      const id = planetLinkId(post);
       const target = siteUrl + '/plants/' + id + '/';
       return {
         path: 'posts/' + id + '/index.html',
