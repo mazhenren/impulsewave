@@ -65,15 +65,6 @@
   </url>
   
   <url>
-    <loc>https://mazhenren.github.io/impulsewave/plants/33cc248c/</loc>
-    
-    <lastmod>2026-11-23</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://mazhenren.github.io/impulsewave/plants/f10dc4d5/</loc>
     
     <lastmod>2026-11-23</lastmod>
@@ -83,7 +74,7 @@
   </url>
   
   <url>
-    <loc>https://mazhenren.github.io/impulsewave/about/</loc>
+    <loc>https://mazhenren.github.io/impulsewave/plants/33cc248c/</loc>
     
     <lastmod>2026-11-23</lastmod>
     
@@ -93,6 +84,15 @@
   
   <url>
     <loc>https://mazhenren.github.io/impulsewave/categories/</loc>
+    
+    <lastmod>2026-11-23</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://mazhenren.github.io/impulsewave/about/</loc>
     
     <lastmod>2026-11-23</lastmod>
     
