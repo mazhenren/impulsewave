@@ -4,11 +4,12 @@
  * 阶段：after_render:html —— 主题已渲染出完整 HTML、尚未写入 public/。
  * 只处理「星球帖」页面，其余页面原样返回，因此对博客文章零影响。
  *
- * 注入三层标记，任一层都可在构建产物里直接 grep 验证：
+ * 注入两层标记，任一层都可在构建产物里直接 grep 验证：
  *   1. 文档级：<html ... data-planet-source="github-issue" data-issue-number="N">
  *   2. 头部元数据：<meta name="planet:source|planet:issue-number|planet:issue-url">
- *   3. 页面可见徽标：<a class="planet-source-badge" href=".../issues/N">
  *
+ * 另负责把星球帖面包屑里的「专栏」改为「星球」，并指向 /plants/ 信息流。
+ * 页面上不再展示任何 GitHub Issue 来源徽标。
  * 星球帖判定沿用 scripts/planet-source.js 的唯一规则（源文件名 planet-<n>.md）；
  * 页面与帖子编号的映射在 before_generate 阶段从 Post 模型预先建立，
  * 不依赖 locals.page 的内部字段，避免主题/Hexo 升级导致判定失效。
@@ -53,19 +54,6 @@ function resolveIssueNumber(locals) {
   return parseIssueNumber(locals && locals.page && locals.page.source);
 }
 
-function buildBadge(num) {
-  const url = issueUrl(num);
-  return [
-    `<a class="planet-source-badge" href="${url}" target="_blank"`,
-    ' rel="external nofollow noopener noreferrer"',
-    ` data-planet-source="github-issue" data-issue-number="${num}">`,
-    '<span class="planet-source-tag">GitHub Issue</span>',
-    `<span class="planet-source-num">#${num}</span>`,
-    '<span class="planet-source-hint">由 Issue 自动同步</span>',
-    '</a>'
-  ].join('');
-}
-
 function injectMarker(html, num) {
   let out = html;
 
@@ -93,15 +81,7 @@ function injectMarker(html, num) {
     if (/<\/head>/i.test(out)) out = out.replace(/<\/head>/i, metas + '</head>');
   }
 
-  // 3. 可见徽标（文章页正文底部、许可区块之前；找不到锚点则退回 body 末尾）
-  if (!/class="planet-source-badge"/i.test(out)) {
-    const badge = buildBadge(num);
-    if (out.indexOf('<div class="article-footer slide-up">') !== -1) {
-      out = out.replace('<div class="article-footer slide-up">', badge + '\n<div class="article-footer slide-up">');
-    } else if (/<\/body>/i.test(out)) {
-      out = out.replace(/<\/body>/i, badge + '\n</body>');
-    }
-  }
+  // 3. 可见徽标已移除：页面上不再展示「来自 GitHub Issue」标记
 
   return out;
 }

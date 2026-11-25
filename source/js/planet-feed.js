@@ -6,7 +6,6 @@
  *
  * 信息流页（.planet-feed[data-api] 存在）：
  *   1. 渲染星球式卡片：左头像、橙色作者名、灰色时间、正文、标签、底部操作栏
- *      - 每条动态带 data-planet-source / data-issue-number，头部 #N 徽标直达原 Issue
  *   2. 顶部置顶区：置顶帖从信息流抽出，单行截断展示
  *   3. 话题标签筛选栏：按 tags 聚合统计，单选筛选 + 「全部」重置
  *   4. 长动态折叠：.body 高度 > 320px 自动折叠，展开/收起平滑过渡
@@ -14,7 +13,6 @@
 (function () {
   'use strict';
 
-  var REPO = 'mazhenren/impulsewave';
   var SITE_BASE = 'https://mazhenren.github.io/impulsewave';
   // Waline 服务端（与 _config.stellar.yml 中的 comments.waline.serverURL 保持一致）
   var WALINE_API = 'https://waline-on-worker.ihuige-waline.workers.dev';
@@ -601,13 +599,6 @@
     node.className = 'timenode';
     node.dataset.labels = (item.tags || []).map(tagName).join('\u0001');
 
-    // 来源关联：数据来自构建期 planet-generator.js 注入的 source 字段
-    var source = item.source && item.source.type === 'github-issue' ? item.source : null;
-    if (source && source.number != null) {
-      node.dataset.planetSource = 'github-issue';
-      node.dataset.issueNumber = String(source.number);
-    }
-
     var header = document.createElement('div');
     header.className = 'header';
 
@@ -637,18 +628,6 @@
     meta.appendChild(views);
 
     header.appendChild(user);
-
-    // 可追溯的原帖入口：点徽标直接回到生成这条动态的 GitHub Issue
-    if (source && source.number != null) {
-      var issue = document.createElement('a');
-      issue.className = 'planet-issue-link';
-      issue.href = source.url || ('https://github.com/' + REPO + '/issues/' + source.number);
-      issue.target = '_blank';
-      issue.rel = 'external nofollow noopener noreferrer';
-      issue.title = '来自 GitHub Issue #' + source.number;
-      issue.textContent = '#' + source.number;
-      header.appendChild(issue);
-    }
 
     // 时间放在最后：CSS 让 .header > span 占满整行，形成「头像/来源 + 时间」两行结构
     header.appendChild(meta);
@@ -945,17 +924,6 @@
       el.querySelector('.planet-modal-author').textContent = a.name || '';
       var sub = el.querySelector('.planet-modal-sub');
       sub.textContent = formatDate(item.date);
-      var source = item.source && item.source.type === 'github-issue' ? item.source : null;
-      if (source && source.number != null) {
-        var issue = document.createElement('a');
-        issue.className = 'planet-issue-link';
-        issue.href = source.url || ('https://github.com/' + REPO + '/issues/' + source.number);
-        issue.target = '_blank';
-        issue.rel = 'external nofollow noopener noreferrer';
-        issue.title = '来自 GitHub Issue #' + source.number;
-        issue.textContent = '#' + source.number;
-        sub.appendChild(issue);
-      }
 
       // 星球内容不展示文章标题（与信息流、文章页保持一致）
       el.querySelector('.planet-modal-title').style.display = 'none';
