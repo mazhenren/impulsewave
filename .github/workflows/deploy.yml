@@ -34,6 +34,15 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
 
+      # 图片走 jsDelivr（@gh-pages）前置，部署后清理该分支上的图片缓存，
+      # 否则换图/换压缩策略后 12 小时内仍会命中旧文件
+      - name: Purge jsDelivr cache for images
+        run: |
+          find public/images -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | while read -r f; do
+            rel="${f#public/}"
+            curl -sS --max-time 20 "https://purge.jsdelivr.net/gh/mazhenren/impulsewave@gh-pages/$rel" > /dev/null || true
+          done
+
       # 主动推送新链接：IndexNow（Bing/Yandex/Seznam/Naver 生效，Google 不参与）
       - name: Submit URLs to IndexNow
         env:

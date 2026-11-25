@@ -19,8 +19,9 @@
 const path = require('path');
 const sharp = require('sharp');
 
-// jsDelivr 的 Gcore 节点；@gh-pages 是 public/ 的产物分支
-const CDN_BASE = 'https://gcore.jsdelivr.net/gh/mazhenren/impulsewave@gh-pages';
+// jsDelivr 主入口（多节点自动容灾）；@gh-pages 是 public/ 的产物分支
+// 不要用 gcore.jsdelivr.net：该节点已不被清理接口覆盖，换部署后会长期返回旧文件
+const CDN_BASE = 'https://cdn.jsdelivr.net/gh/mazhenren/impulsewave@gh-pages';
 
 // 一键关闭 CDN：false 时保持站内地址，行为等同于纯静态站点
 const ENABLE_CDN = true;
