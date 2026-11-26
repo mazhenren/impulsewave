@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T12:35:02.106Z",
+  "generated_at": "2026-11-26T12:36:43.456Z",
   "issues": [
     {
       "number": 6,
@@ -10,16 +10,6 @@
       "pinned": false,
       "featured": false,
       "checksum": "59b4d9e88439"
-    },
-    {
-      "number": 1,
-      "comments": 0,
-      "reactions": 1,
-      "updated": "2026-11-16T04:16:12Z",
-      "state": "open",
-      "pinned": false,
-      "featured": false,
-      "checksum": "7ab759b4993f"
     }
   ]
 }
