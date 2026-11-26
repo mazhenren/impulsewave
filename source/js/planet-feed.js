@@ -1039,8 +1039,11 @@
     container.dataset.rendered = '1';
 
     loadFeed().then(function (data) {
-      // 数据缺失/格式异常：保留空容器，不影响页面其余部分
-      if (!data || !Array.isArray(data.posts) || !data.posts.length) return;
+      // 没有内容时给出空态提示，避免整页空白
+      if (!data || !Array.isArray(data.posts) || !data.posts.length) {
+        container.innerHTML = '<p class="planet-empty">还没有星球动态。</p>';
+        return;
+      }
       var author = data.author || {};
       var pinned = data.posts.filter(function (p) { return p && p.pinned; });
       var list = data.posts.filter(function (p) { return p && !p.pinned; });

@@ -142,6 +142,13 @@
 }
 
 /* ============ 正文：去标题、正文通栏排版 ============ */
+.planet-empty {
+  margin: 2rem 0;
+  text-align: center;
+  color: var(--text-p3);
+  font-size: 14px;
+}
+
 .planet-feed .body p.title {
   display: none;
 }

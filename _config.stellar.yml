@@ -200,8 +200,8 @@ inject:
   head_begin: |
     <script defer src="/impulsewave/js/lazyload-fallback.js?v=1"></script>
     <script defer src="/impulsewave/js/comment-pageview.js?v=2"></script>
-    <script defer src="/impulsewave/js/planet-feed.js?v=13"></script>
-    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=14">
+    <script defer src="/impulsewave/js/planet-feed.js?v=14"></script>
+    <link rel="stylesheet" href="/impulsewave/css/planet.css?v=15">
     <link rel="stylesheet" href="/impulsewave/css/site.css?v=2">
 
 ######## 性能相关（覆盖主题默认值） ########
