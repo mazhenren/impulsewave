@@ -89,7 +89,6 @@ profiles:
       widgets:
         - author_card
         - recent
-        - latest_comment
     rightbar:
       widgets:
         - welcome

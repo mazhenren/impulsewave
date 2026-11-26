@@ -12,11 +12,3 @@ welcome:
 recent:
   layout: recent
   rss: /atom.xml
-
-latest_comment:
-  layout: timeline
-  title: 最新评论
-  # 主题会拼接 /comment?type=recent，因此这里必须带上 /api 前缀
-  api: https://waline-on-worker.ihuige-waline.workers.dev/api
-  type: waline
-  limit: 6
