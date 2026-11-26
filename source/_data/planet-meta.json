@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T12:33:40.801Z",
+  "generated_at": "2026-11-26T12:34:48.689Z",
   "issues": [
     {
       "number": 8,
@@ -12,16 +12,6 @@
       "checksum": "0e33e309d5c7"
     },
     {
-      "number": 7,
-      "comments": 0,
-      "reactions": 0,
-      "updated": "2026-11-18T08:21:17Z",
-      "state": "open",
-      "pinned": false,
-      "featured": false,
-      "checksum": "990dda43c158"
-    },
-    {
       "number": 6,
       "comments": 0,
       "reactions": 0,
@@ -30,36 +20,6 @@
       "pinned": false,
       "featured": false,
       "checksum": "59b4d9e88439"
-    },
-    {
-      "number": 5,
-      "comments": 0,
-      "reactions": 0,
-      "updated": "2026-11-16T04:44:09Z",
-      "state": "open",
-      "pinned": false,
-      "featured": false,
-      "checksum": "2b496047f039"
-    },
-    {
-      "number": 3,
-      "comments": 0,
-      "reactions": 0,
-      "updated": "2026-11-16T10:00:23Z",
-      "state": "open",
-      "pinned": false,
-      "featured": false,
-      "checksum": "e82e7bf27189"
-    },
-    {
-      "number": 2,
-      "comments": 0,
-      "reactions": 0,
-      "updated": "2026-11-16T01:15:03Z",
-      "state": "open",
-      "pinned": false,
-      "featured": false,
-      "checksum": "c7521afba549"
     },
     {
       "number": 1,
